@@ -7,9 +7,13 @@ public sealed record SubmitRenderJobRequest
 {
     public QrContentType ContentType { get; init; } = QrContentType.Link;
 
+    public string? TargetUrl { get; init; }
+
     public Dictionary<string, string?> Payload { get; init; } = [];
 
     public QrRenderMode Mode { get; init; } = QrRenderMode.Static;
+
+    public QrErrorCorrectionLevel ErrorCorrectionLevel { get; init; } = QrErrorCorrectionLevel.H;
 
     public QrOutputOptions Output { get; init; } = new();
 

@@ -2,7 +2,7 @@
 
 > Architecture and product-technical direction for HaveQR, the QR generation platform built in this `haveqr` repository.
 
-**App Version**: 0.1.0.0  
+**App Version**: 0.2.0.0  
 **Date**: 2026-04-09  
 **Repository**: `haveqr`
 
@@ -93,7 +93,7 @@
 
 ## 1. Executive Summary
 
-HaveQR is an anonymous-first QR generation platform that lets users create high-quality QR codes for links, text, contact cards, email/call/SMS actions, Wi-Fi access, events, apps, social profiles, and media-backed destinations, optionally brand them with SVG logos, export print-ready PNG files, and later manage saved and trackable QR assets through authenticated dashboards.
+HaveQR is an anonymous-first QR generation platform that lets users create high-quality QR codes across link-backed categories such as links, app routes, social destinations, PDFs, images, videos, and campaign landing pages, optionally brand them with SVG logos, export print-ready SVG and PNG files, and later manage saved and trackable QR assets through authenticated dashboards. WhatsApp remains the first explicit native builder exception, because generating a `wa.me` route from phone and message data is materially useful in the product flow.
 
 The system will be built as a monorepo with these top-level areas:
 
@@ -119,18 +119,13 @@ The public web experience will be anonymous by default. Authentication, Google O
 
 ### Core capabilities
 
-- Generate QR codes for multiple content types, not just target URLs, including:
-  - links and URLs
-  - plain text
-  - email
-  - call and SMS
-  - WhatsApp
-  - vCard and contact cards
-  - Wi-Fi credentials
-  - event and calendar payloads
+- Generate QR codes across multiple semantic categories, with most v1 inputs captured as normalized destination URLs, including:
+  - links and landing pages
   - app links and deep links
   - social profiles or social landing pages
   - PDF, image, and video destinations
+  - campaign and document destinations
+  - WhatsApp through either a direct target URL or generated `wa.me` route
 - Accept SVG logos with transparent or white backgrounds.
 - Embed the logo in the center of the QR code.
 - Export high-resolution PNG files suitable for web and print.
@@ -194,7 +189,7 @@ The public web experience will be anonymous by default. Authentication, Google O
 | ------ | ---------- | -------- |
 | Frontend framework | Next.js + React + TypeScript | Matches stated preference, fits AfriFlex reference stack, excellent SSR/ISR, strong ecosystem |
 | QR engine | QRCoder `SvgQRCode` with custom SVG composition layer | Supports SVG logo embedding and Linux-safe rendering path |
-| Content model | Typed payload builders plus managed destination wrappers | Some content types are native QR payloads while others are hosted or redirect-backed experiences |
+| Content model | URL-backed category contract plus lightweight WhatsApp builder | Keeps the initial UI and API simple while preserving the semantic grouping users expect |
 | Final output pipeline | Generate SVG first, rasterize to PNG with SkiaSharp/SVG rasterizer | Higher quality output and cross-platform safety |
 | Finder marker styles | Custom SVG finder-pattern renderer on top of QRCoder matrix | QRCoder does not natively expose the exact finder shape selector required |
 | Public rendering strategy | Hybrid: client-side editor, server-side authoritative QR generation | Keeps UI fast while ensuring consistent output and persistence rules |
@@ -397,7 +392,7 @@ Representative endpoints:
 Responsibilities:
 
 - URL normalization and validation
-- typed payload builders for link, text, email, call, SMS, WhatsApp, Wi-Fi, vCard, event, app, social, and asset-backed content
+- target URL normalization for most QR categories plus a lightweight WhatsApp builder
 - SVG logo sanitization
 - QR matrix generation using QRCoder
 - finder pattern shape composition
@@ -490,15 +485,13 @@ The core render contract should look conceptually like this:
 ```json
 {
   "contentType": "link",
-  "payload": {
-    "url": "https://computemore.com"
-  },
+  "targetUrl": "https://computemore.com",
+  "payload": {},
   "mode": "static",
   "output": {
-    "format": "png",
     "sizePx": 1024
   },
-  "eccLevel": "H",
+  "errorCorrectionLevel": "H",
   "logo": {
     "svg": "<svg ...>",
     "sizePercent": 18
@@ -514,15 +507,16 @@ The core render contract should look conceptually like this:
 }
 ```
 
-Representative `contentType` values in v1 include `link`, `text`, `email`, `call`, `sms`, `whatsapp`, `vcard`, `wifi`, `event`, `app`, `social`, `pdf`, `image`, and `video`.
+Representative `contentType` values in v1 include `link`, `app`, `social`, `pdf`, `image`, `video`, and `whatsapp`. The category selector remains broader than the underlying payload model: most categories still resolve to a normalized URL in the first implementation slice.
 
 Additional 2D barcode symbologies remain a future extension and are not part of the initial QRCoder-based request contract.
 
 ### 10.2 Render pipeline steps
 
 - Validate `contentType`.
-- Validate the payload rules for the selected content type.
-- If the content type resolves to an external or hosted destination, enforce `http` or `https` where applicable.
+- Validate the target URL for the selected content type.
+- If the content type is `whatsapp`, either accept a direct target URL or build a `wa.me` destination from the payload fields.
+- Enforce `http` or `https` on normalized destinations where applicable.
 - Sanitize incoming SVG:
 
   - remove scripts
@@ -530,7 +524,7 @@ Additional 2D barcode symbologies remain a future extension and are not part of 
   - reject `foreignObject`
   - normalize viewBox and dimensions
 
-- Normalize the request payload into canonical JSON.
+- Normalize the request into canonical JSON.
 - Compute hashes:
 
   - `config_hash = SHA-256(canonical request)`

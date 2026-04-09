@@ -10,10 +10,86 @@
         "dependencies": {
           "HaveQR.Contracts": "1.0.0",
           "HaveQR.QrEngine": "1.0.0",
-          "Microsoft.Extensions.Hosting": "10.0.5"
+          "Microsoft.Extensions.Hosting": "10.0.5",
+          "RabbitMQ.Client": "7.2.1"
         },
         "runtime": {
           "HaveQR.Worker.dll": {}
+        }
+      },
+      "ExCSS/4.3.1": {
+        "runtime": {
+          "lib/net8.0/ExCSS.dll": {
+            "assemblyVersion": "4.3.1.0",
+            "fileVersion": "4.3.1.0"
+          }
+        }
+      },
+      "HarfBuzzSharp/7.3.0.3": {
+        "dependencies": {
+          "HarfBuzzSharp.NativeAssets.Win32": "7.3.0.3",
+          "HarfBuzzSharp.NativeAssets.macOS": "7.3.0.3"
+        },
+        "runtime": {
+          "lib/net6.0/HarfBuzzSharp.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "7.3.0.3"
+          }
+        }
+      },
+      "HarfBuzzSharp.NativeAssets.Linux/7.3.0.3": {
+        "dependencies": {
+          "HarfBuzzSharp": "7.3.0.3"
+        },
+        "runtimeTargets": {
+          "runtimes/linux-arm/native/libHarfBuzzSharp.so": {
+            "rid": "linux-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-arm64/native/libHarfBuzzSharp.so": {
+            "rid": "linux-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-musl-x64/native/libHarfBuzzSharp.so": {
+            "rid": "linux-musl-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libHarfBuzzSharp.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "HarfBuzzSharp.NativeAssets.macOS/7.3.0.3": {
+        "runtimeTargets": {
+          "runtimes/osx/native/libHarfBuzzSharp.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "HarfBuzzSharp.NativeAssets.Win32/7.3.0.3": {
+        "runtimeTargets": {
+          "runtimes/win-arm64/native/libHarfBuzzSharp.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/libHarfBuzzSharp.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/libHarfBuzzSharp.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
         }
       },
       "Microsoft.Extensions.Configuration/10.0.5": {
@@ -376,6 +452,188 @@
           }
         }
       },
+      "Microsoft.Win32.SystemEvents/6.0.0": {
+        "runtime": {
+          "lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "QRCoder/1.8.0": {
+        "dependencies": {
+          "System.Drawing.Common": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/QRCoder.dll": {
+            "assemblyVersion": "1.8.0.0",
+            "fileVersion": "1.8.0.0"
+          }
+        }
+      },
+      "RabbitMQ.Client/7.2.1": {
+        "dependencies": {
+          "System.Threading.RateLimiting": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/RabbitMQ.Client.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.2.1.0"
+          }
+        }
+      },
+      "ShimSkiaSharp/4.0.0": {
+        "runtime": {
+          "lib/net10.0/ShimSkiaSharp.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
+      "SkiaSharp/2.88.9": {
+        "dependencies": {
+          "SkiaSharp.NativeAssets.Win32": "2.88.9",
+          "SkiaSharp.NativeAssets.macOS": "2.88.9"
+        },
+        "runtime": {
+          "lib/net6.0/SkiaSharp.dll": {
+            "assemblyVersion": "2.88.0.0",
+            "fileVersion": "2.88.9.0"
+          }
+        }
+      },
+      "SkiaSharp.NativeAssets.Linux.NoDependencies/2.88.9": {
+        "dependencies": {
+          "SkiaSharp": "2.88.9"
+        },
+        "runtimeTargets": {
+          "runtimes/linux-arm/native/libSkiaSharp.so": {
+            "rid": "linux-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-arm64/native/libSkiaSharp.so": {
+            "rid": "linux-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-musl-x64/native/libSkiaSharp.so": {
+            "rid": "linux-musl-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libSkiaSharp.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "SkiaSharp.NativeAssets.macOS/2.88.9": {
+        "runtimeTargets": {
+          "runtimes/osx/native/libSkiaSharp.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "SkiaSharp.NativeAssets.Win32/2.88.9": {
+        "runtimeTargets": {
+          "runtimes/win-arm64/native/libSkiaSharp.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/libSkiaSharp.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/libSkiaSharp.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Svg.Animation/4.0.0": {
+        "dependencies": {
+          "ShimSkiaSharp": "4.0.0",
+          "SkiaSharp": "2.88.9",
+          "Svg.Custom": "4.0.0",
+          "Svg.Model": "4.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Svg.Animation.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
+      "Svg.Custom/4.0.0": {
+        "dependencies": {
+          "ExCSS": "4.3.1"
+        },
+        "runtime": {
+          "lib/net10.0/Svg.Custom.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
+      "Svg.Model/4.0.0": {
+        "dependencies": {
+          "ShimSkiaSharp": "4.0.0",
+          "Svg.Custom": "4.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Svg.Model.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
+      "Svg.SceneGraph/4.0.0": {
+        "dependencies": {
+          "ShimSkiaSharp": "4.0.0",
+          "Svg.Custom": "4.0.0",
+          "Svg.Model": "4.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Svg.SceneGraph.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
+      "Svg.Skia/4.0.0": {
+        "dependencies": {
+          "HarfBuzzSharp": "7.3.0.3",
+          "HarfBuzzSharp.NativeAssets.Linux": "7.3.0.3",
+          "HarfBuzzSharp.NativeAssets.Win32": "7.3.0.3",
+          "HarfBuzzSharp.NativeAssets.macOS": "7.3.0.3",
+          "SkiaSharp": "2.88.9",
+          "Svg.Animation": "4.0.0",
+          "Svg.Custom": "4.0.0",
+          "Svg.Model": "4.0.0",
+          "Svg.SceneGraph": "4.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Svg.Skia.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
       "System.Diagnostics.EventLog/10.0.5": {
         "runtime": {
           "lib/net10.0/System.Diagnostics.EventLog.dll": {
@@ -398,6 +656,39 @@
           }
         }
       },
+      "System.Drawing.Common/6.0.0": {
+        "dependencies": {
+          "Microsoft.Win32.SystemEvents": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Drawing.Common.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/net6.0/System.Drawing.Common.dll": {
+            "rid": "unix",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          },
+          "runtimes/win/lib/net6.0/System.Drawing.Common.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Threading.RateLimiting/8.0.0": {
+        "runtime": {
+          "lib/net8.0/System.Threading.RateLimiting.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53103"
+          }
+        }
+      },
       "HaveQR.Contracts/1.0.0": {
         "runtime": {
           "HaveQR.Contracts.dll": {
@@ -408,7 +699,11 @@
       },
       "HaveQR.QrEngine/1.0.0": {
         "dependencies": {
-          "HaveQR.Contracts": "1.0.0"
+          "HaveQR.Contracts": "1.0.0",
+          "Microsoft.Extensions.Options": "10.0.5",
+          "QRCoder": "1.8.0",
+          "SkiaSharp.NativeAssets.Linux.NoDependencies": "2.88.9",
+          "Svg.Skia": "4.0.0"
         },
         "runtime": {
           "HaveQR.QrEngine.dll": {
@@ -424,6 +719,41 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "ExCSS/4.3.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-A8UtcghHQlWxPJhJF5bsfEYO7068JHGTuJ7tzyyMjd5fE/N/xY1cVOUhzuLLFwMOCJVnM4mqSQc93W9fGfZ1kA==",
+      "path": "excss/4.3.1",
+      "hashPath": "excss.4.3.1.nupkg.sha512"
+    },
+    "HarfBuzzSharp/7.3.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Hq+5+gx10coOvuRgB13KBwiWxJq1QeYuhtVLbA01ZCWaugOnolUahF44KvrQTUUHDNk/C7HB6SMaebsZeOdhgg==",
+      "path": "harfbuzzsharp/7.3.0.3",
+      "hashPath": "harfbuzzsharp.7.3.0.3.nupkg.sha512"
+    },
+    "HarfBuzzSharp.NativeAssets.Linux/7.3.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hkcHeTfOyIeJuPtO/QfoqkDvV/MXebZYaA/Bn/S+nXsjH3Wt9oQ6okH2kklYO+1UUdBSJFd67bi9IrpQXI2mPw==",
+      "path": "harfbuzzsharp.nativeassets.linux/7.3.0.3",
+      "hashPath": "harfbuzzsharp.nativeassets.linux.7.3.0.3.nupkg.sha512"
+    },
+    "HarfBuzzSharp.NativeAssets.macOS/7.3.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UAwIYnkbBTzBJv1Id8FijY/i8QiIepRemSXufU8fyzwWhYJdx4+ajG8yQUie5HW/uusbVLFSr26muSlJOFDgSw==",
+      "path": "harfbuzzsharp.nativeassets.macos/7.3.0.3",
+      "hashPath": "harfbuzzsharp.nativeassets.macos.7.3.0.3.nupkg.sha512"
+    },
+    "HarfBuzzSharp.NativeAssets.Win32/7.3.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RPxRXD16KtSs8Yxr2RK9Qs7AwyN9MlpqZIYs0AvfaJwl7RAtVhC0+u2f2SKwX0uMYYd3O98Z+OBA1sj6aWVKQA==",
+      "path": "harfbuzzsharp.nativeassets.win32/7.3.0.3",
+      "hashPath": "harfbuzzsharp.nativeassets.win32.7.3.0.3.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration/10.0.5": {
       "type": "package",
@@ -614,12 +944,117 @@
       "path": "microsoft.extensions.primitives/10.0.5",
       "hashPath": "microsoft.extensions.primitives.10.0.5.nupkg.sha512"
     },
+    "Microsoft.Win32.SystemEvents/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hqTM5628jSsQiv+HGpiq3WKBl2c8v1KZfby2J6Pr7pEPlK9waPdgEO6b8A/+/xn/yZ9ulv8HuqK71ONy2tg67A==",
+      "path": "microsoft.win32.systemevents/6.0.0",
+      "hashPath": "microsoft.win32.systemevents.6.0.0.nupkg.sha512"
+    },
+    "QRCoder/1.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RuvX3PEXU6pbY/I5ItAk800jm62r+YnoPLgyS2WTgwxkOnGkOfU9ORiipHUF0LkLyqM8rlroUCA319JjRYfRFQ==",
+      "path": "qrcoder/1.8.0",
+      "hashPath": "qrcoder.1.8.0.nupkg.sha512"
+    },
+    "RabbitMQ.Client/7.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YKXEfg9fVQiTKgZlvIhAfPSFaamEgi8DsQmisCH0IAsU4FYLrtoguDrDj6JtJVGUt40QPnBLRH6fTQcAC4qsOg==",
+      "path": "rabbitmq.client/7.2.1",
+      "hashPath": "rabbitmq.client.7.2.1.nupkg.sha512"
+    },
+    "ShimSkiaSharp/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-sjFjGK+5orPDaAJWd8bLrk1F6gg+OZfvDQwqSobkirZtvGvX2QnY5QbWD4CU5EWZR3i4hjbOvZdHnviI67T73A==",
+      "path": "shimskiasharp/4.0.0",
+      "hashPath": "shimskiasharp.4.0.0.nupkg.sha512"
+    },
+    "SkiaSharp/2.88.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3MD5VHjXXieSHCleRLuaTXmL2pD0mB7CcOB1x2kA1I4bhptf4e3R27iM93264ZYuAq6mkUyX5XbcxnZvMJYc1Q==",
+      "path": "skiasharp/2.88.9",
+      "hashPath": "skiasharp.2.88.9.nupkg.sha512"
+    },
+    "SkiaSharp.NativeAssets.Linux.NoDependencies/2.88.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ZA9syMvIuoqxPhyFTgde/bNV6VMdeYT9gRdNQT5O+ZjPK+a/nVkKRrqBbn7EVA7XQiW+xIycyT4gW/sea9eh+w==",
+      "path": "skiasharp.nativeassets.linux.nodependencies/2.88.9",
+      "hashPath": "skiasharp.nativeassets.linux.nodependencies.2.88.9.nupkg.sha512"
+    },
+    "SkiaSharp.NativeAssets.macOS/2.88.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Nv5spmKc4505Ep7oUoJ5vp3KweFpeNqxpyGDWyeEPTX2uR6S6syXIm3gj75dM0YJz7NPvcix48mR5laqs8dPuA==",
+      "path": "skiasharp.nativeassets.macos/2.88.9",
+      "hashPath": "skiasharp.nativeassets.macos.2.88.9.nupkg.sha512"
+    },
+    "SkiaSharp.NativeAssets.Win32/2.88.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wb2kYgU7iy84nQLYZwMeJXixvK++GoIuECjU4ECaUKNuflyRlJKyiRhN1MAHswvlvzuvkrjRWlK0Za6+kYQK7w==",
+      "path": "skiasharp.nativeassets.win32/2.88.9",
+      "hashPath": "skiasharp.nativeassets.win32.2.88.9.nupkg.sha512"
+    },
+    "Svg.Animation/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MrbkeX2s2WNv0tgD8AleD+AbvRElwbjooZu8BQ5pvX3O4E5Ztzt0KmbPxVgB372ifF96RxIdnA/1Zl7Uo/dIeQ==",
+      "path": "svg.animation/4.0.0",
+      "hashPath": "svg.animation.4.0.0.nupkg.sha512"
+    },
+    "Svg.Custom/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-1jYi+vrakIevaGZpihSsjSmLfPiLxXAt+5I+abOiRh0J8MIfJRyi2ahVBWFcB0Dw9kWRJD0mHrkEOTiNy0ajIw==",
+      "path": "svg.custom/4.0.0",
+      "hashPath": "svg.custom.4.0.0.nupkg.sha512"
+    },
+    "Svg.Model/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rxvUidD9E/j9bSPxB41jQwgu3umI3gO4EfyVZ64GopiknxKt4DJtmeqnz5Ma+gwld2MpoTzqJw7bgY77nttsYQ==",
+      "path": "svg.model/4.0.0",
+      "hashPath": "svg.model.4.0.0.nupkg.sha512"
+    },
+    "Svg.SceneGraph/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XrGDxf7x0gcS7Xa3/NRnGyj562TnnehwALjQ4kfGANqJwLKFUceTcGozZ1FacJvotsSthaEw4pfMLqaed8gCSQ==",
+      "path": "svg.scenegraph/4.0.0",
+      "hashPath": "svg.scenegraph.4.0.0.nupkg.sha512"
+    },
+    "Svg.Skia/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-V7QoMobeYTHvAZMPk+N3OnkAbJzHYIly0BECva8JmhpmOkBwXCx4ZDr6Ve1J6XEb5p2+BZEI2G62DkJkePuNnw==",
+      "path": "svg.skia/4.0.0",
+      "hashPath": "svg.skia.4.0.0.nupkg.sha512"
+    },
     "System.Diagnostics.EventLog/10.0.5": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-wugvy+pBVzjQEnRs9wMTWwoaeNFX3hsaHeVHFDIvJSWXp7wfmNWu3mxAwBIE6pyW+g6+rHa1Of5fTzb0QVqUTA==",
       "path": "system.diagnostics.eventlog/10.0.5",
       "hashPath": "system.diagnostics.eventlog.10.0.5.nupkg.sha512"
+    },
+    "System.Drawing.Common/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NfuoKUiP2nUWwKZN6twGqXioIe1zVD0RIj2t976A+czLHr2nY454RwwXs6JU9Htc6mwqL6Dn/nEL3dpVf2jOhg==",
+      "path": "system.drawing.common/6.0.0",
+      "hashPath": "system.drawing.common.6.0.0.nupkg.sha512"
+    },
+    "System.Threading.RateLimiting/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-7mu9v0QDv66ar3DpGSZHg9NuNcxDaaAcnMULuZlaTpP9+hwXhrxNGsF5GmLkSHxFdb5bBc1TzeujsRgTrPWi+Q==",
+      "path": "system.threading.ratelimiting/8.0.0",
+      "hashPath": "system.threading.ratelimiting.8.0.0.nupkg.sha512"
     },
     "HaveQR.Contracts/1.0.0": {
       "type": "project",

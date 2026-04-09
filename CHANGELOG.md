@@ -7,11 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added)
+    - [Changed](#changed)
+    - [Validation](#validation)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation)
+  - [Validation:](#validation-1)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.0.0] - 2026-04-09
+
+### Added
+
+- Added QRCoder-backed SVG rendering and Docker-safe PNG rasterization in `HaveQR.QrEngine`.
+- Added RabbitMQ-backed job dispatch in `HaveQR.PublicApi` and worker-side queue consumption in `HaveQR.Worker`.
+- Added file-backed render job state and artifact storage for generated SVG and PNG outputs.
+- Added `QUICK_REFERENCE.md` with build, run, infrastructure, and request examples.
+
+### Changed
+
+- Refined the v1 content model so most QR categories now resolve from `TargetUrl`, with WhatsApp kept as the first special native builder flow.
+- Updated `README.md` and `SYSTEM_ARCHITECTURE.md` to match the current implementation and quick-start commands.
+
+### Validation
+
+- `dotnet build HaveQR.sln`
 
 ---
 

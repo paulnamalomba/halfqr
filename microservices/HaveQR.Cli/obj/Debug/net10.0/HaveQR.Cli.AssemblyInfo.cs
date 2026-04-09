@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HaveQR.Cli")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50ea91169ec4ceb3a0d35494f562d6e1db836939")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+321ee13ea3672993aba4a35d7f848aed7f49c416")]
 [assembly: System.Reflection.AssemblyProductAttribute("HaveQR.Cli")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HaveQR.Cli")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

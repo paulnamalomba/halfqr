@@ -1,11 +1,11 @@
 # HaveQR
 
-[![Version](https://img.shields.io/badge/version-0.1.0.0-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.1.0.0)
-[![Backend](https://img.shields.io/badge/backend-.NET%208-512BD4)](#technology-stack)
+[![Version](https://img.shields.io/badge/version-0.2.0.0-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.0.0)
+[![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-> Anonymous-first QR generation platform for branded QR codes with SVG logo embedding, finder marker customization, high-resolution PNG export, batch processing, and a future dashboard/subscription model.
+> Anonymous-first QR generation platform for branded QR codes with SVG logo embedding, finder marker customization, high-resolution PNG export, async processing, and a future dashboard/subscription model.
 
 ## Contents
 
@@ -15,6 +15,7 @@
   - [Product Direction](#product-direction)
     - [Core generator features](#core-generator-features)
     - [Platform features](#platform-features)
+  - [Quick Start](#quick-start)
   - [Architecture at a Glance](#architecture-at-a-glance)
     - [Why SVG-first matters](#why-svg-first-matters)
     - [Rendering model](#rendering-model)
@@ -36,15 +37,15 @@
 
 ## Overview
 
-HaveQR started from the idea of a simple SVG-to-QR generator, but the planned product is broader: a monorepo-based platform for generating branded QR codes for links, text, contact data, communications actions, Wi-Fi access, events, app/social destinations, and media-backed content, exporting print-quality assets, and eventually managing saved and trackable QR campaigns through a web dashboard.
+HaveQR started from the idea of a simple SVG-to-QR generator, but the product direction is broader: a monorepo-based platform for generating branded QR codes across link-backed categories such as links, apps, social destinations, PDFs, images, videos, and landing pages, with WhatsApp kept as the first special-case native flow. The current backend now generates canonical SVG, rasterizes PNG, queues work through RabbitMQ, and exposes artifact downloads through the public API.
 
 The core user flow is still simple:
 
-1. Choose a QR content type such as link, text, email, call, SMS, WhatsApp, vCard, Wi-Fi, event, app, social, PDF, image, or video.
-2. Provide the payload, destination, or hosted asset reference for that content type.
+1. Choose a QR content type such as link, app, social, PDF, image, video, or WhatsApp.
+2. Provide a `targetUrl` for most types, or provide WhatsApp phone and message fields when using the special WhatsApp flow.
 3. Upload an SVG logo with a white or transparent background.
 4. Choose QR size, error correction, logo size, and finder marker style.
-5. Generate a high-quality PNG.
+5. Queue the render and download the generated SVG or PNG when the job completes.
 
 The platform direction extends that with a public webapp, admin tooling, REST APIs, a CLI, dynamic redirects, analytics, subscriptions, and future account-based dashboards.
 
@@ -53,11 +54,14 @@ The platform direction extends that with a public webapp, admin tooling, REST AP
 ### Core generator features
 
 - SVG logo in the center of the QR code
-- multi-content QR creation for link, text, email, call, SMS, WhatsApp, vCard, Wi-Fi, event, app, social, PDF, image, and video flows
+- semantic QR categories backed by normalized target URLs for most types
+- WhatsApp support through either an explicit URL or a generated `wa.me` link from phone and message fields
 - finder marker customization for border and center shapes
 - configurable size, ECC level, and logo scale
 - batch generation from structured input
 - high-resolution PNG output for digital and print workflows
+- canonical SVG output plus artifact download endpoints
+- async processing via RabbitMQ-backed jobs
 - CLI support for local automation and CI pipelines
 - roadmap path to additional 2D barcode formats beyond QR once a second encoding engine is introduced
 
@@ -71,12 +75,39 @@ The platform direction extends that with a public webapp, admin tooling, REST AP
 - subscription and billing capabilities for paid plans
 - dynamic redirect support for managed QR codes
 
+## Quick Start
+
+Current scaffold prerequisites:
+
+- .NET SDK `10.0.x`
+- Node.js `20.x` or newer
+- Docker if you want local RabbitMQ, PostgreSQL, and Redis
+
+Core commands:
+
+```bash
+dotnet build HaveQR.sln
+dotnet run --project microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj
+dotnet run --project microservices/HaveQR.Worker/HaveQR.Worker.csproj
+npm install --prefix webapp
+npm run dev --prefix webapp
+```
+
+Infrastructure commands:
+
+```bash
+docker compose up -d postgres redis rabbitmq
+docker compose down
+```
+
+See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configuration keys.
+
 ## Architecture at a Glance
 
 - Frontend: Next.js + React + TypeScript for the public webapp and admin surfaces.
 - Backend: ASP.NET Core microservices organized under `microservices`.
 - QR engine: QRCoder, using an SVG-first render path instead of bitmap-first rendering.
-- Content model: typed payload builders for direct QR data plus managed destination wrappers for app, social, PDF, image, and video experiences.
+- Content model: normalized `targetUrl` for most categories, with WhatsApp as the first special-case native builder.
 - Output pipeline: generate canonical SVG, then rasterize to high-quality PNG.
 - Finder styles: custom composition layer for `square`, `rounded`, and `circle` finder markers.
 - Data layer: PostgreSQL for metadata, Redis for rate limiting and short-lived cache, Cloudflare R2 for assets.
@@ -103,7 +134,7 @@ The platform direction extends that with a public webapp, admin tooling, REST AP
 | --- | --- | --- |
 | Frontend | Next.js, React, TypeScript | Public marketing site, QR builder, future customer dashboard |
 | Admin | Next.js, React, TypeScript | Internal operations and support console |
-| Backend | ASP.NET Core on .NET 8 | Public API, identity, redirector, billing, workers |
+| Backend | ASP.NET Core on .NET 10 | Public API, identity, redirector, billing, workers |
 | QR Engine | QRCoder `SvgQRCode` | QR matrix generation plus SVG logo embedding |
 | Image Pipeline | SVG composition + PNG rasterization | High-quality output suitable for export |
 | Database | PostgreSQL | Auth, QR metadata, analytics, billing |
@@ -238,8 +269,10 @@ The goal is to take strategic inspiration, not to reproduce markup, assets, or c
 
 This repository currently contains:
 
-- the initial README
-- the architecture definition in `SYSTEM_ARCHITECTURE.md`
-- saved inspiration sources under `inspiration/`
+- a buildable `.NET` solution under `HaveQR.sln`
+- QR contracts, hashing, URL-backed payload normalization, and QRCoder-based SVG/PNG rendering
+- file-backed job state and artifact storage under `.data/` when the services run
+- a RabbitMQ-backed job dispatch path between `HaveQR.PublicApi` and `HaveQR.Worker`
+- root quick-start documentation and a first real `webapp` scaffold
 
-The next implementation step is to scaffold the monorepo and begin with the `.NET` solution, public API, QR engine service, and Next.js web surfaces.
+The next implementation step is to replace placeholder dynamic redirect persistence with PostgreSQL and Redis, then widen the content model beyond the first URL-backed and WhatsApp flows.

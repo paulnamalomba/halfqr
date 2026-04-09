@@ -13,8 +13,15 @@ Thumbs.db
 /build/
 */node_modules/
 /node_modules/
+*/bin/
+/bin/
+*/obj/
+/obj/
+*/.next/
+/.next/
 */target/
 /target/
+/.data/
 
 # Ignoring IDE and editor files
 .vscode/

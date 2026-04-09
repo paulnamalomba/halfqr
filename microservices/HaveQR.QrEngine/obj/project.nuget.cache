@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2ixP2YOO+nI=",
+  "dgSpecHash": "FYz/Yh9QI04=",
   "success": true,
   "projectFilePath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.QrEngine/HaveQR.QrEngine.csproj",
   "expectedPackageFiles": [
@@ -9,11 +9,14 @@
     "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.linux/7.3.0.3/harfbuzzsharp.nativeassets.linux.7.3.0.3.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.macos/7.3.0.3/harfbuzzsharp.nativeassets.macos.7.3.0.3.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.win32/7.3.0.3/harfbuzzsharp.nativeassets.win32.7.3.0.3.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.0/microsoft.extensions.dependencyinjection.abstractions.10.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/microsoft.extensions.options/10.0.0/microsoft.extensions.options.10.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/microsoft.extensions.primitives/10.0.0/microsoft.extensions.primitives.10.0.0.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/microsoft.win32.systemevents/6.0.0/microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/qrcoder/1.8.0/qrcoder.1.8.0.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/shimskiasharp/4.0.0/shimskiasharp.4.0.0.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/skiasharp/2.88.9/skiasharp.2.88.9.nupkg.sha512",
-    "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.linux.nodependencies/3.119.2/skiasharp.nativeassets.linux.nodependencies.3.119.2.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.linux.nodependencies/2.88.9/skiasharp.nativeassets.linux.nodependencies.2.88.9.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.macos/2.88.9/skiasharp.nativeassets.macos.2.88.9.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.win32/2.88.9/skiasharp.nativeassets.win32.2.88.9.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/svg.animation/4.0.0/svg.animation.4.0.0.nupkg.sha512",

@@ -173,13 +173,16 @@
           }
         }
       },
-      "SkiaSharp.NativeAssets.Linux.NoDependencies/3.119.2": {
+      "SkiaSharp.NativeAssets.Linux.NoDependencies/2.88.9": {
         "type": "package",
+        "dependencies": {
+          "SkiaSharp": "2.88.9"
+        },
         "compile": {
-          "lib/net8.0/_._": {}
+          "lib/net6.0/_._": {}
         },
         "runtime": {
-          "lib/net8.0/_._": {}
+          "lib/net6.0/_._": {}
         },
         "runtimeTargets": {
           "runtimes/linux-arm/native/libSkiaSharp.so": {
@@ -190,41 +193,13 @@
             "assetType": "native",
             "rid": "linux-arm64"
           },
-          "runtimes/linux-loongarch64/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-loongarch64"
-          },
-          "runtimes/linux-musl-arm/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-musl-arm"
-          },
-          "runtimes/linux-musl-arm64/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-musl-arm64"
-          },
-          "runtimes/linux-musl-loongarch64/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-musl-loongarch64"
-          },
-          "runtimes/linux-musl-riscv64/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-musl-riscv64"
-          },
           "runtimes/linux-musl-x64/native/libSkiaSharp.so": {
             "assetType": "native",
             "rid": "linux-musl-x64"
           },
-          "runtimes/linux-riscv64/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-riscv64"
-          },
           "runtimes/linux-x64/native/libSkiaSharp.so": {
             "assetType": "native",
             "rid": "linux-x64"
-          },
-          "runtimes/linux-x86/native/libSkiaSharp.so": {
-            "assetType": "native",
-            "rid": "linux-x86"
           }
         }
       },
@@ -385,7 +360,7 @@
         "dependencies": {
           "HaveQR.Contracts": "1.0.0",
           "QRCoder": "1.8.0",
-          "SkiaSharp.NativeAssets.Linux.NoDependencies": "3.119.2",
+          "SkiaSharp.NativeAssets.Linux.NoDependencies": "2.88.9",
           "Svg.Skia": "4.0.0"
         },
         "compile": {
@@ -722,36 +697,26 @@
         "skiasharp.nuspec"
       ]
     },
-    "SkiaSharp.NativeAssets.Linux.NoDependencies/3.119.2": {
-      "sha512": "1rmveKZ8Cz7k4QJQdtKV6RFXYIEqYBiX450Bm0Bk41EE50MMPUyF81cRnASsuV0qCwdZuzjZTaFvoqS0Q2zVfA==",
+    "SkiaSharp.NativeAssets.Linux.NoDependencies/2.88.9": {
+      "sha512": "ZA9syMvIuoqxPhyFTgde/bNV6VMdeYT9gRdNQT5O+ZjPK+a/nVkKRrqBbn7EVA7XQiW+xIycyT4gW/sea9eh+w==",
       "type": "package",
-      "path": "skiasharp.nativeassets.linux.nodependencies/3.119.2",
+      "path": "skiasharp.nativeassets.linux.nodependencies/2.88.9",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.txt",
-        "README.md",
         "THIRD-PARTY-NOTICES.txt",
         "build/net462/SkiaSharp.NativeAssets.Linux.NoDependencies.targets",
         "buildTransitive/net462/SkiaSharp.NativeAssets.Linux.NoDependencies.targets",
-        "icon.png",
         "lib/net462/_._",
         "lib/net6.0/_._",
-        "lib/net8.0/_._",
-        "lib/netstandard2.0/_._",
-        "lib/netstandard2.1/_._",
+        "lib/netcoreapp3.1/_._",
+        "lib/netstandard1.3/_._",
         "runtimes/linux-arm/native/libSkiaSharp.so",
         "runtimes/linux-arm64/native/libSkiaSharp.so",
-        "runtimes/linux-loongarch64/native/libSkiaSharp.so",
-        "runtimes/linux-musl-arm/native/libSkiaSharp.so",
-        "runtimes/linux-musl-arm64/native/libSkiaSharp.so",
-        "runtimes/linux-musl-loongarch64/native/libSkiaSharp.so",
-        "runtimes/linux-musl-riscv64/native/libSkiaSharp.so",
         "runtimes/linux-musl-x64/native/libSkiaSharp.so",
-        "runtimes/linux-riscv64/native/libSkiaSharp.so",
         "runtimes/linux-x64/native/libSkiaSharp.so",
-        "runtimes/linux-x86/native/libSkiaSharp.so",
-        "skiasharp.nativeassets.linux.nodependencies.3.119.2.nupkg.sha512",
+        "skiasharp.nativeassets.linux.nodependencies.2.88.9.nupkg.sha512",
         "skiasharp.nativeassets.linux.nodependencies.nuspec"
       ]
     },

@@ -5,16 +5,16 @@
 # .\.commits\manage-repo.ps1
 
 # # Complete release (recommended)
-# .\.commits\manage-repo.ps1 -Action release -Version 0.1.0.0
+# .\.commits\manage-repo.ps1 -Action release -Version 0.2.0.0
 
 # # Individual steps
 # .\.commits\manage-repo.ps1 -Action add
-# .\.commits\manage-repo.ps1 -Action commit -Version 0.1.0.0
+# .\.commits\manage-repo.ps1 -Action commit -Version 0.2.0.0
 # .\.commits\manage-repo.ps1 -Action push
-# .\.commits\manage-repo.ps1 -Action tag -Version 0.1.0.0
+# .\.commits\manage-repo.ps1 -Action tag -Version 0.2.0.0
 
 # # Custom remote/branch
-# .\manage-repo.ps1 -Action release -Version 0.1.0.0 -Remote upstream -Branch develop
+# .\manage-repo.ps1 -Action release -Version 0.2.0.0 -Remote upstream -Branch develop
 
 param(
     [Parameter(Mandatory=$false)]
