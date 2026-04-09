@@ -1,54 +1,96 @@
 # HaveQR Quick Reference
 
+## Contents
+
+- [HaveQR Quick Reference](#haveqr-quick-reference)
+  - [Contents](#contents)
+  - [Prerequisites](#prerequisites)
+  - [Docker Bench Commands](#docker-bench-commands)
+  - [Local Bench Endpoints](#local-bench-endpoints)
+  - [Tunnel Targets](#tunnel-targets)
+  - [Browser Request Policy](#browser-request-policy)
+  - [Optional Host Builds](#optional-host-builds)
+  - [Health Checks](#health-checks)
+  - [Default Configuration Keys](#default-configuration-keys)
+  - [Provider Switches](#provider-switches)
+  - [Render Request Example](#render-request-example)
+  - [WhatsApp Example](#whatsapp-example)
+  - [Job Retrieval](#job-retrieval)
+
+---
+
 ## Prerequisites
 
-- .NET SDK `10.0.x` for the current scaffold
-- Node.js `20.x` or newer for the webapp
-- A second machine or hosted environment for Docker-backed RabbitMQ, PostgreSQL, and Redis if you do not want to run containers on the dev machine
+- Docker Desktop or Docker Engine with Compose
+- Public tunnel configured outside this repository
+- .NET SDK `10.0.x` if you want to build the backend outside Docker
+- Node.js `20.x` or newer if you want to build the webapp outside Docker
 
-## Dev Machine Commands
+## Docker Bench Commands
+
+```bash
+docker compose build webapp public-api worker
+docker compose up -d webapp public-api worker postgres redis rabbitmq
+docker compose ps
+docker compose logs -f webapp public-api worker rabbitmq
+docker compose down
+```
+
+## Local Bench Endpoints
+
+```text
+http://127.0.0.1:5173 -> webapp
+http://127.0.0.1:8083 -> public API
+http://127.0.0.1:5433 -> PostgreSQL
+http://127.0.0.1:6380 -> Redis
+http://127.0.0.1:5673 -> RabbitMQ
+http://127.0.0.1:15673 -> RabbitMQ management
+```
+
+## Tunnel Targets
+
+```text
+haveqr.computemore.com -> localhost:5173
+haveqr-api-demo.computemore.com -> localhost:8083
+```
+
+## Browser Request Policy
+
+- Build and run the webapp with `NEXT_PUBLIC_HAVEQR_API_BASE_URL=https://haveqr-api-demo.computemore.com`.
+- The browser should not call `http://localhost:8083`; localhost is reserved for operator checks and CLI smoke tests on the devops bench.
+
+## Optional Host Builds
 
 ```bash
 dotnet build HaveQR.sln
 npm install --prefix webapp
-ASPNETCORE_URLS=http://127.0.0.1:5080 dotnet run --project microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj
-dotnet run --project microservices/HaveQR.Worker/HaveQR.Worker.csproj
-HAVEQR_PUBLIC_API_BASE_URL=http://127.0.0.1:5080 npm run dev --prefix webapp
-HAVEQR_PUBLIC_API_BASE_URL=http://127.0.0.1:5080 npm run build --prefix webapp
+npm run build --prefix webapp
 ```
 
-## Power Machine Infrastructure Commands
+## Health Checks
 
 ```bash
-docker compose up -d postgres redis rabbitmq
-docker compose logs -f rabbitmq
-docker compose logs -f postgres
-docker compose logs -f redis
-docker compose down
+curl http://127.0.0.1:8083/healthz
+curl http://127.0.0.1:5173
+curl https://haveqr-api-demo.computemore.com/healthz
+curl https://haveqr.computemore.com
 ```
-
-## Tunnel Commands
-
-```bash
-ssh -L 5432:127.0.0.1:5432 -L 5672:127.0.0.1:5672 <user>@<power-machine-host>
-ssh -L 15672:127.0.0.1:15672 <user>@<power-machine-host>
-ssh -L 5080:127.0.0.1:5080 <user>@<power-machine-host>
-```
-
-If the webapp is running on the dev machine while the API runs remotely through a tunnel, keep `HAVEQR_PUBLIC_API_BASE_URL=http://127.0.0.1:5080`.
 
 ## Default Configuration Keys
 
 ```text
-RabbitMq__HostName=localhost
+NEXT_PUBLIC_HAVEQR_API_BASE_URL=https://haveqr-api-demo.computemore.com
+HAVEQR_WEBAPP_PUBLIC_ORIGIN=https://haveqr.computemore.com
+HAVEQR_WEBAPP_LOCAL_ORIGIN=http://localhost:5173
+RabbitMq__HostName=rabbitmq
 RabbitMq__Port=5672
 RabbitMq__UserName=haveqr
 RabbitMq__Password=haveqr_dev_password
 RabbitMq__RenderQueueName=haveqr.render.jobs
 RenderStorage__JobStateProvider=FileSystem
 RenderStorage__ArtifactProvider=FileSystem
-RenderStorage__RootPath=.data/render-jobs
-PostgresRenderStore__ConnectionString=Host=127.0.0.1;Port=5432;Database=haveqr;Username=haveqr;Password=haveqr_dev_password
+RenderStorage__RootPath=/var/lib/haveqr/render-jobs
+PostgresRenderStore__ConnectionString=Host=127.0.0.1;Port=5433;Database=haveqr;Username=haveqr;Password=haveqr_dev_password
 PostgresRenderStore__Schema=public
 PostgresRenderStore__TableName=render_jobs
 R2Storage__BucketName=
@@ -64,7 +106,7 @@ R2Storage__KeyPrefix=render-jobs
 ```bash
 export RenderStorage__JobStateProvider=PostgreSql
 export RenderStorage__ArtifactProvider=R2
-export PostgresRenderStore__ConnectionString="Host=127.0.0.1;Port=5432;Database=haveqr;Username=haveqr;Password=haveqr_dev_password"
+export PostgresRenderStore__ConnectionString="Host=127.0.0.1;Port=5433;Database=haveqr;Username=haveqr;Password=haveqr_dev_password"
 export R2Storage__BucketName="haveqr-render-artifacts"
 export R2Storage__AccountId="<cloudflare-account-id>"
 export R2Storage__AccessKeyId="<r2-access-key-id>"
@@ -74,11 +116,12 @@ export R2Storage__SecretAccessKey="<r2-secret-access-key>"
 ## Render Request Example
 
 ```bash
-curl -X POST http://127.0.0.1:5080/api/v1/qr/render \
+curl -X POST http://127.0.0.1:8083/api/v1/qr/render \
   -H "Content-Type: application/json" \
   -d '{
     "contentType": "Link",
     "targetUrl": "https://computemore.com/products/qr-launch",
+    "payload": {},
     "mode": "Static",
     "errorCorrectionLevel": "H",
     "output": {
@@ -98,7 +141,7 @@ curl -X POST http://127.0.0.1:5080/api/v1/qr/render \
 ## WhatsApp Example
 
 ```bash
-curl -X POST http://127.0.0.1:5080/api/v1/qr/render \
+curl -X POST http://127.0.0.1:8083/api/v1/qr/render \
   -H "Content-Type: application/json" \
   -d '{
     "contentType": "WhatsApp",
@@ -115,7 +158,7 @@ curl -X POST http://127.0.0.1:5080/api/v1/qr/render \
 ## Job Retrieval
 
 ```bash
-curl http://127.0.0.1:5080/api/v1/qr/jobs/<job-id>
-curl -L http://127.0.0.1:5080/api/v1/qr/jobs/<job-id>/artifacts/png --output haveqr.png
-curl -L http://127.0.0.1:5080/api/v1/qr/jobs/<job-id>/artifacts/svg --output haveqr.svg
+curl http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>
+curl -L http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>/artifacts/png --output haveqr.png
+curl -L http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>/artifacts/svg --output haveqr.svg
 ```

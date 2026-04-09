@@ -1,4 +1,78 @@
 services:
+  webapp:
+    build:
+      context: .
+      dockerfile: webapp/Dockerfile
+      args:
+        NEXT_PUBLIC_HAVEQR_API_BASE_URL: ${NEXT_PUBLIC_HAVEQR_API_BASE_URL:-https://haveqr-api-demo.computemore.com}
+    container_name: haveqr-webapp
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_HAVEQR_API_BASE_URL: ${NEXT_PUBLIC_HAVEQR_API_BASE_URL:-https://haveqr-api-demo.computemore.com}
+    ports:
+      - "5173:3000"
+    depends_on:
+      public-api:
+        condition: service_started
+    restart: unless-stopped
+
+  public-api:
+    build:
+      context: .
+      dockerfile: microservices/HaveQR.PublicApi/Dockerfile
+    container_name: haveqr-public-api
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-haveqr}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-haveqr_dev_password}
+      RenderStorage__ArtifactProvider: ${RENDER_ARTIFACT_PROVIDER:-FileSystem}
+      RenderStorage__RootPath: /var/lib/haveqr/render-jobs
+      R2Storage__BucketName: ${R2_BUCKET:-}
+      R2Storage__AccountId: ${R2_ACCOUNT_ID:-}
+      R2Storage__Endpoint: ${R2_ENDPOINT:-}
+      R2Storage__AccessKeyId: ${R2_ACCESS_KEY_ID:-}
+      R2Storage__SecretAccessKey: ${R2_SECRET_ACCESS_KEY:-}
+      R2Storage__KeyPrefix: ${R2_KEY_PREFIX:-render-jobs}
+      Cors__AllowedOrigins__0: ${HAVEQR_WEBAPP_PUBLIC_ORIGIN:-https://haveqr.computemore.com}
+      Cors__AllowedOrigins__1: ${HAVEQR_WEBAPP_LOCAL_ORIGIN:-http://localhost:5173}
+    ports:
+      - "8083:8080"
+    volumes:
+      - render-jobs-data:/var/lib/haveqr/render-jobs
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: microservices/HaveQR.Worker/Dockerfile
+    container_name: haveqr-worker
+    environment:
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-haveqr}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-haveqr_dev_password}
+      RenderStorage__ArtifactProvider: ${RENDER_ARTIFACT_PROVIDER:-FileSystem}
+      RenderStorage__RootPath: /var/lib/haveqr/render-jobs
+      R2Storage__BucketName: ${R2_BUCKET:-}
+      R2Storage__AccountId: ${R2_ACCOUNT_ID:-}
+      R2Storage__Endpoint: ${R2_ENDPOINT:-}
+      R2Storage__AccessKeyId: ${R2_ACCESS_KEY_ID:-}
+      R2Storage__SecretAccessKey: ${R2_SECRET_ACCESS_KEY:-}
+      R2Storage__KeyPrefix: ${R2_KEY_PREFIX:-render-jobs}
+    volumes:
+      - render-jobs-data:/var/lib/haveqr/render-jobs
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     container_name: haveqr-postgres
@@ -7,7 +81,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-haveqr}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-haveqr_dev_password}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +96,7 @@ services:
     container_name: haveqr-redis
     command: ["redis-server", "--appendonly", "yes"]
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -39,8 +113,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-haveqr}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-haveqr_dev_password}
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5673:5672"
+      - "15673:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -51,6 +125,7 @@ services:
       start_period: 10s
 
 volumes:
+  render-jobs-data:
   postgres-data:
   redis-data:
   rabbitmq-data:

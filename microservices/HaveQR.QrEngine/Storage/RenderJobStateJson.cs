@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HaveQR.QrEngine.Storage;
 
@@ -8,4 +9,9 @@ internal static class RenderJobStateJson
     {
         WriteIndented = true,
     };
+
+    static RenderJobStateJson()
+    {
+        SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    }
 }

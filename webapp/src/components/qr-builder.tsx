@@ -58,6 +58,10 @@ type RenderJobStatusResponse = {
   artifacts: RenderArtifactDescriptor[];
 };
 
+const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HAVEQR_API_BASE_URL ?? "https://haveqr-api-demo.computemore.com")
+  .trim()
+  .replace(/\/$/, "");
+
 const builderTypes: BuilderType[] = [
   {
     id: "link",
@@ -185,7 +189,7 @@ export function QrBuilder() {
           return;
         }
 
-        setLatestJob(status);
+        setLatestJob(normalizeJobStatusResponse(status));
         setErrorMessage(null);
 
         if (isTerminalStatus(status.status)) {
@@ -234,7 +238,7 @@ export function QrBuilder() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/v1/qr/render", {
+      const response = await fetch(resolveApiUrl("/api/v1/qr/render"), {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -248,7 +252,7 @@ export function QrBuilder() {
       }
 
       const accepted = (await response.json()) as RenderJobAcceptedResponse;
-      setAcceptedJob(accepted);
+      setAcceptedJob(normalizeAcceptedJob(accepted));
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
     } finally {
@@ -319,7 +323,7 @@ export function QrBuilder() {
               <p className="section-label">Builder inputs</p>
               <h2>Prepare the request</h2>
             </div>
-            <span className="status-chip">v0.2.2.0</span>
+            <span className="status-chip">v0.2.2.1</span>
           </div>
 
           <label className="field">
@@ -485,6 +489,27 @@ function buildRenderRequest(
       borderShape: finderBorder,
       centerShape: finderCenter,
     },
+  };
+}
+
+function resolveApiUrl(path: string) {
+  return new URL(path, `${publicApiBaseUrl}/`).toString();
+}
+
+function normalizeAcceptedJob(acceptedJob: RenderJobAcceptedResponse): RenderJobAcceptedResponse {
+  return {
+    ...acceptedJob,
+    statusUrl: resolveApiUrl(acceptedJob.statusUrl),
+  };
+}
+
+function normalizeJobStatusResponse(job: RenderJobStatusResponse): RenderJobStatusResponse {
+  return {
+    ...job,
+    artifacts: job.artifacts.map((artifact) => ({
+      ...artifact,
+      downloadUrl: resolveApiUrl(artifact.downloadUrl),
+    })),
   };
 }
 
