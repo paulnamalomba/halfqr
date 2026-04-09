@@ -2,7 +2,7 @@
 
 > Architecture and product-technical direction for HaveQR, the QR generation platform built in this `haveqr` repository.
 
-**App Version**: 0.2.2.0  
+**App Version**: 0.2.2.1  
 **Date**: 2026-04-09  
 **Repository**: `haveqr`
 
@@ -849,12 +849,12 @@ If the product wants to display public proof such as "X QR codes generated", tha
 
 ### Current deployment mode
 
-Use Docker Compose and expose the stack through a public tunnel/reverse proxy at `haveqr.computemore.com`.
+Use Docker Compose and expose the current devops/testing bench through public tunnels at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
 
 Preferred routing layout:
 
-- `haveqr.computemore.com` -> webapp
-- `api.haveqr.computemore.com` -> public API
+- `haveqr.computemore.com` -> webapp on `localhost:5173`
+- `haveqr-api-demo.computemore.com` -> public API on `localhost:8083`
 - `admin.haveqr.computemore.com` -> admin
 - `docs.haveqr.computemore.com` -> docs
 - `go.haveqr.computemore.com` or `/r/{slug}` -> redirector
@@ -866,18 +866,8 @@ If subdomains are not yet practical, use path-based routing temporarily.
 Recommended initial services:
 
 - reverse proxy or edge router
-- webapp
-- admin
-- docs
-- public-api
-- qr-engine
-- identity
-- redirector
-- billing
-- worker
-- postgres
-- rabbitmq
-- redis
+- current devops/testing bench: webapp, public-api, worker, postgres, rabbitmq, redis
+- future hosted expansion: admin, docs, identity, redirector, billing
 
 R2 remains external. For local-only parity, MinIO can be added later, but it is not required for the first hosted environment.
 

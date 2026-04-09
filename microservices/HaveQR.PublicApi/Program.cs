@@ -6,8 +6,38 @@ using HaveQR.PublicApi.Services;
 using HaveQR.QrEngine.Hashing;
 using HaveQR.QrEngine.PayloadEncoding;
 using HaveQR.QrEngine.Storage;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+var allowedOrigins = builder.Configuration
+	.GetSection("Cors:AllowedOrigins")
+	.Get<string[]>()?
+	.Where(origin => !string.IsNullOrWhiteSpace(origin))
+	.Distinct(StringComparer.OrdinalIgnoreCase)
+	.ToArray()
+	??
+	[
+		"https://haveqr.computemore.com",
+		"http://localhost:5173",
+		"http://127.0.0.1:5173",
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
+	];
+
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("HaveQrWebapp", policy =>
+	{
+		policy
+			.WithOrigins(allowedOrigins)
+			.AllowAnyHeader()
+			.AllowAnyMethod();
+	});
+});
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+	options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMq"));
 builder.Services.Configure<RenderStorageOptions>(builder.Configuration.GetSection("RenderStorage"));
@@ -40,11 +70,13 @@ builder.Services.AddSingleton<RenderJobService>();
 
 var app = builder.Build();
 
+app.UseCors("HaveQrWebapp");
+
 app.MapGet("/", () => Results.Ok(new
 {
 	service = "HaveQR.PublicApi",
 	status = "ok",
-	version = "0.2.2.0",
+	version = "0.2.2.1",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));

@@ -1,6 +1,6 @@
 # HaveQR
 
-[![Version](https://img.shields.io/badge/version-0.2.2.0-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.2.0)
+[![Version](https://img.shields.io/badge/version-0.2.2.1-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.2.1)
 [![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -81,24 +81,24 @@ Current scaffold prerequisites:
 
 - .NET SDK `10.0.x`
 - Node.js `20.x` or newer
-- Docker if you want local RabbitMQ, PostgreSQL, and Redis
+- Docker if you want the local devops bench
 
 Core commands:
 
 ```bash
 dotnet build HaveQR.sln
-dotnet run --project microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj
-dotnet run --project microservices/HaveQR.Worker/HaveQR.Worker.csproj
 npm install --prefix webapp
-npm run dev --prefix webapp
+npm run build --prefix webapp
+docker compose build webapp public-api worker
+docker compose up -d webapp public-api worker postgres redis rabbitmq
+docker compose logs -f webapp public-api worker rabbitmq
 ```
 
-Infrastructure commands:
+Current bench routing:
 
-```bash
-docker compose up -d postgres redis rabbitmq
-docker compose down
-```
+- `http://127.0.0.1:5173` -> webapp -> `https://haveqr.computemore.com`
+- `http://127.0.0.1:8083` -> public API -> `https://haveqr-api-demo.computemore.com`
+- The browser-facing webapp bundle is built to call the public API hostname directly through `NEXT_PUBLIC_HAVEQR_API_BASE_URL`.
 
 See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configuration keys.
 
@@ -112,7 +112,7 @@ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configurat
 - Finder styles: custom composition layer for `square`, `rounded`, and `circle` finder markers.
 - Data layer: PostgreSQL for metadata, Redis for rate limiting and short-lived cache, Cloudflare R2 for assets.
 - Messaging: RabbitMQ for async jobs and batch workflow fanout.
-- Deployment: Docker Compose behind a public tunnel or reverse proxy at `haveqr.computemore.com`.
+- Deployment: Docker Compose behind public tunnels at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
 
 ### Why SVG-first matters
 
@@ -141,7 +141,7 @@ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configurat
 | Cache | Redis | Rate limiting, short-lived preview and token state |
 | Object Storage | Cloudflare R2 | Generated PNG and optional canonical SVG assets |
 | Messaging | RabbitMQ | Batch jobs, async processing, domain events |
-| Deployment | Docker Compose | Initial hosted environment at `haveqr.computemore.com` |
+| Deployment | Docker Compose | Current devops bench at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com` |
 
 ## Monorepo Layout
 

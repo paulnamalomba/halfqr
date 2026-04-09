@@ -25,6 +25,8 @@ public sealed class R2RenderArtifactStore(IOptions<R2StorageOptions> options) : 
             InputStream = stream,
             ContentType = contentType,
             AutoCloseStream = false,
+            DisablePayloadSigning = true,
+            DisableDefaultChecksumValidation = true,
         };
 
         await _client.PutObjectAsync(request, cancellationToken);

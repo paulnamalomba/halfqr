@@ -7,23 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added)
     - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-1)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-2)
     - [Changed](#changed-2)
     - [Validation](#validation-2)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-3)
+    - [Changed](#changed-3)
+    - [Validation](#validation-3)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-3)
+  - [Validation:](#validation-4)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.2.1] - 2026-04-10
+
+### Added
+
+- Added first-party Docker build assets for `webapp`, `HaveQR.PublicApi`, and `HaveQR.Worker`, plus a root `.dockerignore` for the monorepo bench.
+- Added Compose-managed `webapp`, `public-api`, and `worker` services with host ports `5173` and `8083` and a shared render-job volume for the file-backed async pipeline.
+
+### Changed
+
+- Switched the webapp from same-origin rewrite calls to direct public API calls using `NEXT_PUBLIC_HAVEQR_API_BASE_URL`, while normalizing relative job and artifact URLs against the public API origin.
+- Added configurable CORS and JSON string-enum serialization in `HaveQR.PublicApi`, and aligned persisted render-job JSON with the string-based request and response contract used by the webapp.
+- Wired canonical R2 artifact settings through Docker Compose so the API and worker can switch from filesystem artifacts to Cloudflare R2 through environment configuration.
+- Disabled AWS streaming payload signing and default checksum validation on R2 uploads so Cloudflare R2 accepts the .NET S3 `PutObject` flow.
+- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
+
+### Validation
+
+- `npm run build` from `webapp`
+- `docker compose config`
+- `docker compose build webapp public-api worker`
+- `docker compose up -d`
+- Verified `http://127.0.0.1:8083/healthz` and `http://127.0.0.1:5173`
+- Verified a live render job queue, completion, and PNG artifact download through the Docker bench
+- Verified the Cloudflare R2 upload-format fix; the currently provided bucket credentials still return `Access Denied` on write, so the local `.env` keeps `RENDER_ARTIFACT_PROVIDER=FileSystem` until bucket permissions are corrected
+- `dotnet build HaveQR.sln` is still blocked on this machine because the installed SDK is `9.0.312` while the solution targets `.NET 10.0`
 
 ---
 
