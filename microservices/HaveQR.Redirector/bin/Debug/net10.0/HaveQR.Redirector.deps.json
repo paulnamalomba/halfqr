@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "HaveQR.Redirector/1.0.0": {
+        "dependencies": {
+          "HaveQR.Contracts": "1.0.0"
+        },
+        "runtime": {
+          "HaveQR.Redirector.dll": {}
+        }
+      },
+      "HaveQR.Contracts/1.0.0": {
+        "runtime": {
+          "HaveQR.Contracts.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "HaveQR.Redirector/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "HaveQR.Contracts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "dgSpecHash": "OPJSe7D3fds=",
+  "success": true,
+  "projectFilePath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj",
+  "expectedPackageFiles": [
+    "/Users/kabwe/.nuget/packages/excss/4.3.1/excss.4.3.1.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/harfbuzzsharp/7.3.0.3/harfbuzzsharp.7.3.0.3.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.linux/7.3.0.3/harfbuzzsharp.nativeassets.linux.7.3.0.3.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.macos/7.3.0.3/harfbuzzsharp.nativeassets.macos.7.3.0.3.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.win32/7.3.0.3/harfbuzzsharp.nativeassets.win32.7.3.0.3.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/microsoft.win32.systemevents/6.0.0/microsoft.win32.systemevents.6.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/qrcoder/1.8.0/qrcoder.1.8.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/rabbitmq.client/7.2.1/rabbitmq.client.7.2.1.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/shimskiasharp/4.0.0/shimskiasharp.4.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/skiasharp/2.88.9/skiasharp.2.88.9.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.linux.nodependencies/3.119.2/skiasharp.nativeassets.linux.nodependencies.3.119.2.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.macos/2.88.9/skiasharp.nativeassets.macos.2.88.9.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/skiasharp.nativeassets.win32/2.88.9/skiasharp.nativeassets.win32.2.88.9.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/svg.animation/4.0.0/svg.animation.4.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/svg.custom/4.0.0/svg.custom.4.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/svg.model/4.0.0/svg.model.4.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/svg.scenegraph/4.0.0/svg.scenegraph.4.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/svg.skia/4.0.0/svg.skia.4.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/system.drawing.common/6.0.0/system.drawing.common.6.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
