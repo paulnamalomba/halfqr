@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "5lbfVvO/Svg=",
+  "dgSpecHash": "iCRsRnyiJwg=",
   "success": true,
   "projectFilePath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/HaveQR.Worker.csproj",
   "expectedPackageFiles": [
+    "/Users/kabwe/.nuget/packages/awssdk.core/4.0.3.28/awssdk.core.4.0.3.28.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/awssdk.s3/4.0.21/awssdk.s3.4.0.21.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/excss/4.3.1/excss.4.3.1.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/harfbuzzsharp/7.3.0.3/harfbuzzsharp.7.3.0.3.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/harfbuzzsharp.nativeassets.linux/7.3.0.3/harfbuzzsharp.nativeassets.linux.7.3.0.3.nupkg.sha512",
@@ -37,6 +39,7 @@
     "/Users/kabwe/.nuget/packages/microsoft.extensions.options.configurationextensions/10.0.5/microsoft.extensions.options.configurationextensions.10.0.5.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/microsoft.extensions.primitives/10.0.5/microsoft.extensions.primitives.10.0.5.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/microsoft.win32.systemevents/6.0.0/microsoft.win32.systemevents.6.0.0.nupkg.sha512",
+    "/Users/kabwe/.nuget/packages/npgsql/10.0.2/npgsql.10.0.2.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/qrcoder/1.8.0/qrcoder.1.8.0.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/rabbitmq.client/7.2.1/rabbitmq.client.7.2.1.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/shimskiasharp/4.0.0/shimskiasharp.4.0.0.nupkg.sha512",

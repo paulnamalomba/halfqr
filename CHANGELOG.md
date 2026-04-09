@@ -7,19 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added)
     - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-1)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-2)
+    - [Changed](#changed-2)
+    - [Validation](#validation-2)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-2)
+  - [Validation:](#validation-3)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.2.0] - 2026-04-09
+
+### Added
+
+- Added a same-origin Next.js rewrite so the webapp can call the render API through `/api/v1/qr/*` without browser-side CORS workarounds.
+- Added webapp job polling and artifact download actions for generated SVG and PNG outputs.
+- Added a finder-pattern SVG compositor in `HaveQR.QrEngine` so `square`, `rounded`, and `circle` now affect the three finder markers without changing normal data modules.
+- Added provider-backed render storage seams with PostgreSQL job-state and Cloudflare R2 artifact implementations behind `IRenderJobStore`.
+- Added runtime configuration and operator notes for split dev-machine and power-machine workflows in `QUICK_REFERENCE.md`.
+
+### Changed
+
+- Wired the builder form to submit real render jobs, validate request inputs, surface queue/render/failure state, and resolve WhatsApp fallback URLs in the preview.
+- Expanded the builder status UI to reflect worker progress and available artifacts.
+- Split the previous file-backed store into dedicated state and artifact providers while keeping filesystem storage as the default fallback.
+- Updated the public API runtime version and aligned release-facing docs with the current implementation.
+
+### Validation
+
+- `npm run build --prefix webapp`
+- `dotnet build HaveQR.sln`
+- End-to-end queue smoke test is still blocked on this dev machine because RabbitMQ and PostgreSQL are not reachable locally; use the documented tunnel and power-machine commands to run it against live infra.
 
 ---
 

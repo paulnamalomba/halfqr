@@ -11,9 +11,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMq"));
 builder.Services.Configure<RenderStorageOptions>(builder.Configuration.GetSection("RenderStorage"));
+builder.Services.Configure<PostgresRenderStoreOptions>(builder.Configuration.GetSection("PostgresRenderStore"));
+builder.Services.Configure<R2StorageOptions>(builder.Configuration.GetSection("R2Storage"));
 builder.Services.AddSingleton<IQrPayloadEncoder, QrPayloadEncoder>();
 builder.Services.AddSingleton<IHashService, Sha256HashService>();
-builder.Services.AddSingleton<IRenderJobStore, FileSystemRenderJobStore>();
+
+if (string.Equals(builder.Configuration["RenderStorage:JobStateProvider"], RenderStorageOptions.PostgreSqlProvider, StringComparison.OrdinalIgnoreCase))
+{
+	builder.Services.AddSingleton<IRenderJobStateStore, PostgresRenderJobStateStore>();
+}
+else
+{
+	builder.Services.AddSingleton<IRenderJobStateStore, FileSystemRenderJobStateStore>();
+}
+
+if (string.Equals(builder.Configuration["RenderStorage:ArtifactProvider"], RenderStorageOptions.R2Provider, StringComparison.OrdinalIgnoreCase))
+{
+	builder.Services.AddSingleton<IRenderArtifactStore, R2RenderArtifactStore>();
+}
+else
+{
+	builder.Services.AddSingleton<IRenderArtifactStore, FileSystemRenderArtifactStore>();
+}
+
+builder.Services.AddSingleton<IRenderJobStore, CompositeRenderJobStore>();
 builder.Services.AddSingleton<RabbitMqJobDispatcher>();
 builder.Services.AddSingleton<RenderJobService>();
 
@@ -23,7 +44,7 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HaveQR.PublicApi",
 	status = "ok",
-	version = "0.2.0.0",
+	version = "0.2.2.0",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));

@@ -72,13 +72,15 @@ public sealed class QrRenderService(
             logo = new SvgQRCode.SvgLogo(request.Logo.Svg!, request.Logo.SizePercent, fillLogoBackground: true, iconEmbedded: true);
         }
 
-        return qrCode.GetGraphic(
+        var svgMarkup = qrCode.GetGraphic(
             pixelsPerModule: 20,
             darkColorHex: request.Colors.Dark,
             lightColorHex: request.Colors.Light,
             drawQuietZones: true,
             sizingMode: SvgQRCode.SizingMode.ViewBoxAttribute,
             logo: logo);
+
+        return QrFinderSvgComposer.Compose(svgMarkup, qrCodeData, request.Finder, request.Colors);
     }
 
     private static byte[] RasterizePng(string svgMarkup, int sizePx)

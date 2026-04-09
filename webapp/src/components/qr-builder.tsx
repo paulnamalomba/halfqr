@@ -319,7 +319,7 @@ export function QrBuilder() {
               <p className="section-label">Builder inputs</p>
               <h2>Prepare the request</h2>
             </div>
-            <span className="status-chip">v0.2.0.0</span>
+            <span className="status-chip">v0.2.2.0</span>
           </div>
 
           <label className="field">

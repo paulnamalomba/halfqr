@@ -84,3 +84,6 @@
 /Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/bin/Debug/net10.0/runtimes/win-x86/native/libSkiaSharp.dll
 /Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/bin/Debug/net10.0/runtimes/unix/lib/net6.0/System.Drawing.Common.dll
 /Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/bin/Debug/net10.0/runtimes/win/lib/net6.0/System.Drawing.Common.dll
+/Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/bin/Debug/net10.0/AWSSDK.Core.dll
+/Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/bin/Debug/net10.0/AWSSDK.S3.dll
+/Users/kabwe/Development/haveqr/microservices/HaveQR.Worker/bin/Debug/net10.0/Npgsql.dll

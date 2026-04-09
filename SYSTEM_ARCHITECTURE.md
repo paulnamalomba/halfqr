@@ -2,7 +2,7 @@
 
 > Architecture and product-technical direction for HaveQR, the QR generation platform built in this `haveqr` repository.
 
-**App Version**: 0.2.0.0  
+**App Version**: 0.2.2.0  
 **Date**: 2026-04-09  
 **Repository**: `haveqr`
 
@@ -534,6 +534,7 @@ Additional 2D barcode symbologies remain a future extension and are not part of 
 - Generate the QR matrix with QRCoder using the selected ECC level and canonical payload string.
 - Render a base SVG from QRCoder.
 - Replace or overlay the three finder patterns using the requested marker style.
+- Current implementation detail: overlay a dedicated finder compositor over the three 7x7 finder windows after base SVG generation so the rest of the matrix stays untouched.
 - Clear a safe center area and embed the sanitized SVG logo.
 - Rasterize the final SVG to one or more PNG sizes.
 - Return the PNG immediately for transient requests, or persist metadata/assets if the request is saved or managed.
@@ -560,6 +561,12 @@ Recommended v1 scannability rule:
 - cap logo size aggressively when ECC is lower than `H`
 
 This is the safest path to maintain scan reliability while still giving users visible customization.
+
+Current implementation note:
+
+- the compositor now writes a dedicated SVG overlay group after QRCoder emits the base SVG
+- each finder area is cleared back to the light color and redrawn with the requested border and center shapes
+- filesystem storage remains the default runtime, but the storage seam now supports PostgreSQL job-state persistence and R2 artifact persistence through provider selection
 
 ### 10.4 Output quality strategy
 

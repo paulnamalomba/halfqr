@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HaveQR.Identity")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+321ee13ea3672993aba4a35d7f848aed7f49c416")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d8fecaed04076a5fd1a14023cd2abead7e68533")]
 [assembly: System.Reflection.AssemblyProductAttribute("HaveQR.Identity")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HaveQR.Identity")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

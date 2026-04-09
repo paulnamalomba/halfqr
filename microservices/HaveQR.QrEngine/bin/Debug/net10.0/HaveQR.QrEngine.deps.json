@@ -8,14 +8,35 @@
     ".NETCoreApp,Version=v10.0": {
       "HaveQR.QrEngine/1.0.0": {
         "dependencies": {
+          "AWSSDK.S3": "4.0.21",
           "HaveQR.Contracts": "1.0.0",
           "Microsoft.Extensions.Options": "10.0.0",
+          "Npgsql": "10.0.2",
           "QRCoder": "1.8.0",
           "SkiaSharp.NativeAssets.Linux.NoDependencies": "2.88.9",
           "Svg.Skia": "4.0.0"
         },
         "runtime": {
           "HaveQR.QrEngine.dll": {}
+        }
+      },
+      "AWSSDK.Core/4.0.3.28": {
+        "runtime": {
+          "lib/net8.0/AWSSDK.Core.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.3.28"
+          }
+        }
+      },
+      "AWSSDK.S3/4.0.21": {
+        "dependencies": {
+          "AWSSDK.Core": "4.0.3.28"
+        },
+        "runtime": {
+          "lib/net8.0/AWSSDK.S3.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.21.0"
+          }
         }
       },
       "ExCSS/4.3.1": {
@@ -101,6 +122,17 @@
           }
         }
       },
+      "Microsoft.Extensions.Logging.Abstractions/10.0.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.52411"
+          }
+        }
+      },
       "Microsoft.Extensions.Options/10.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0",
@@ -134,6 +166,17 @@
             "assetType": "runtime",
             "assemblyVersion": "6.0.0.0",
             "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "Npgsql/10.0.2": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Npgsql.dll": {
+            "assemblyVersion": "10.0.2.0",
+            "fileVersion": "10.0.2.0"
           }
         }
       },
@@ -333,6 +376,20 @@
       "serviceable": false,
       "sha512": ""
     },
+    "AWSSDK.Core/4.0.3.28": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-OKvL+4Z/SFpOo7lbDbsT7bgcZY03fZkIQNFVV5LDZAt9hVhpX9z1Xn2MsGKSpXo4hwxXeiINv2j5Bb4n1KrVaQ==",
+      "path": "awssdk.core/4.0.3.28",
+      "hashPath": "awssdk.core.4.0.3.28.nupkg.sha512"
+    },
+    "AWSSDK.S3/4.0.21": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ZAdrBxqtD0kzuOT05apaWeOn9cEmhuAMiocv2yvCC34HjpXIWKmuIqO2+T7e2E3hNb3EP5lbA16B6tmQMFkHpg==",
+      "path": "awssdk.s3/4.0.21",
+      "hashPath": "awssdk.s3.4.0.21.nupkg.sha512"
+    },
     "ExCSS/4.3.1": {
       "type": "package",
       "serviceable": true,
@@ -375,6 +432,13 @@
       "path": "microsoft.extensions.dependencyinjection.abstractions/10.0.0",
       "hashPath": "microsoft.extensions.dependencyinjection.abstractions.10.0.0.nupkg.sha512"
     },
+    "Microsoft.Extensions.Logging.Abstractions/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-FU/IfjDfwaMuKr414SSQNTIti/69bHEMb+QKrskRb26oVqpx3lNFXMjs/RC9ZUuhBhcwDM2BwOgoMw+PZ+beqQ==",
+      "path": "microsoft.extensions.logging.abstractions/10.0.0",
+      "hashPath": "microsoft.extensions.logging.abstractions.10.0.0.nupkg.sha512"
+    },
     "Microsoft.Extensions.Options/10.0.0": {
       "type": "package",
       "serviceable": true,
@@ -395,6 +459,13 @@
       "sha512": "sha512-hqTM5628jSsQiv+HGpiq3WKBl2c8v1KZfby2J6Pr7pEPlK9waPdgEO6b8A/+/xn/yZ9ulv8HuqK71ONy2tg67A==",
       "path": "microsoft.win32.systemevents/6.0.0",
       "hashPath": "microsoft.win32.systemevents.6.0.0.nupkg.sha512"
+    },
+    "Npgsql/10.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-q5RfBI+wywJSFUNDE1L4ZbHEHCFTblo8Uf6A6oe4feOUFYiUQXyAf9GBh5qEZpvJaHiEbpBPkQumjEhXCJxdrg==",
+      "path": "npgsql/10.0.2",
+      "hashPath": "npgsql.10.0.2.nupkg.sha512"
     },
     "QRCoder/1.8.0": {
       "type": "package",

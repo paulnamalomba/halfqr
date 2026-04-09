@@ -1,6 +1,6 @@
 # HaveQR
 
-[![Version](https://img.shields.io/badge/version-0.2.0.0-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.1.0)
+[![Version](https://img.shields.io/badge/version-0.2.2.0-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.2.0)
 [![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -270,9 +270,9 @@ The goal is to take strategic inspiration, not to reproduce markup, assets, or c
 This repository currently contains:
 
 - a buildable `.NET` solution under `HaveQR.sln`
-- QR contracts, hashing, URL-backed payload normalization, and QRCoder-based SVG/PNG rendering
-- file-backed job state and artifact storage under `.data/` when the services run
+- QR contracts, hashing, URL-backed payload normalization, finder-pattern SVG composition, and QRCoder-based SVG/PNG rendering
+- provider-backed render storage with filesystem defaults plus PostgreSQL and Cloudflare R2 implementations behind the same runtime facade
 - a RabbitMQ-backed job dispatch path between `HaveQR.PublicApi` and `HaveQR.Worker`
-- root quick-start documentation and a first real `webapp` scaffold
+- root quick-start documentation and a real `webapp` builder that can submit jobs, poll status, and download artifacts
 
 The next implementation step is to replace placeholder dynamic redirect persistence with PostgreSQL and Redis, then widen the content model beyond the first URL-backed and WhatsApp flows.

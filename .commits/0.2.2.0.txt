@@ -1,0 +1,26 @@
+HaveQR v0.2.2.0 Release Notes
+Release Date: 9 April, 2026
+===================================
+
+## [0.2.2.0] - 2026-04-09
+
+### Added
+
+- Added a same-origin Next.js rewrite so the webapp can call the render API through `/api/v1/qr/*` without browser-side CORS workarounds.
+- Added webapp job polling and artifact download actions for generated SVG and PNG outputs.
+- Added a finder-pattern SVG compositor in `HaveQR.QrEngine` so `square`, `rounded`, and `circle` now affect the three finder markers without changing normal data modules.
+- Added provider-backed render storage seams with PostgreSQL job-state and Cloudflare R2 artifact implementations behind `IRenderJobStore`.
+- Added runtime configuration and operator notes for split dev-machine and power-machine workflows in `QUICK_REFERENCE.md`.
+
+### Changed
+
+- Wired the builder form to submit real render jobs, validate request inputs, surface queue/render/failure state, and resolve WhatsApp fallback URLs in the preview.
+- Expanded the builder status UI to reflect worker progress and available artifacts.
+- Split the previous file-backed store into dedicated state and artifact providers while keeping filesystem storage as the default fallback.
+- Updated the public API runtime version and aligned release-facing docs with the current implementation.
+
+### Validation
+
+- `npm run build --prefix webapp`
+- `dotnet build HaveQR.sln`
+- End-to-end queue smoke test is still blocked on this dev machine because RabbitMQ and PostgreSQL are not reachable locally; use the documented tunnel and power-machine commands to run it against live infra.
