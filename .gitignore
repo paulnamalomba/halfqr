@@ -1,0 +1,47 @@
+# Ignoring local-only files
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Ignoring build artifacts
+*/dist/
+/dist/
+*/build/
+/build/
+*/node_modules/
+/node_modules/
+*/target/
+/target/
+
+# Ignoring IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignoring environment files
+.env
+.env.local
+.env.*.local
+
+# Others
+*.zip
+*.tar.gz
+*.7z
+*.exe
+*.dll
+*.so
+*.dylib
+*.pyc
+*.pyo
+*.class
+*.jar
+*.war
+*.ear
+
+# Important
+inspiration/
+docs-previews/

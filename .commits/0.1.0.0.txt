@@ -1,0 +1,10 @@
+AfriFlex v0.1.0.0 Release Notes
+Release Date: 9 April, 2026
+===================================
+
+## [0.1.0.0] - 2026-04-09
+
+### Changes
+
+- README.md: Added project bootstrap details and other introductory details. --- ADDED ---
+- SYSTEM_ARCHITECTURE.md: Added system architecture details. --- ADDED ---
