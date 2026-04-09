@@ -7,15 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added)
     - [Changed](#changed)
     - [Validation](#validation)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-1)
+    - [Changed](#changed-1)
+    - [Validation](#validation-1)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-1)
+  - [Validation:](#validation-2)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.1.0] - 2026-04-09
+
+### Added
+
+- Added a same-origin Next.js rewrite so the webapp can call the render API through `/api/v1/qr/*` without browser-side CORS workarounds.
+- Added webapp job polling and artifact download actions for generated SVG and PNG outputs.
+
+### Changed
+
+- Wired the builder form to submit real render jobs, validate request inputs, surface queue/render/failure state, and resolve WhatsApp fallback URLs in the preview.
+- Expanded the builder status UI to reflect worker progress and available artifacts.
+
+### Validation
+
+- `npm run build --prefix webapp`
 
 ---
 

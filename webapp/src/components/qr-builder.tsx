@@ -1,13 +1,61 @@
 "use client";
 
-import { startTransition, useDeferredValue, useState } from "react";
+import { startTransition, useEffect, useState, type FormEvent } from "react";
 
 type BuilderType = {
-  id: string;
+  id: BuilderTypeId;
   label: string;
   eyebrow: string;
   placeholder: string;
   summary: string;
+};
+
+type BuilderTypeId = "link" | "app" | "social" | "pdf" | "image" | "video" | "whatsapp";
+type QrContentType = "Link" | "App" | "Social" | "Pdf" | "Image" | "Video" | "WhatsApp";
+type QrJobStatus = "Queued" | "Running" | "Completed" | "Failed";
+type FinderShape = "Square" | "Rounded" | "Circle";
+type ErrorCorrectionLevel = "L" | "M" | "Q" | "H";
+
+type SubmitRenderJobRequest = {
+  contentType: QrContentType;
+  targetUrl?: string;
+  payload: Record<string, string>;
+  errorCorrectionLevel: ErrorCorrectionLevel;
+  output: {
+    sizePx: number;
+  };
+  finder: {
+    borderShape: FinderShape;
+    centerShape: FinderShape;
+  };
+};
+
+type RenderJobAcceptedResponse = {
+  jobId: string;
+  status: QrJobStatus;
+  statusUrl: string;
+};
+
+type RenderArtifactDescriptor = {
+  format: string;
+  contentType: string;
+  sizeBytes: number;
+  downloadUrl: string;
+};
+
+type RenderJobStatusResponse = {
+  jobId: string;
+  status: QrJobStatus;
+  contentType: QrContentType;
+  encodedPayload?: string;
+  resolvedTargetUrl?: string;
+  configurationHash?: string;
+  payloadHash?: string;
+  createdAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  failureReason?: string;
+  artifacts: RenderArtifactDescriptor[];
 };
 
 const builderTypes: BuilderType[] = [
@@ -62,40 +110,158 @@ const builderTypes: BuilderType[] = [
   },
 ];
 
+const pollIntervalMs = 1500;
+const retryIntervalMs = 3000;
+
 export function QrBuilder() {
   const [selectedType, setSelectedType] = useState<BuilderType>(builderTypes[0]);
   const [targetUrl, setTargetUrl] = useState("https://computemore.com/campaign/spring-launch");
   const [phone, setPhone] = useState("+260977000000");
   const [message, setMessage] = useState("Hello from HaveQR");
-  const [finderBorder, setFinderBorder] = useState("Rounded");
-  const [finderCenter, setFinderCenter] = useState("Circle");
+  const [finderBorder, setFinderBorder] = useState<FinderShape>("Rounded");
+  const [finderCenter, setFinderCenter] = useState<FinderShape>("Circle");
   const [sizePx, setSizePx] = useState("1024");
-  const [eccLevel, setEccLevel] = useState("H");
-  const deferredTargetUrl = useDeferredValue(targetUrl);
+  const [eccLevel, setEccLevel] = useState<ErrorCorrectionLevel>("H");
+  const [acceptedJob, setAcceptedJob] = useState<RenderJobAcceptedResponse | null>(null);
+  const [latestJob, setLatestJob] = useState<RenderJobStatusResponse | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
 
-  const previewTarget =
-    selectedType.id === "whatsapp" && deferredTargetUrl.trim().length === 0
-      ? `https://wa.me/${phone.replace(/[^\d+]/g, "")}?text=${encodeURIComponent(message)}`
-      : deferredTargetUrl;
+  const normalizedTargetUrl = targetUrl.trim();
+  const normalizedPhone = phone.trim();
+  const normalizedMessage = message.trim();
+  const parsedSizePx = Number.parseInt(sizePx, 10);
+  const hasValidSize = Number.isFinite(parsedSizePx) && parsedSizePx > 0;
+  const resolvedSizePx = hasValidSize ? parsedSizePx : 1024;
+  const previewTarget = resolvePreviewTarget(selectedType.id, normalizedTargetUrl, normalizedPhone, normalizedMessage);
+  const requestPreview = buildRenderRequest(
+    selectedType.id,
+    normalizedTargetUrl,
+    normalizedPhone,
+    normalizedMessage,
+    resolvedSizePx,
+    finderBorder,
+    finderCenter,
+    eccLevel,
+  );
+  const currentStatus = latestJob?.status ?? acceptedJob?.status ?? null;
+  const preferredArtifact = selectPreferredArtifact(latestJob?.artifacts ?? []);
+  const statusMessage = getStatusMessage(acceptedJob, latestJob, isPolling);
+  const timelineText = getTimelineText(acceptedJob, latestJob);
 
-  const requestPreview = {
-    contentType: capitalize(selectedType.id),
-    targetUrl: selectedType.id === "whatsapp" && deferredTargetUrl.trim().length === 0 ? undefined : deferredTargetUrl,
-    payload:
-      selectedType.id === "whatsapp"
-        ? {
-            phone,
-            message,
-          }
-        : {},
-    errorCorrectionLevel: eccLevel,
-    output: {
-      sizePx: Number(sizePx),
-    },
-    finder: {
-      borderShape: finderBorder,
-      centerShape: finderCenter,
-    },
+  useEffect(() => {
+    if (!acceptedJob?.statusUrl) {
+      return;
+    }
+
+    let cancelled = false;
+    let timeoutId: number | undefined;
+
+    setIsPolling(true);
+
+    const scheduleNext = (delayMs: number) => {
+      if (!cancelled) {
+        timeoutId = window.setTimeout(runPoll, delayMs);
+      }
+    };
+
+    const runPoll = async () => {
+      try {
+        const response = await fetch(acceptedJob.statusUrl, {
+          cache: "no-store",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(await readErrorResponse(response, "Unable to load render status."));
+        }
+
+        const status = (await response.json()) as RenderJobStatusResponse;
+
+        if (cancelled) {
+          return;
+        }
+
+        setLatestJob(status);
+        setErrorMessage(null);
+
+        if (isTerminalStatus(status.status)) {
+          setIsPolling(false);
+          return;
+        }
+
+        scheduleNext(pollIntervalMs);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        setErrorMessage(getErrorMessage(error));
+        scheduleNext(retryIntervalMs);
+      }
+    };
+
+    void runPoll();
+
+    return () => {
+      cancelled = true;
+
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [acceptedJob?.jobId, acceptedJob?.statusUrl]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void queueRenderJob();
+  };
+
+  const queueRenderJob = async () => {
+    const validationError = validateRequest(selectedType.id, normalizedTargetUrl, normalizedPhone, hasValidSize);
+
+    if (validationError) {
+      setErrorMessage(validationError);
+      return;
+    }
+
+    setAcceptedJob(null);
+    setLatestJob(null);
+    setErrorMessage(null);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/v1/qr/render", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestPreview),
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorResponse(response, "Unable to queue render job."));
+      }
+
+      const accepted = (await response.json()) as RenderJobAcceptedResponse;
+      setAcceptedJob(accepted);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePreferredDownload = () => {
+    if (!preferredArtifact) {
+      return;
+    }
+
+    window.location.assign(preferredArtifact.downloadUrl);
   };
 
   return (
@@ -133,7 +299,7 @@ export function QrBuilder() {
                 onClick={() => {
                   startTransition(() => {
                     setSelectedType(builderType);
-                    setTargetUrl(builderType.placeholder);
+                    setTargetUrl(builderType.id === "whatsapp" ? "" : builderType.placeholder);
                   });
                 }}
               >
@@ -147,7 +313,7 @@ export function QrBuilder() {
       </section>
 
       <section className="workspace-grid">
-        <form className="panel panel-form">
+        <form className="panel panel-form" onSubmit={handleSubmit}>
           <div className="panel-header">
             <div>
               <p className="section-label">Builder inputs</p>
@@ -163,6 +329,9 @@ export function QrBuilder() {
               onChange={(event) => setTargetUrl(event.target.value)}
               placeholder={selectedType.placeholder}
             />
+            {selectedType.id === "whatsapp" ? (
+              <small className="field-hint">Leave blank to synthesize a `wa.me` link from the phone and message fields.</small>
+            ) : null}
           </label>
 
           {selectedType.id === "whatsapp" ? (
@@ -181,7 +350,7 @@ export function QrBuilder() {
           <div className="field-grid">
             <label className="field">
               <span>Finder border</span>
-              <select value={finderBorder} onChange={(event) => setFinderBorder(event.target.value)}>
+              <select value={finderBorder} onChange={(event) => setFinderBorder(event.target.value as FinderShape)}>
                 <option>Square</option>
                 <option>Rounded</option>
                 <option>Circle</option>
@@ -189,7 +358,7 @@ export function QrBuilder() {
             </label>
             <label className="field">
               <span>Finder center</span>
-              <select value={finderCenter} onChange={(event) => setFinderCenter(event.target.value)}>
+              <select value={finderCenter} onChange={(event) => setFinderCenter(event.target.value as FinderShape)}>
                 <option>Square</option>
                 <option>Rounded</option>
                 <option>Circle</option>
@@ -201,10 +370,11 @@ export function QrBuilder() {
             <label className="field">
               <span>PNG size</span>
               <input value={sizePx} onChange={(event) => setSizePx(event.target.value)} />
+              {!hasValidSize ? <small className="field-hint field-hint-error">Use a whole number greater than zero.</small> : null}
             </label>
             <label className="field">
               <span>ECC</span>
-              <select value={eccLevel} onChange={(event) => setEccLevel(event.target.value)}>
+              <select value={eccLevel} onChange={(event) => setEccLevel(event.target.value as ErrorCorrectionLevel)}>
                 <option>L</option>
                 <option>M</option>
                 <option>Q</option>
@@ -214,12 +384,26 @@ export function QrBuilder() {
           </div>
 
           <div className="action-row">
-            <button className="primary-action" type="button">
-              Queue Render Job
+            <button className="primary-action" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Queueing Render Job..." : acceptedJob ? "Queue Another Render Job" : "Queue Render Job"}
             </button>
-            <button className="secondary-action" type="button">
-              Download When Ready
+            <button className="secondary-action" type="button" disabled={!preferredArtifact} onClick={handlePreferredDownload}>
+              {preferredArtifact ? `Download ${preferredArtifact.format.toUpperCase()}` : "Download When Ready"}
             </button>
+          </div>
+
+          <div className="job-feedback" aria-live="polite">
+            {statusMessage ? <p className="feedback-text">{statusMessage}</p> : null}
+            {errorMessage ? <p className="feedback-text feedback-text-error">{errorMessage}</p> : null}
+            {latestJob?.artifacts.length ? (
+              <div className="artifact-row">
+                {latestJob.artifacts.map((artifact) => (
+                  <a key={artifact.format} className="artifact-link" href={artifact.downloadUrl}>
+                    {artifact.format.toUpperCase()} · {formatBytes(artifact.sizeBytes)}
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
         </form>
 
@@ -229,7 +413,7 @@ export function QrBuilder() {
               <p className="section-label">Request preview</p>
               <h2>Resolved payload</h2>
             </div>
-            <span className="status-chip status-chip-dark">Worker-ready</span>
+            <span className={getStatusChipClassName(currentStatus)}>{getStatusLabel(currentStatus, isPolling)}</span>
           </div>
 
           <div className="preview-card">
@@ -241,9 +425,28 @@ export function QrBuilder() {
             </div>
             <div className="preview-meta">
               <p className="preview-label">Resolved target</p>
-              <p className="preview-value">{previewTarget}</p>
+              <p className="preview-value">{latestJob?.resolvedTargetUrl ?? previewTarget}</p>
               <p className="preview-label">Artifact plan</p>
-              <p className="preview-value">Canonical SVG + derived PNG</p>
+              <p className="preview-value">
+                {latestJob?.artifacts.length
+                  ? latestJob.artifacts.map((artifact) => artifact.format.toUpperCase()).join(" + ")
+                  : "Canonical SVG + derived PNG"}
+              </p>
+            </div>
+          </div>
+
+          <div className="job-summary">
+            <div>
+              <p className="preview-label">Job timeline</p>
+              <p className="preview-value">{timelineText}</p>
+            </div>
+            <div>
+              <p className="preview-label">Encoded payload</p>
+              <p className="preview-value">{latestJob?.encodedPayload ?? "Worker will resolve this after queue pickup."}</p>
+            </div>
+            <div>
+              <p className="preview-label">Status detail</p>
+              <p className="preview-value">{latestJob?.failureReason ?? statusMessage}</p>
             </div>
           </div>
 
@@ -254,6 +457,239 @@ export function QrBuilder() {
   );
 }
 
-function capitalize(value: string) {
-  return value.slice(0, 1).toUpperCase() + value.slice(1);
+function buildRenderRequest(
+  typeId: BuilderTypeId,
+  targetUrl: string,
+  phone: string,
+  message: string,
+  sizePx: number,
+  finderBorder: FinderShape,
+  finderCenter: FinderShape,
+  errorCorrectionLevel: ErrorCorrectionLevel,
+): SubmitRenderJobRequest {
+  return {
+    contentType: toContentType(typeId),
+    targetUrl: typeId === "whatsapp" && targetUrl.length === 0 ? undefined : targetUrl || undefined,
+    payload:
+      typeId === "whatsapp"
+        ? {
+            ...(phone ? { phone } : {}),
+            ...(message ? { message } : {}),
+          }
+        : {},
+    errorCorrectionLevel,
+    output: {
+      sizePx,
+    },
+    finder: {
+      borderShape: finderBorder,
+      centerShape: finderCenter,
+    },
+  };
+}
+
+function toContentType(typeId: BuilderTypeId): QrContentType {
+  switch (typeId) {
+    case "link":
+      return "Link";
+    case "app":
+      return "App";
+    case "social":
+      return "Social";
+    case "pdf":
+      return "Pdf";
+    case "image":
+      return "Image";
+    case "video":
+      return "Video";
+    case "whatsapp":
+      return "WhatsApp";
+  }
+}
+
+function resolvePreviewTarget(typeId: BuilderTypeId, targetUrl: string, phone: string, message: string) {
+  if (typeId !== "whatsapp") {
+    return targetUrl || "Provide an absolute URL to queue a render.";
+  }
+
+  if (targetUrl.length > 0) {
+    return targetUrl;
+  }
+
+  const normalizedPhone = phone.replace(/[^\d+]/g, "");
+
+  if (normalizedPhone.length === 0) {
+    return "Provide a WhatsApp URL or phone number.";
+  }
+
+  const baseUrl = `https://wa.me/${normalizedPhone}`;
+  return message ? `${baseUrl}?text=${encodeURIComponent(message)}` : baseUrl;
+}
+
+function validateRequest(typeId: BuilderTypeId, targetUrl: string, phone: string, hasValidSize: boolean) {
+  if (!hasValidSize) {
+    return "PNG size must be a whole number greater than zero.";
+  }
+
+  if (targetUrl.length > 0 && !isAbsoluteHttpUrl(targetUrl)) {
+    return "Target URL must be a valid absolute http or https URL.";
+  }
+
+  if (typeId === "whatsapp") {
+    const normalizedPhone = phone.replace(/[^\d+]/g, "");
+    return targetUrl.length === 0 && normalizedPhone.length === 0
+      ? "Provide a WhatsApp URL or a phone number for the fallback link."
+      : null;
+  }
+
+  return targetUrl.length === 0 ? "Target URL is required for this content type." : null;
+}
+
+function isAbsoluteHttpUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isTerminalStatus(status: QrJobStatus) {
+  return status === "Completed" || status === "Failed";
+}
+
+function selectPreferredArtifact(artifacts: RenderArtifactDescriptor[]) {
+  return artifacts.find((artifact) => artifact.format.toLowerCase() === "png") ?? artifacts[0] ?? null;
+}
+
+function getStatusLabel(status: QrJobStatus | null, isPolling: boolean) {
+  if (!status) {
+    return "Ready to queue";
+  }
+
+  if (status === "Running" && isPolling) {
+    return "Rendering";
+  }
+
+  if (status === "Completed") {
+    return "Artifacts ready";
+  }
+
+  if (status === "Failed") {
+    return "Render failed";
+  }
+
+  return status;
+}
+
+function getStatusChipClassName(status: QrJobStatus | null) {
+  if (!status) {
+    return "status-chip status-chip-neutral";
+  }
+
+  return `status-chip status-chip-${status.toLowerCase()}`;
+}
+
+function getStatusMessage(
+  acceptedJob: RenderJobAcceptedResponse | null,
+  latestJob: RenderJobStatusResponse | null,
+  isPolling: boolean,
+) {
+  if (!acceptedJob) {
+    return "Queue a render job to start polling the worker and unlock artifact downloads.";
+  }
+
+  if (!latestJob) {
+    return `Job ${shortenJobId(acceptedJob.jobId)} queued. Waiting for worker pickup.`;
+  }
+
+  switch (latestJob.status) {
+    case "Queued":
+      return `Job ${shortenJobId(latestJob.jobId)} is queued${isPolling ? " and being polled." : "."}`;
+    case "Running":
+      return `Job ${shortenJobId(latestJob.jobId)} is rendering SVG and PNG artifacts.`;
+    case "Completed":
+      return `Job ${shortenJobId(latestJob.jobId)} completed with ${latestJob.artifacts.length} artifact(s) ready.`;
+    case "Failed":
+      return latestJob.failureReason ?? `Job ${shortenJobId(latestJob.jobId)} failed during rendering.`;
+  }
+}
+
+function getTimelineText(acceptedJob: RenderJobAcceptedResponse | null, latestJob: RenderJobStatusResponse | null) {
+  if (!acceptedJob) {
+    return "No render job queued yet.";
+  }
+
+  if (!latestJob) {
+    return `Queued job ${shortenJobId(acceptedJob.jobId)}. Waiting for the first worker update.`;
+  }
+
+  return [
+    `Created ${formatTimestamp(latestJob.createdAt)}`,
+    latestJob.startedAt ? `Started ${formatTimestamp(latestJob.startedAt)}` : null,
+    latestJob.completedAt ? `Completed ${formatTimestamp(latestJob.completedAt)}` : null,
+  ]
+    .filter((value): value is string => value !== null)
+    .join(" · ");
+}
+
+function formatTimestamp(value: string) {
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function shortenJobId(jobId: string) {
+  return jobId.slice(0, 8);
+}
+
+function formatBytes(value: number) {
+  if (value < 1024) {
+    return `${value} B`;
+  }
+
+  if (value < 1024 * 1024) {
+    return `${(value / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unexpected request failure.";
+}
+
+async function readErrorResponse(response: Response, fallbackMessage: string) {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const responseClone = response.clone();
+    const payload = (await responseClone.json().catch(() => null)) as
+      | {
+          title?: string;
+          detail?: string;
+          errors?: Record<string, string[]>;
+        }
+      | null;
+
+    if (payload?.detail) {
+      return payload.detail;
+    }
+
+    if (payload?.title) {
+      return payload.title;
+    }
+
+    if (payload?.errors) {
+      const messages = Object.values(payload.errors).flat();
+      if (messages.length > 0) {
+        return messages.join(" ");
+      }
+    }
+  }
+
+  const text = await response.text().catch(() => "");
+  return text.trim() || fallbackMessage;
 }

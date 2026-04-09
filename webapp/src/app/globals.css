@@ -238,6 +238,31 @@ h2 {
   color: var(--bg-deep);
 }
 
+.status-chip-neutral {
+  background: rgba(11, 31, 58, 0.1);
+  color: var(--bg-deep);
+}
+
+.status-chip-queued {
+  background: rgba(31, 97, 192, 0.14);
+  color: #114689;
+}
+
+.status-chip-running {
+  background: rgba(255, 122, 61, 0.18);
+  color: #7f3613;
+}
+
+.status-chip-completed {
+  background: rgba(25, 135, 84, 0.16);
+  color: #155c3d;
+}
+
+.status-chip-failed {
+  background: rgba(180, 55, 31, 0.16);
+  color: #7d2414;
+}
+
 .field,
 .field-grid {
   display: grid;
@@ -247,6 +272,16 @@ h2 {
 .field span {
   font-size: 0.92rem;
   font-weight: 600;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.field-hint-error {
+  color: #9c381a;
 }
 
 .field input,
@@ -297,6 +332,50 @@ h2 {
   background: rgba(255, 255, 255, 0.8);
   border-color: rgba(11, 31, 58, 0.14);
   color: var(--text);
+}
+
+.primary-action:disabled,
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.job-feedback {
+  display: grid;
+  gap: 12px;
+  margin-top: -2px;
+}
+
+.feedback-text {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.feedback-text-error {
+  color: #8d2e18;
+}
+
+.artifact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.artifact-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(11, 31, 58, 0.14);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.artifact-link:hover {
+  border-color: rgba(31, 97, 192, 0.28);
 }
 
 .preview-card {
@@ -357,6 +436,15 @@ h2 {
   display: grid;
   align-content: start;
   gap: 6px;
+}
+
+.job-summary {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(11, 31, 58, 0.08);
 }
 
 .preview-value {
