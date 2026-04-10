@@ -5,6 +5,7 @@ using HaveQR.Contracts.Responses;
 using HaveQR.PublicApi.Services;
 using HaveQR.QrEngine.Hashing;
 using HaveQR.QrEngine.PayloadEncoding;
+using HaveQR.QrEngine.Rendering;
 using HaveQR.QrEngine.Storage;
 using System.Text.Json.Serialization;
 
@@ -76,7 +77,7 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HaveQR.PublicApi",
 	status = "ok",
-	version = "0.2.2.1",
+	version = "0.2.2.2",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));
@@ -88,6 +89,13 @@ app.MapPost("/api/v1/qr/render", async (
 	RenderJobService renderJobs,
 	CancellationToken cancellationToken) =>
 {
+	var validationErrors = QrRenderRequestValidator.Validate(request);
+
+	if (validationErrors.Count > 0)
+	{
+		return Results.ValidationProblem(validationErrors);
+	}
+
 	var response = await renderJobs.EnqueueAsync(request, cancellationToken);
 	var statusUrl = response.StatusUrl;
 	return Results.Accepted(statusUrl, response);

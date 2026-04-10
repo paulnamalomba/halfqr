@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HaveQR.Billing")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d8fecaed04076a5fd1a14023cd2abead7e68533")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+525350c093c205b7a6c847207d7605f22f3cad54")]
 [assembly: System.Reflection.AssemblyProductAttribute("HaveQR.Billing")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HaveQR.Billing")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

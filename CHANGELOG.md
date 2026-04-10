@@ -7,20 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
     - [Added](#added)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
+    - [Added](#added-1)
     - [Changed](#changed)
     - [Validation](#validation)
   - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
-    - [Added](#added-1)
+    - [Added](#added-2)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
   - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
-    - [Added](#added-2)
+    - [Added](#added-3)
     - [Changed](#changed-2)
     - [Validation](#validation-2)
   - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
-    - [Added](#added-3)
+    - [Added](#added-4)
     - [Changed](#changed-3)
     - [Validation](#validation-3)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
@@ -28,6 +30,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Validation:](#validation-4)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.2.2] - 2026-04-10
+
+### Added
+
+- Implemented the styled QR slice end to end. The backend now accepts data styling and richer logo inputs, renders square or dotted data modules with linear gradients limited to the main QR body, and supports centered SVG, PNG, and JPEG logos with backdrop handling and raster background removal. 
+- The webapp now uses the HaveQR favicon, ships a real landing page plus rebuilt builder UI, exposes the new styling controls, and swaps to worker artifacts instead of a fake preview once a job completes.
+- Added a same-origin proxy in the webapp so local use no longer fails on browser CORS when talking to the hosted API.
+- Completely implemeneted the `webapp` and it's components and pages, written in TypeScript with React and Next.js, and styled with Material UI and Emotion, copying over some boilerplate and patterns from afriflex.
+  - The webapp as externally tunneled to `haveqr.computemore.com` is now the primary demo and test interface for the project, replacing the previous Postman collection and direct API calls.
+- Completely overhauled the api as well
 
 ---
 

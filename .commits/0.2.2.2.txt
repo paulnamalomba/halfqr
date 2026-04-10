@@ -1,0 +1,14 @@
+HaveQR v0.2.2.2 Release Notes
+Release Date: 10 April, 2026
+===================================
+
+## [0.2.2.2] - 2026-04-10
+
+### Added
+
+- Implemented the styled QR slice end to end. The backend now accepts data styling and richer logo inputs, renders square or dotted data modules with linear gradients limited to the main QR body, and supports centered SVG, PNG, and JPEG logos with backdrop handling and raster background removal. 
+- The webapp now uses the HaveQR favicon, ships a real landing page plus rebuilt builder UI, exposes the new styling controls, and swaps to worker artifacts instead of a fake preview once a job completes.
+- Added a same-origin proxy in the webapp so local use no longer fails on browser CORS when talking to the hosted API.
+- Completely implemeneted the `webapp` and it's components and pages, written in TypeScript with React and Next.js, and styled with Material UI and Emotion, copying over some boilerplate and patterns from afriflex.
+  - The webapp as externally tunneled to `haveqr.computemore.com` is now the primary demo and test interface for the project, replacing the previous Postman collection and direct API calls.
+- Completely overhauled the api as well

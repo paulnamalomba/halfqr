@@ -36,7 +36,7 @@ internal static class QrFinderSvgComposer
         return svgMarkup.Replace("</svg>", $"{overlayMarkup}{Environment.NewLine}</svg>", StringComparison.Ordinal);
     }
 
-    private static string BuildOverlay(int moduleCount, QrFinderOptions finderOptions, QrColorOptions colors)
+    internal static string BuildOverlay(int moduleCount, QrFinderOptions finderOptions, QrColorOptions colors)
     {
         var origins = new (int X, int Y)[]
         {

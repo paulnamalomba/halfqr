@@ -22,4 +22,6 @@ public sealed record SubmitRenderJobRequest
     public QrFinderOptions Finder { get; init; } = new();
 
     public QrColorOptions Colors { get; init; } = new();
+
+    public QrDataOptions Data { get; init; } = new();
 }

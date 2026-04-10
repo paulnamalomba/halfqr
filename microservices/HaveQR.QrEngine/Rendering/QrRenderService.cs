@@ -17,6 +17,7 @@ public sealed class QrRenderService(
     public Task<QrRenderArtifacts> RenderAsync(SubmitRenderJobRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        QrRenderRequestValidator.EnsureValid(request);
 
         var encodedPayload = payloadEncoder.Encode(request.ContentType, request.TargetUrl, request.Payload);
         var configurationHash = hashService.Compute(SerializeCanonicalRequest(request));
@@ -47,12 +48,18 @@ public sealed class QrRenderService(
             request.Output,
             request.Finder,
             request.Colors,
+            request.Data,
             Logo = request.Logo is null
                 ? null
                 : new
                 {
+                    request.Logo.SourceType,
                     HasSvg = !string.IsNullOrWhiteSpace(request.Logo.Svg),
+                    HasRaster = !string.IsNullOrWhiteSpace(request.Logo.ContentBase64),
+                    request.Logo.ContentType,
                     request.Logo.SizePercent,
+                    request.Logo.RemoveBackground,
+                    request.Logo.BackdropPaddingPercent,
                 },
         };
 
@@ -63,24 +70,8 @@ public sealed class QrRenderService(
     {
         using var generator = new QRCodeGenerator();
         using var qrCodeData = generator.CreateQrCode(encodedPayload, ToEccLevel(request.ErrorCorrectionLevel));
-        using var qrCode = new SvgQRCode(qrCodeData);
-
-        SvgQRCode.SvgLogo? logo = null;
-
-        if (!string.IsNullOrWhiteSpace(request.Logo?.Svg))
-        {
-            logo = new SvgQRCode.SvgLogo(request.Logo.Svg!, request.Logo.SizePercent, fillLogoBackground: true, iconEmbedded: true);
-        }
-
-        var svgMarkup = qrCode.GetGraphic(
-            pixelsPerModule: 20,
-            darkColorHex: request.Colors.Dark,
-            lightColorHex: request.Colors.Light,
-            drawQuietZones: true,
-            sizingMode: SvgQRCode.SizingMode.ViewBoxAttribute,
-            logo: logo);
-
-        return QrFinderSvgComposer.Compose(svgMarkup, qrCodeData, request.Finder, request.Colors);
+        var preparedLogo = QrLogoProcessor.Prepare(request.Logo);
+        return QrSvgComposer.Compose(qrCodeData, request, preparedLogo);
     }
 
     private static byte[] RasterizePng(string svgMarkup, int sizePx)

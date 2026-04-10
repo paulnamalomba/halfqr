@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const headingFont = Space_Grotesk({
@@ -21,8 +22,30 @@ const monoFont = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HaveQR Builder",
-  description: "Initial HaveQR builder scaffold for branded, async QR rendering.",
+  metadataBase: new URL("https://haveqr.computemore.com"),
+  title: {
+    default: "HaveQR | Styled QR Builder",
+    template: "%s | HaveQR",
+  },
+  description: "Generate branded QR codes with async SVG and PNG rendering, dotted data modules, linear gradients, and centered logo uploads.",
+  icons: {
+    icon: [{ url: "/logos/havqr_favicon_3000x3000.svg", type: "image/svg+xml" }],
+    shortcut: ["/logos/havqr_favicon_3000x3000.svg"],
+    apple: [{ url: "/logos/havqr_favicon_3000x3000.svg" }],
+  },
+  openGraph: {
+    title: "HaveQR | Styled QR Builder",
+    description: "Queue branded QR renders with live async worker output, finder styling, dotted data modules, and centered logo uploads.",
+    url: "https://haveqr.computemore.com",
+    siteName: "HaveQR",
+    images: [{ url: "/logos/havqr_main_6000x3306.png", width: 1200, height: 661, alt: "HaveQR" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HaveQR | Styled QR Builder",
+    description: "Design the QR in the browser. Render the final SVG and PNG on the worker.",
+    images: ["/logos/havqr_main_6000x3306.png"],
+  },
 };
 
 export default function RootLayout({
@@ -32,8 +55,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${headingFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>
-        {children}
+      <body className={`site-body ${headingFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>
+        <div className="app-frame">
+          <SiteHeader />
+          {children}
+        </div>
       </body>
     </html>
   );
