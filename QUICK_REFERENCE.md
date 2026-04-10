@@ -1,6 +1,6 @@
 # HaveQR Quick Reference
 
-**App Version**: 0.2.5.0  
+**App Version**: 0.2.6.0  
 **Date**: 2026-04-09  
 **Repository**: `haveqr`
 

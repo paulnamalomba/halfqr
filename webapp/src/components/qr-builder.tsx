@@ -61,6 +61,18 @@ type UploadedLogo = {
   contentType?: string;
 };
 
+type PreviewLogoLayout = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  backdropX: number;
+  backdropY: number;
+  backdropWidth: number;
+  backdropHeight: number;
+  cornerRadius: number;
+};
+
 // These types represent the shapes of the requests we send to the API and the responses we receive, 
 // all strongly typed for safety and clarity
 type SubmitRenderJobRequest = {
@@ -163,6 +175,9 @@ const previewFinderSizeModules = 7;
 const previewFinderInnerSizeModules = 5;
 const previewFinderCenterSizeModules = 3;
 const previewDottedRadius = 0.38;
+const defaultDarkColor = "#000000";
+const defaultLightColor = "#FFFFFF";
+const defaultGradientEnd = "#1F61C0";
 
 // Hard-coded array that speicfies each builder type as selcted by the user, this is fired to our render job
 const builderTypes: BuilderType[] = [
@@ -295,11 +310,11 @@ export function QrBuilder() {
   const [finderCenter, setFinderCenter] = useState<FinderShape>("Circle");
   const [dataPattern, setDataPattern] = useState<QrDataPattern>("Square");
   const [gradientMode, setGradientMode] = useState<QrGradientMode>("Linear");
-  const [gradientStart, setGradientStart] = useState("#10243C");
-  const [gradientEnd, setGradientEnd] = useState("#1F61C0");
+  const [gradientStart, setGradientStart] = useState(defaultDarkColor);
+  const [gradientEnd, setGradientEnd] = useState(defaultGradientEnd);
   const [gradientRotation, setGradientRotation] = useState("135");
-  const [darkColor, setDarkColor] = useState("#10243C");
-  const [lightColor, setLightColor] = useState("#FFFFFF");
+  const [darkColor, setDarkColor] = useState(defaultDarkColor);
+  const [lightColor, setLightColor] = useState(defaultLightColor);
   const [sizePx, setSizePx] = useState("1024");
   const [eccLevel, setEccLevel] = useState<ErrorCorrectionLevel>("H");
   const [logoAsset, setLogoAsset] = useState<UploadedLogo | null>(null);
@@ -1365,7 +1380,7 @@ function describeStyling(dataPattern: QrDataPattern, gradientMode: QrGradientMod
 
 function getLogoHint(logoAsset: UploadedLogo | null, removeLogoBackground: boolean) {
   if (!logoAsset) {
-    return "Upload a centered logo to have the worker embed it on top of a safe backdrop in the middle of the QR.";
+    return "Upload a centered logo to have the worker reserve a safe middle window before embedding the asset.";
   }
 
   if (logoAsset.sourceType === "Svg") {
@@ -1451,17 +1466,20 @@ function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRende
   qr.make();
 
   const moduleCount = qr.getModuleCount();
+  const logoLayout = logoAsset && request.logo
+    ? resolvePreviewLogoLayout(logoAsset.aspectRatio, request.logo.sizePercent, request.logo.backdropPaddingPercent, moduleCount)
+    : null;
   const parts: string[] = [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" role="img" aria-label="HaveQR code">`,
   ];
 
-  appendLocalPreviewDefs(parts, request);
+  appendLocalPreviewDefs(parts, request, moduleCount);
   parts.push(`<rect x="0" y="0" width="${moduleCount}" height="${moduleCount}" fill="${request.colors.light}"/>`);
   parts.push(`<g id="haveqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
 
   for (let row = 0; row < moduleCount; row += 1) {
     for (let column = 0; column < moduleCount; column += 1) {
-      if (!qr.isDark(row, column) || isInPreviewFinderWindow(row, column, moduleCount)) {
+      if (!qr.isDark(row, column) || isInPreviewFinderWindow(row, column, moduleCount) || isInPreviewLogoSafeRegion(row, column, logoLayout)) {
         continue;
       }
 
@@ -1479,28 +1497,24 @@ function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRende
   parts.push("</g>");
   parts.push(buildLocalPreviewFinderOverlay(moduleCount, request.finder.borderShape, request.finder.centerShape, request.colors.dark, request.colors.light));
 
-  if (logoAsset && request.logo) {
-    appendLocalPreviewLogo(parts, logoAsset, request.logo.sizePercent, request.logo.backdropPaddingPercent, request.colors.light, moduleCount);
+  if (logoAsset && logoLayout) {
+    appendLocalPreviewLogo(parts, logoAsset, request.colors.light, logoLayout);
   }
 
   parts.push("</svg>");
   return parts.join("");
 }
 
-function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest) {
+function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest, moduleCount: number) {
   if (request.data.gradientMode !== "Linear" || !request.data.gradientStart || !request.data.gradientEnd) {
     return;
   }
 
-  const angle = request.data.gradientRotation * (Math.PI / 180);
-  const x1 = 0.5 - (0.5 * Math.cos(angle));
-  const y1 = 0.5 - (0.5 * Math.sin(angle));
-  const x2 = 0.5 + (0.5 * Math.cos(angle));
-  const y2 = 0.5 + (0.5 * Math.sin(angle));
+  const { x1, y1, x2, y2 } = resolvePreviewGradientVector(moduleCount, request.data.gradientRotation);
 
   parts.push("<defs>");
   parts.push(
-    `<linearGradient id="haveqr-data-gradient" gradientUnits="objectBoundingBox" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
+    `<linearGradient id="haveqr-data-gradient" gradientUnits="userSpaceOnUse" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
   );
   parts.push(`<stop offset="0%" stop-color="${request.data.gradientStart}"/>`);
   parts.push(`<stop offset="100%" stop-color="${request.data.gradientEnd}"/>`);
@@ -1568,29 +1582,72 @@ function appendLocalPreviewCircle(parts: string[], centerX: number, centerY: num
 function appendLocalPreviewLogo(
   parts: string[],
   logoAsset: UploadedLogo,
-  sizePercent: number,
-  backdropPaddingPercent: number,
   backdropFill: string,
-  moduleCount: number,
+  layout: PreviewLogoLayout,
 ) {
+  parts.push(`<g id="haveqr-logo"><rect x="${formatPreviewNumber(layout.backdropX)}" y="${formatPreviewNumber(layout.backdropY)}" width="${formatPreviewNumber(layout.backdropWidth)}" height="${formatPreviewNumber(layout.backdropHeight)}" rx="${formatPreviewNumber(layout.cornerRadius)}" ry="${formatPreviewNumber(layout.cornerRadius)}" fill="${backdropFill}"/>`);
+  parts.push(
+    `<image x="${formatPreviewNumber(layout.x)}" y="${formatPreviewNumber(layout.y)}" width="${formatPreviewNumber(layout.width)}" height="${formatPreviewNumber(layout.height)}" href="${escapeSvgAttribute(logoAsset.previewUrl)}" preserveAspectRatio="xMidYMid meet"/>`,
+  );
+  parts.push("</g>");
+}
+
+function resolvePreviewGradientVector(moduleCount: number, rotation: number) {
+  const angle = rotation * (Math.PI / 180);
+  const directionX = Math.cos(angle);
+  const directionY = Math.sin(angle);
+  const activeCodeSize = moduleCount - (previewQuietZoneModules * 2);
+  const center = moduleCount / 2;
+  const maxDirection = Math.max(Math.abs(directionX), Math.abs(directionY), Number.EPSILON);
+  const halfSpan = (activeCodeSize / 2) / maxDirection;
+
+  return {
+    x1: center - (directionX * halfSpan),
+    y1: center - (directionY * halfSpan),
+    x2: center + (directionX * halfSpan),
+    y2: center + (directionY * halfSpan),
+  };
+}
+
+function resolvePreviewLogoLayout(aspectRatio: number, sizePercent: number, backdropPaddingPercent: number, moduleCount: number): PreviewLogoLayout {
   const activeCodeSize = moduleCount - (previewQuietZoneModules * 2);
   const logoBoxSize = activeCodeSize * (sizePercent / 100);
-  const aspectRatio = logoAsset.aspectRatio > 0 ? logoAsset.aspectRatio : 1;
-  const logoWidth = aspectRatio >= 1 ? logoBoxSize : logoBoxSize * aspectRatio;
-  const logoHeight = aspectRatio >= 1 ? logoBoxSize / aspectRatio : logoBoxSize;
-  const x = (moduleCount - logoWidth) / 2;
-  const y = (moduleCount - logoHeight) / 2;
-  const backdropWidth = logoWidth * (1 + (backdropPaddingPercent / 100));
-  const backdropHeight = logoHeight * (1 + (backdropPaddingPercent / 100));
+  const resolvedAspectRatio = aspectRatio > 0 ? aspectRatio : 1;
+  const width = resolvedAspectRatio >= 1 ? logoBoxSize : logoBoxSize * resolvedAspectRatio;
+  const height = resolvedAspectRatio >= 1 ? logoBoxSize / resolvedAspectRatio : logoBoxSize;
+  const x = (moduleCount - width) / 2;
+  const y = (moduleCount - height) / 2;
+  const backdropWidth = width * (1 + (backdropPaddingPercent / 100));
+  const backdropHeight = height * (1 + (backdropPaddingPercent / 100));
   const backdropX = (moduleCount - backdropWidth) / 2;
   const backdropY = (moduleCount - backdropHeight) / 2;
   const cornerRadius = Math.min(backdropWidth, backdropHeight) * 0.22;
 
-  parts.push(`<g id="haveqr-logo"><rect x="${formatPreviewNumber(backdropX)}" y="${formatPreviewNumber(backdropY)}" width="${formatPreviewNumber(backdropWidth)}" height="${formatPreviewNumber(backdropHeight)}" rx="${formatPreviewNumber(cornerRadius)}" ry="${formatPreviewNumber(cornerRadius)}" fill="${backdropFill}"/>`);
-  parts.push(
-    `<image x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(logoWidth)}" height="${formatPreviewNumber(logoHeight)}" href="${escapeSvgAttribute(logoAsset.previewUrl)}" preserveAspectRatio="xMidYMid meet"/>`,
-  );
-  parts.push("</g>");
+  return {
+    x,
+    y,
+    width,
+    height,
+    backdropX,
+    backdropY,
+    backdropWidth,
+    backdropHeight,
+    cornerRadius,
+  };
+}
+
+function isInPreviewLogoSafeRegion(row: number, column: number, layout: PreviewLogoLayout | null) {
+  if (!layout) {
+    return false;
+  }
+
+  const moduleCenterX = column + 0.5;
+  const moduleCenterY = row + 0.5;
+
+  return moduleCenterX >= layout.backdropX
+    && moduleCenterX <= layout.backdropX + layout.backdropWidth
+    && moduleCenterY >= layout.backdropY
+    && moduleCenterY <= layout.backdropY + layout.backdropHeight;
 }
 
 function getPreviewRoundedCornerRadius(size: number) {

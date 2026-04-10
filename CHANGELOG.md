@@ -7,53 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
-    - [Changed](#changed)
-  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
-    - [Changed](#changed-1)
+  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
     - [Fixed](#fixed)
+    - [Changed](#changed)
     - [Validation](#validation)
+  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+    - [Changed](#changed-1)
+  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
+    - [Changed](#changed-2)
+    - [Fixed](#fixed-1)
+    - [Validation](#validation-1)
   - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
     - [Added](#added)
   - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
     - [Added](#added-1)
   - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
-    - [Fixed](#fixed-1)
+    - [Fixed](#fixed-2)
     - [Why](#why)
     - [Problem Solved](#problem-solved)
-    - [Validation](#validation-1)
-  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed-2)
     - [Validation](#validation-2)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
+    - [Changed](#changed-3)
+    - [Validation](#validation-3)
   - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
     - [Added](#added-2)
   - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-3)
-    - [Changed](#changed-3)
-    - [Validation](#validation-3)
+    - [Changed](#changed-4)
+    - [Validation](#validation-4)
   - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
     - [Added](#added-4)
   - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-5)
-    - [Changed](#changed-4)
-    - [Validation](#validation-4)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
-    - [Added](#added-6)
     - [Changed](#changed-5)
     - [Validation](#validation-5)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
-    - [Added](#added-7)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+    - [Added](#added-6)
     - [Changed](#changed-6)
     - [Validation](#validation-6)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
-    - [Added](#added-8)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+    - [Added](#added-7)
     - [Changed](#changed-7)
     - [Validation](#validation-7)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-8)
+    - [Changed](#changed-8)
+    - [Validation](#validation-8)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-8)
+  - [Validation:](#validation-9)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.6.0] - 2026-04-10
+
+### Fixed
+
+- Fixed the centered logo render path so the QR now reserves a true safe middle window before the logo is embedded, instead of painting the watermark on top of live QR data modules.
+- Fixed the gradient rendering logic in both the local preview and backend SVG composer by switching the gradient to QR-wide user-space coordinates, so the data body now shows a visible directional gradient instead of looking flat.
+- Fixed the default dark colour so finder markers and dark data modules now start from pure black until the user changes the colour settings.
+
+### Changed
+
+- Aligned the local preview geometry and backend SVG geometry so centered logo sizing, backdrop padding, and data-module exclusion use the same layout rules.
+- Updated the builder guidance text to reflect the new safe-window logo behavior rather than implying the logo simply sits on top of the code.
+
+### Validation
+
+- npm run build from webapp
+- dotnet build HaveQR.sln
+- Verified the local preview SVG now emits a QR-wide gradient definition with `gradientUnits="userSpaceOnUse"`
+- Verified the local backend render path now produces SVG and PNG artifacts with a visible gradient and a cleared centered logo window
 
 ---
 

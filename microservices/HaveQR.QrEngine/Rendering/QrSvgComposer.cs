@@ -13,9 +13,23 @@ internal static class QrSvgComposer
     private const int FinderSizeModules = 7;
     private const double DottedRadius = 0.38d;
 
+    private sealed record LogoLayout(
+        double X,
+        double Y,
+        double Width,
+        double Height,
+        double BackdropX,
+        double BackdropY,
+        double BackdropWidth,
+        double BackdropHeight,
+        double CornerRadius);
+
     public static string Compose(QRCodeData qrCodeData, SubmitRenderJobRequest request, QrPreparedLogo? logo)
     {
         var moduleCount = qrCodeData.ModuleMatrix.Count;
+        var logoLayout = logo is not null && request.Logo is not null
+            ? ResolveLogoLayout(logo, request.Logo, moduleCount)
+            : null;
         var builder = new StringBuilder();
 
         builder.Append("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ")
@@ -48,6 +62,11 @@ internal static class QrSvgComposer
                     continue;
                 }
 
+                if (logoLayout is not null && IsInLogoSafeRegion(row, column, logoLayout))
+                {
+                    continue;
+                }
+
                 AppendModule(builder, request.Data.Pattern, column, row);
             }
         }
@@ -55,9 +74,9 @@ internal static class QrSvgComposer
         builder.AppendLine("</g>");
         builder.AppendLine(QrFinderSvgComposer.BuildOverlay(moduleCount, request.Finder, request.Colors));
 
-        if (logo is not null && request.Logo is not null)
+        if (logo is not null && logoLayout is not null)
         {
-            AppendLogo(builder, logo, request.Logo, request.Colors.Light, moduleCount);
+            AppendLogo(builder, logo, request.Colors.Light, logoLayout);
         }
 
         builder.Append("</svg>");
@@ -71,14 +90,10 @@ internal static class QrSvgComposer
             return;
         }
 
-        var angle = request.Data.GradientRotation * (Math.PI / 180d);
-        var x1 = 0.5d - (0.5d * Math.Cos(angle));
-        var y1 = 0.5d - (0.5d * Math.Sin(angle));
-        var x2 = 0.5d + (0.5d * Math.Cos(angle));
-        var y2 = 0.5d + (0.5d * Math.Sin(angle));
+        var (x1, y1, x2, y2) = ResolveGradientVector(moduleCount, request.Data.GradientRotation);
 
         builder.AppendLine("<defs>");
-        builder.Append("<linearGradient id=\"haveqr-data-gradient\" gradientUnits=\"objectBoundingBox\" x1=\"")
+        builder.Append("<linearGradient id=\"haveqr-data-gradient\" gradientUnits=\"userSpaceOnUse\" x1=\"")
             .Append(Format(x1))
             .Append("\" y1=\"")
             .Append(Format(y1))
@@ -118,33 +133,20 @@ internal static class QrSvgComposer
             .AppendLine("\" width=\"1\" height=\"1\"/>");
     }
 
-    private static void AppendLogo(StringBuilder builder, QrPreparedLogo logo, QrLogoOptions logoOptions, string backdropFill, int moduleCount)
+    private static void AppendLogo(StringBuilder builder, QrPreparedLogo logo, string backdropFill, LogoLayout layout)
     {
-        var activeCodeSize = moduleCount - (QuietZoneModules * 2d);
-        var logoBoxSize = activeCodeSize * (logoOptions.SizePercent / 100d);
-        var aspectRatio = logo.Width <= 0 || logo.Height <= 0 ? 1d : logo.Width / logo.Height;
-        var logoWidth = aspectRatio >= 1d ? logoBoxSize : logoBoxSize * aspectRatio;
-        var logoHeight = aspectRatio >= 1d ? logoBoxSize / aspectRatio : logoBoxSize;
-        var x = (moduleCount - logoWidth) / 2d;
-        var y = (moduleCount - logoHeight) / 2d;
-        var backdropWidth = logoWidth * (1d + (logoOptions.BackdropPaddingPercent / 100d));
-        var backdropHeight = logoHeight * (1d + (logoOptions.BackdropPaddingPercent / 100d));
-        var backdropX = (moduleCount - backdropWidth) / 2d;
-        var backdropY = (moduleCount - backdropHeight) / 2d;
-        var cornerRadius = Math.Min(backdropWidth, backdropHeight) * 0.22d;
-
         builder.Append("<g id=\"haveqr-logo\">\n<rect x=\"")
-            .Append(Format(backdropX))
+            .Append(Format(layout.BackdropX))
             .Append("\" y=\"")
-            .Append(Format(backdropY))
+            .Append(Format(layout.BackdropY))
             .Append("\" width=\"")
-            .Append(Format(backdropWidth))
+            .Append(Format(layout.BackdropWidth))
             .Append("\" height=\"")
-            .Append(Format(backdropHeight))
+            .Append(Format(layout.BackdropHeight))
             .Append("\" rx=\"")
-            .Append(Format(cornerRadius))
+            .Append(Format(layout.CornerRadius))
             .Append("\" ry=\"")
-            .Append(Format(cornerRadius))
+            .Append(Format(layout.CornerRadius))
             .Append("\" fill=\"")
             .Append(backdropFill)
             .AppendLine("\"/>");
@@ -152,13 +154,13 @@ internal static class QrSvgComposer
         if (logo.SourceType == QrLogoSourceType.Svg)
         {
             builder.Append("<svg x=\"")
-                .Append(Format(x))
+                .Append(Format(layout.X))
                 .Append("\" y=\"")
-                .Append(Format(y))
+                .Append(Format(layout.Y))
                 .Append("\" width=\"")
-                .Append(Format(logoWidth))
+                .Append(Format(layout.Width))
                 .Append("\" height=\"")
-                .Append(Format(logoHeight))
+                .Append(Format(layout.Height))
                 .Append("\" viewBox=\"")
                 .Append(logo.ViewBox)
                 .AppendLine("\" preserveAspectRatio=\"xMidYMid meet\">");
@@ -169,13 +171,13 @@ internal static class QrSvgComposer
         }
 
         builder.Append("<image x=\"")
-            .Append(Format(x))
+            .Append(Format(layout.X))
             .Append("\" y=\"")
-            .Append(Format(y))
+            .Append(Format(layout.Y))
             .Append("\" width=\"")
-            .Append(Format(logoWidth))
+            .Append(Format(layout.Width))
             .Append("\" height=\"")
-            .Append(Format(logoHeight))
+            .Append(Format(layout.Height))
             .Append("\" href=\"")
             .Append(logo.Content)
             .AppendLine("\" preserveAspectRatio=\"xMidYMid meet\"/>");
@@ -193,6 +195,61 @@ internal static class QrSvgComposer
         return (row >= QuietZoneModules && row < QuietZoneModules + FinderSizeModules && column >= QuietZoneModules && column < QuietZoneModules + FinderSizeModules)
             || (row >= QuietZoneModules && row < QuietZoneModules + FinderSizeModules && column >= maxOrigin && column < maxOrigin + FinderSizeModules)
             || (row >= maxOrigin && row < maxOrigin + FinderSizeModules && column >= QuietZoneModules && column < QuietZoneModules + FinderSizeModules);
+    }
+
+    private static (double X1, double Y1, double X2, double Y2) ResolveGradientVector(int moduleCount, int rotation)
+    {
+        var angle = rotation * (Math.PI / 180d);
+        var directionX = Math.Cos(angle);
+        var directionY = Math.Sin(angle);
+        var activeCodeSize = moduleCount - (QuietZoneModules * 2d);
+        var center = moduleCount / 2d;
+        var maxDirection = Math.Max(Math.Max(Math.Abs(directionX), Math.Abs(directionY)), double.Epsilon);
+        var halfSpan = (activeCodeSize / 2d) / maxDirection;
+
+        return (
+            center - (directionX * halfSpan),
+            center - (directionY * halfSpan),
+            center + (directionX * halfSpan),
+            center + (directionY * halfSpan));
+    }
+
+    private static LogoLayout ResolveLogoLayout(QrPreparedLogo logo, QrLogoOptions logoOptions, int moduleCount)
+    {
+        var activeCodeSize = moduleCount - (QuietZoneModules * 2d);
+        var logoBoxSize = activeCodeSize * (logoOptions.SizePercent / 100d);
+        var aspectRatio = logo.Width <= 0 || logo.Height <= 0 ? 1d : logo.Width / logo.Height;
+        var width = aspectRatio >= 1d ? logoBoxSize : logoBoxSize * aspectRatio;
+        var height = aspectRatio >= 1d ? logoBoxSize / aspectRatio : logoBoxSize;
+        var x = (moduleCount - width) / 2d;
+        var y = (moduleCount - height) / 2d;
+        var backdropWidth = width * (1d + (logoOptions.BackdropPaddingPercent / 100d));
+        var backdropHeight = height * (1d + (logoOptions.BackdropPaddingPercent / 100d));
+        var backdropX = (moduleCount - backdropWidth) / 2d;
+        var backdropY = (moduleCount - backdropHeight) / 2d;
+        var cornerRadius = Math.Min(backdropWidth, backdropHeight) * 0.22d;
+
+        return new LogoLayout(
+            x,
+            y,
+            width,
+            height,
+            backdropX,
+            backdropY,
+            backdropWidth,
+            backdropHeight,
+            cornerRadius);
+    }
+
+    private static bool IsInLogoSafeRegion(int row, int column, LogoLayout layout)
+    {
+        var moduleCenterX = column + 0.5d;
+        var moduleCenterY = row + 0.5d;
+
+        return moduleCenterX >= layout.BackdropX
+            && moduleCenterX <= layout.BackdropX + layout.BackdropWidth
+            && moduleCenterY >= layout.BackdropY
+            && moduleCenterY <= layout.BackdropY + layout.BackdropHeight;
     }
 
     private static string Format(double value)

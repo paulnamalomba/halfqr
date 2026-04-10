@@ -1,0 +1,23 @@
+HaveQR v0.2.6.0 Release Notes
+Release Date: 10 April, 2026
+===================================
+
+## [0.2.6.0] - 2026-04-10
+
+### Fixed
+
+- Fixed the centered logo render path so the QR now reserves a true safe middle window before the logo is embedded, instead of painting the watermark on top of live QR data modules.
+- Fixed the gradient rendering logic in both the local preview and backend SVG composer by switching the gradient to QR-wide user-space coordinates, so the data body now shows a visible directional gradient instead of looking flat.
+- Fixed the default dark colour so finder markers and dark data modules now start from pure black until the user changes the colour settings.
+
+### Changed
+
+- Aligned the local preview geometry and backend SVG geometry so centered logo sizing, backdrop padding, and data-module exclusion use the same layout rules.
+- Updated the builder guidance text to reflect the new safe-window logo behavior rather than implying the logo simply sits on top of the code.
+
+### Validation
+
+- npm run build from webapp
+- dotnet build HaveQR.sln
+- Verified the local preview SVG now emits a QR-wide gradient definition with `gradientUnits="userSpaceOnUse"`
+- Verified the local backend render path now produces SVG and PNG artifacts with a visible gradient and a cleared centered logo window
