@@ -7,45 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
-    - [Added](#added)
-  - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
+    - [Changed](#changed)
     - [Fixed](#fixed)
+    - [Validation](#validation)
+  - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
+    - [Added](#added)
+  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
+    - [Added](#added-1)
+  - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
+    - [Fixed](#fixed-1)
     - [Why](#why)
     - [Problem Solved](#problem-solved)
-    - [Validation](#validation)
-  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed)
     - [Validation](#validation-1)
-  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
-    - [Added](#added-1)
-  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
-    - [Added](#added-2)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
     - [Changed](#changed-1)
     - [Validation](#validation-2)
-  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
+    - [Added](#added-2)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-3)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
-    - [Added](#added-4)
     - [Changed](#changed-2)
     - [Validation](#validation-3)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+    - [Added](#added-4)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-5)
     - [Changed](#changed-3)
     - [Validation](#validation-4)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-6)
     - [Changed](#changed-4)
     - [Validation](#validation-5)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-7)
     - [Changed](#changed-5)
     - [Validation](#validation-6)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-8)
+    - [Changed](#changed-6)
+    - [Validation](#validation-7)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-7)
+  - [Validation:](#validation-8)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+### Changed
+
+- Continued the CSS-first frontend cleanup by keeping layout, spacing, breakpoint, and visual rules in `globals.css` while leaving JSX focused on state, routing, and interaction behavior.
+- Refined the header and hero presentation with updated spacing, brand sizing, theme tokens, and explicit hero text colours so the top-of-page content reads cleanly against the darker shell background.
+- Updated the header component to use `next/image` for the brand mark and to close the mobile menu automatically on route changes and when the viewport returns to desktop widths.
+
+### Fixed
+
+- Fixed the mobile navigation dropdown so it stays anchored to the right side of the header actions and no longer drifts or overflows left on narrow screens.
+- Fixed small-screen overflow in the QR type selector by switching the cards to a tighter wrapping grid, reducing card density, and hiding secondary copy where space is limited.
+- Fixed small-screen overflow in the Popular Watermark Presets selector by applying the same wrapped-grid treatment, smaller thumbnails, and safer text wrapping inside the card.
+- Added overflow guards such as `min-width: 0`, `overflow-wrap: anywhere`, and clipped horizontal bleed protection so nested grids and long labels stop forcing parent containers wider than intended.
+
+### Validation
+
+- npm run build from webapp
+- Verified the QR type selector at a 390px mobile viewport renders across wrapped rows with zero horizontal overflow
+- Verified the watermark preset selector at a 390px mobile viewport renders across wrapped rows with zero horizontal overflow
+
+---
+
+## [0.2.3.5] - 2026-04-10
+
+### Added
+
+- So now what we are doing is completely bootstrapping sisplays in css and functionality in jsx, no cross-confusion, only tweaking displays in jsx if necessary but avoiding that as much as possible
+- Added active state styling to the mobile menu links, so when a user clicks a link in the mobile menu, it gets highlighted to indicate it's the current page. This improves navigation clarity on mobile devices.
+- Updated the mobile menu link styles to ensure they are visually distinct and provide clear feedback on interaction, enhancing the overall user experience on mobile devices.
+- Updated all css by adding block-style html comments so that we can easily identify which styles correspond to which components or features, making future maintenance and updates easier for developers.
 
 ---
 

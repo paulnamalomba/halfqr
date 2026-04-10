@@ -2,7 +2,7 @@
 
 > Architecture and product-technical direction for HaveQR, the QR generation platform built in this `haveqr` repository.
 
-**App Version**: 0.2.3.4  
+**App Version**: 0.2.4.0  
 **Date**: 2026-04-09  
 **Repository**: `haveqr`
 

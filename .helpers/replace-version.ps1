@@ -1,4 +1,4 @@
-# Ecoride Version Replacement Script
+# haveQR Version Replacement Script
 # Recursively searches and replaces strings across all project files
 # Will also replace any version of the string that contains at least the number and alpha text
 # such as 0.5.0--alpha and 0.5.0-alpha, both will be replace by their equivalent 0.6.0--alpha and 0.6.0-alpha
@@ -85,7 +85,7 @@ Set-Location $repoRoot
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Ecoride Version Replacement" -ForegroundColor Yellow
+Write-Host "  haveQR Version Replacement" -ForegroundColor Yellow
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Info "Repository Root: $repoRoot"

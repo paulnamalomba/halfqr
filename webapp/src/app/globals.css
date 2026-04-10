@@ -1,50 +1,70 @@
+/* Theme tokens keep colours and surfaces consistent. */
+/* Define shared colour tokens. */
 :root {
   --bg: #eef3fb;
   --bg-soft: #f7f9fd;
+  --bg-buttons: rgba(255, 255, 255, 0.14);
+  --bg-dark: rgba(10, 24, 44, 0.94);
   --panel: rgba(255, 255, 255, 0.94);
+  --hover-panel: rgba(255, 255, 255, 0.08);
+  --hover-panel-strong: rgba(255, 255, 255, 0.16);
   --panel-muted: #edf3fb;
   --text: #142743;
+  --text-white: #fffffffb;
   --muted: #62718b;
   --navy: #10243c;
+  --navy-alt: #183769;
   --cobalt: #1f61c0;
+  --cobalt-light: rgb(209, 228, 255);
+  --cobalt-light-white: rgb(234, 243, 255);
   --line: rgba(20, 39, 67, 0.1);
   --line-strong: rgba(20, 39, 67, 0.16);
   --shadow: 0 24px 60px rgba(16, 36, 60, 0.12);
 }
 
+/* Base rules normalize defaults before component styling. */
+/* Set universal box sizing. */
 * {
   box-sizing: border-box;
 }
 
+/* Enable smooth document scrolling. */
 html {
   scroll-behavior: smooth;
 }
 
+/* Paint the global site canvas. */
 body.site-body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #183769 0 150px, #eef3fb 150px 100%);
+  background: linear-gradient(180deg, var(--navy) 0 120px, var(--bg) 800px 100%);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: var(--font-body), sans-serif;
 }
 
+/* Layer subtle background accents. */
 .app-frame {
   min-height: 100vh;
+  overflow-x: clip;
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 18%),
     radial-gradient(circle at 84% 10%, rgba(31, 97, 192, 0.2), transparent 18%);
 }
 
+/* Reset link defaults. */
 a {
   color: inherit;
   text-decoration: none;
 }
 
+/* Keep images inside containers. */
 img {
   display: block;
   max-width: 100%;
 }
 
+/* Share inherited form typography. */
 button,
 input,
 select,
@@ -52,43 +72,54 @@ textarea {
   font: inherit;
 }
 
+/* Animate interactive controls gently. */
 button {
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
+/* Share heading rhythm and type. */
 h1,
 h2,
 h3,
 h4 {
   margin: 0;
   font-family: var(--font-heading), sans-serif;
-  line-height: 1.02;
+  line-height: 1.05;
   letter-spacing: -0.04em;
 }
 
+/* Size the main display heading. */
 h1 {
-  font-size: clamp(2.25rem, 4.7vw, 3.8rem);
+  font-size: clamp(2.25rem, 4.7vw, 4.5rem);
 }
 
+/* Size secondary section headings. */
 h2 {
   font-size: clamp(1.15rem, 2.1vw, 1.6rem);
 }
 
+/* Size tertiary support headings. */
 h3 {
-  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-size: clamp(1.3rem, 1.8vw, 1.3rem);
 }
 
+/* Reset paragraph margins. */
 p {
   margin: 0;
 }
 
+/* Header shell controls navigation spacing and layering. */
+/* Space the header shell. */
 .site-header-shell {
-  /* position: ; */
   top: 0;
   z-index: 40;
-  padding: 18px 20px 0;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 16px;
+  padding-bottom: 24px;
 }
 
+/* Build the main header grid. */
 .site-header-inner {
   max-width: 1320px;
   margin: 0 auto;
@@ -96,7 +127,7 @@ p {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 24px;
-  padding: 16px 22px;
+  padding: 16px 20px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -104,24 +135,29 @@ p {
   box-shadow: 0 22px 50px rgba(5, 18, 41, 0.18);
 }
 
+/* Align the brand mark. */
 .site-brand-mark {
   display: inline-flex;
   align-items: center;
 }
 
+/* Size the brand artwork. */
 .site-brand-mark img {
-  width: 142px;
+  width: 120px;
   max-width: none;
   height: auto;
 }
 
+/* Layout desktop navigation links. */
 .site-header-nav {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+  min-width: 0;
 }
 
+/* Style the desktop nav pills. */
 .site-header-link {
   display: inline-flex;
   align-items: center;
@@ -134,22 +170,29 @@ p {
   font-weight: 500;
 }
 
+/* Highlight hovered desktop links. */
 .site-header-link:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--hover-panel);
 }
 
+/* Mark the active nav pill. */
 .site-header-link-active {
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
+/* Anchor action controls and dropdown. */
 .site-header-actions {
+  position: relative;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 12px;
+  min-width: 0;
 }
 
+/* Share pointer cursor styling. */
 .site-header-status,
 .site-header-cta,
 .route-primary-link,
@@ -161,8 +204,10 @@ p {
   cursor: pointer;
 }
 
+/* Style the desktop action pills. */
 .site-header-status,
 .site-header-cta {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -173,32 +218,104 @@ p {
   white-space: nowrap;
 }
 
+/* Theme the status button. */
 .site-header-status {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+/* Theme the primary action. */
 .site-header-cta {
   color: var(--navy);
   background: #ffffff;
   box-shadow: 0 14px 30px rgba(8, 24, 54, 0.16);
 }
 
+/* Highlight current page action. */
 .site-header-cta-active {
   background: rgba(255, 255, 255, 0.88);
 }
 
+/* Mobile navigation lives inside the header actions. */
+/* Hide mobile toggle by default. */
+.site-mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-buttons);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Strengthen hovered mobile toggle. */
+.site-mobile-toggle:hover {
+  background: var(--hover-panel-strong);
+}
+
+/* Open the anchored mobile panel. */
+.site-mobile-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  left: auto;
+  z-index: 60;
+  width: min(320px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--bg-dark);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 22px 50px rgba(5, 18, 41, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+/* Style stacked mobile links. */
+.site-mobile-menu-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 46px;
+  width: 100%;
+  padding: 0 14px;
+  border-radius: 14px;
+  color: rgba(247, 250, 255, 0.92);
+}
+
+/* Highlight hovered mobile links. */
+.site-mobile-menu-link:hover {
+  background: var(--hover-panel);
+}
+
+/* Mark the active mobile link. */
+.site-mobile-menu-link-active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Page shell and text establish readable rhythm. */
+/* Constrain the page shell width. */
 .site-page {
   max-width: 1320px;
   margin: 0 auto;
   padding: 24px 20px 72px;
 }
 
+/* Separate the home hero vertically. */
 .page-shell-home {
   padding-top: 30px;
 }
 
+/* Style the small overline label. */
 .page-kicker {
   margin: 0 0 12px;
   color: #dfe9f8;
@@ -208,15 +325,18 @@ p {
   font-weight: 700;
 }
 
+/* Recolour route-specific overlines. */
 .route-shell .page-kicker,
 .generator-hero .page-kicker {
   color: var(--cobalt);
 }
 
+/* Keep titles compact on desktop. */
 .page-title {
   max-width: 12ch;
 }
 
+/* Share muted secondary text. */
 .page-summary,
 .route-list,
 .route-side-item span,
@@ -232,12 +352,16 @@ p {
   color: var(--muted);
 }
 
+/* Tune readable summary measure. */
 .page-summary {
   max-width: 60ch;
   font-size: 0.98rem;
   line-height: 1.7;
 }
 
+/* Content layout arranges heroes, cards, and builder panes. */
+/* Stack sections with measured gaps. */
+/* Share grid section scaffolds. */
 .generator-hero,
 .route-hero-card,
 .route-split-grid,
@@ -246,16 +370,19 @@ p {
   gap: 18px;
 }
 
+/* Split the home hero. */
 .generator-hero {
   grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
   margin-bottom: 22px;
   align-items: stretch;
 }
 
+/* Pad hero copy slightly. */
 .generator-hero-copy {
   padding: 14px 6px 0;
 }
 
+/* Share common grid spacing. */
 .generator-fact-grid,
 .route-card-grid,
 .preview-summary-grid,
@@ -266,11 +393,13 @@ p {
   gap: 14px;
 }
 
+/* Use three-card marketing grids. */
 .generator-fact-grid,
 .route-card-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Paint shared card surfaces. */
 .generator-fact-card,
 .route-card,
 .route-hero-card,
@@ -284,6 +413,7 @@ p {
   box-shadow: var(--shadow);
 }
 
+/* Pad shared card surfaces. */
 .generator-fact-card,
 .route-card,
 .route-side-card,
@@ -293,6 +423,7 @@ p {
   padding: 20px;
 }
 
+/* Space internal card content. */
 .generator-fact-card,
 .route-card,
 .route-side-card,
@@ -302,12 +433,14 @@ p {
   gap: 14px;
 }
 
+/* Normalize card heading sizes. */
 .generator-fact-card h2,
 .route-card h2,
 .route-side-card h2 {
   font-size: 1.16rem;
 }
 
+/* Style compact section icons. */
 .route-card-icon,
 .generator-type-icon,
 .upload-dropzone-icon {
@@ -320,28 +453,33 @@ p {
   color: var(--cobalt);
 }
 
+/* Stack route page sections. */
 .route-shell {
   display: grid;
   gap: 18px;
 }
 
+/* Split route hero content. */
 .route-hero-card {
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
   padding: 22px;
 }
 
+/* Space route hero copy. */
 .route-hero-copy {
   display: grid;
   gap: 16px;
   align-content: start;
 }
 
+/* Wrap route action rows. */
 .cta-row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
+/* Share route button frames. */
 .route-primary-link,
 .route-secondary-link {
   display: inline-flex;
@@ -353,21 +491,25 @@ p {
   font-weight: 600;
 }
 
+/* Theme primary route links. */
 .route-primary-link {
   color: #ffffff;
   background: linear-gradient(135deg, var(--navy), var(--cobalt));
 }
 
+/* Theme secondary route links. */
 .route-secondary-link {
   background: var(--panel-muted);
   border: 1px solid var(--line);
   color: var(--text);
 }
 
+/* Keep side cards top-aligned. */
 .route-side-card {
   align-content: start;
 }
 
+/* Style route side rows. */
 .route-side-item {
   display: flex;
   align-items: flex-start;
@@ -379,19 +521,23 @@ p {
   color: var(--navy);
 }
 
+/* Space route notes gently. */
 .route-side-note {
   padding-top: 10px;
   line-height: 1.7;
 }
 
+/* Use wide supporting grids. */
 .route-card-grid-wide {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Split route detail content. */
 .route-split-grid {
   grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
 }
 
+/* Style code surfaces and dumps. */
 .docs-code-card pre,
 .builder-json {
   margin: 0;
@@ -405,6 +551,9 @@ p {
   overflow: auto;
 }
 
+/* Route metadata and builder rails organize complex content. */
+/* Keep long data readable. */
+/* Style endpoint method chips. */
 .endpoint-method {
   display: inline-flex;
   align-items: center;
@@ -420,6 +569,7 @@ p {
   letter-spacing: 0.08em;
 }
 
+/* Wrap endpoint routes safely. */
 .endpoint-route {
   font-family: var(--font-mono), monospace;
   font-size: 0.84rem;
@@ -427,20 +577,59 @@ p {
   word-break: break-word;
 }
 
+/* Space route bullet lists. */
 .route-list {
   padding-left: 18px;
   line-height: 1.7;
 }
 
+/* Split builder and preview rails. */
 .generator-layout {
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.92fr);
   align-items: start;
 }
 
+/* Flexible children prevent horizontal bleed across grids. */
+/* Let grid children shrink safely. */
+.site-header-inner > *,
+.generator-hero > *,
+.route-hero-card > *,
+.route-split-grid > *,
+.generator-layout > *,
+.generator-step-head > *,
+.generator-fact-grid > *,
+.route-card-grid > *,
+.route-card-grid-wide > *,
+.preview-summary-grid > *,
+.field-grid-two > *,
+.field-grid-three > *,
+.logo-preset-grid > * {
+  min-width: 0;
+}
+
+/* Long text should wrap before forcing wider cards. */
+/* Break stubborn text cleanly. */
+.page-summary,
+.route-side-item span,
+.route-side-note,
+.field-hint,
+.feedback-text,
+.preview-value,
+.endpoint-route,
+.logo-preset-copy strong,
+.logo-preset-copy span,
+.toggle-row span {
+  overflow-wrap: anywhere;
+}
+
+/* Builder steps structure forms and option groups. */
+/* Keep each stage readable. */
+/* Space builder form sections. */
 .generator-form-column {
   gap: 18px;
 }
 
+/* Align step heading pieces. */
 .generator-step-head {
   display: flex;
   align-items: flex-start;
@@ -448,6 +637,7 @@ p {
   margin-bottom: 18px;
 }
 
+/* Style numbered step badges. */
 .generator-step-badge {
   flex: none;
   width: 34px;
@@ -462,15 +652,18 @@ p {
   box-shadow: 0 10px 22px rgba(16, 36, 60, 0.16);
 }
 
+/* Stack step copy lines. */
 .generator-step-copy {
   display: grid;
   gap: 6px;
 }
 
+/* Build the type grid. */
 .generator-type-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+/* Style QR type buttons. */
 .generator-type-button {
   display: grid;
   gap: 12px;
@@ -482,6 +675,7 @@ p {
   background: var(--panel-muted);
 }
 
+/* Lift hoverable controls subtly. */
 .generator-type-button:hover,
 .route-primary-link:hover,
 .preview-primary-action:hover,
@@ -493,32 +687,40 @@ p {
   transform: translateY(-1px);
 }
 
+/* Highlight active type buttons. */
 .generator-type-button-active {
   border-color: rgba(31, 97, 192, 0.34);
   background: linear-gradient(180deg, rgba(31, 97, 192, 0.12), rgba(16, 36, 60, 0.05));
   box-shadow: inset 0 0 0 1px rgba(31, 97, 192, 0.14);
 }
 
+/* Stack type label text. */
 .generator-type-label {
   display: grid;
   gap: 4px;
 }
 
+/* Size type label titles. */
 .generator-type-label strong {
   font-size: 0.96rem;
 }
 
+/* Tone type label metadata. */
 .generator-type-label span {
   color: var(--muted);
   font-size: 0.8rem;
 }
 
+/* Space inline guidance. */
 .generator-inline-note {
   margin: 0 0 18px;
   font-size: 0.92rem;
   line-height: 1.65;
 }
 
+/* Form controls share spacing, sizing, and feedback. */
+/* Keep inputs readable and forgiving. */
+/* Stack field containers. */
 .field,
 .field-grid,
 .generator-output-bar,
@@ -527,12 +729,14 @@ p {
   gap: 10px;
 }
 
+/* Style field labels. */
 .field span {
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--text);
 }
 
+/* Style input surfaces. */
 .field input,
 .field select {
   width: 100%;
@@ -544,21 +748,25 @@ p {
   color: var(--text);
 }
 
+/* Tint input placeholders. */
 .field input::placeholder {
   color: #90a0b7;
 }
 
+/* Highlight focused fields. */
 .field input:focus,
 .field select:focus {
   outline: 2px solid rgba(31, 97, 192, 0.16);
   border-color: rgba(31, 97, 192, 0.38);
 }
 
+/* Size color pickers. */
 .field input[type="color"] {
   min-height: 56px;
   padding: 4px;
 }
 
+/* Strip range chrome. */
 .field input[type="range"] {
   min-height: auto;
   padding: 0;
@@ -567,28 +775,36 @@ p {
   accent-color: var(--cobalt);
 }
 
+/* Use two-column fields. */
 .field-grid-two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Use three-column fields. */
 .field-grid-three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Stretch wide fields. */
 .field-wide {
   width: 100%;
 }
 
+/* Style helper text. */
 .field-hint {
   font-size: 0.81rem;
   line-height: 1.55;
 }
 
+/* Theme error text. */
 .field-hint-error,
 .feedback-text-error {
   color: #b34726;
 }
 
+/* Design tabs separate frame, colour, and logo. */
+/* Highlight the active panel. */
+/* Wrap design tabs. */
 .generator-design-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -596,6 +812,7 @@ p {
   margin-bottom: 16px;
 }
 
+/* Style design tab buttons. */
 .generator-design-tab {
   display: inline-flex;
   align-items: center;
@@ -608,16 +825,19 @@ p {
   color: var(--muted);
 }
 
+/* Hover design tabs gently. */
 .generator-design-tab:hover {
   background: rgba(31, 97, 192, 0.06);
 }
 
+/* Mark active design tabs. */
 .generator-design-tab-active {
   color: var(--cobalt);
   background: rgba(31, 97, 192, 0.1);
   border-color: rgba(31, 97, 192, 0.18);
 }
 
+/* Style the design panel. */
 .generator-design-panel {
   display: grid;
   gap: 16px;
@@ -627,6 +847,9 @@ p {
   border: 1px solid var(--line);
 }
 
+/* Logo upload controls manage assets and presets. */
+/* Keep previews compact and readable. */
+/* Style the upload dropzone. */
 .upload-dropzone {
   display: grid;
   gap: 8px;
@@ -636,34 +859,41 @@ p {
   background: rgba(255, 255, 255, 0.86);
 }
 
+/* Hide native upload input. */
 .upload-dropzone input {
   display: none;
 }
 
+/* Size dropzone titles. */
 .upload-dropzone strong {
   font-size: 0.95rem;
 }
 
+/* Tone dropzone metadata. */
 .upload-dropzone span {
   color: var(--muted);
   font-size: 0.86rem;
 }
 
+/* Stack preset shell content. */
 .logo-preset-shell {
   display: grid;
   gap: 12px;
 }
 
+/* Build the preset grid. */
 .logo-preset-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
+/* Style preset buttons. */
 .logo-preset-button {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   padding: 12px;
   border-radius: 18px;
   border: 1px solid var(--line);
@@ -671,17 +901,20 @@ p {
   text-align: left;
 }
 
+/* Dim loading presets. */
 .logo-preset-button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
 
+/* Highlight active presets. */
 .logo-preset-button-active {
   border-color: rgba(31, 97, 192, 0.34);
   background: linear-gradient(180deg, rgba(31, 97, 192, 0.12), rgba(16, 36, 60, 0.05));
   box-shadow: inset 0 0 0 1px rgba(31, 97, 192, 0.14);
 }
 
+/* Frame preset thumbnails. */
 .logo-preset-thumb {
   flex: none;
   width: 68px;
@@ -694,26 +927,32 @@ p {
   border: 1px solid var(--line);
 }
 
+/* Fit preset images. */
 .logo-preset-thumb img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
+/* Stack preset copy. */
 .logo-preset-copy {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
+/* Size preset titles. */
 .logo-preset-copy strong {
   font-size: 0.92rem;
 }
 
+/* Tone preset metadata. */
 .logo-preset-copy span {
   color: var(--muted);
   font-size: 0.8rem;
 }
 
+/* Style the toggle row. */
 .toggle-row {
   display: flex;
   align-items: center;
@@ -725,18 +964,25 @@ p {
   border: 1px solid var(--line);
 }
 
+/* Size toggle inputs. */
 .toggle-row input {
   inline-size: 18px;
   block-size: 18px;
   accent-color: var(--cobalt);
 }
 
+/* Let toggle copy wrap. */
 .toggle-row span {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 0.92rem;
   line-height: 1.55;
   color: var(--text);
 }
 
+/* Output rails and preview surfaces support rendering. */
+/* Surface status, payload, and downloads. */
+/* Share meta row layout. */
 .upload-meta-row,
 .artifact-row {
   display: flex;
@@ -745,10 +991,12 @@ p {
   gap: 12px;
 }
 
+/* Separate upload metadata. */
 .upload-meta-row {
   justify-content: space-between;
 }
 
+/* Style text-only actions. */
 .text-action {
   padding: 0;
   border: none;
@@ -757,12 +1005,14 @@ p {
   font-weight: 600;
 }
 
+/* Separate output settings. */
 .generator-output-bar {
   margin-top: 18px;
   padding-top: 18px;
   border-top: 1px solid var(--line);
 }
 
+/* Align output labels. */
 .generator-output-label {
   display: inline-flex;
   align-items: center;
@@ -772,12 +1022,14 @@ p {
   font-weight: 600;
 }
 
+/* Style developer drawer shell. */
 .generator-developer-drawer {
   border: 1px solid var(--line);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.75);
 }
 
+/* Style drawer summary. */
 .generator-developer-drawer summary {
   cursor: pointer;
   list-style: none;
@@ -785,14 +1037,17 @@ p {
   font-weight: 600;
 }
 
+/* Hide drawer marker. */
 .generator-developer-drawer summary::-webkit-details-marker {
   display: none;
 }
 
+/* Round drawer code corners. */
 .generator-developer-drawer .builder-json {
   border-radius: 0 0 20px 20px;
 }
 
+/* Keep preview rail sticky. */
 .generator-preview-card {
   position: sticky;
   top: 104px;
@@ -800,6 +1055,7 @@ p {
   gap: 16px;
 }
 
+/* Align preview meta row. */
 .generator-preview-meta {
   display: flex;
   flex-wrap: wrap;
@@ -808,6 +1064,7 @@ p {
   gap: 12px;
 }
 
+/* Share preview chip shapes. */
 .generator-api-chip,
 .status-chip {
   display: inline-flex;
@@ -821,51 +1078,61 @@ p {
   text-transform: uppercase;
 }
 
+/* Theme the API chip. */
 .generator-api-chip {
   background: rgba(31, 97, 192, 0.1);
   color: var(--cobalt);
 }
 
+/* Theme idle status chips. */
 .status-chip-neutral {
   background: rgba(16, 36, 60, 0.1);
   color: var(--navy);
 }
 
+/* Theme queued status chips. */
 .status-chip-queued {
   background: rgba(31, 97, 192, 0.14);
   color: #114689;
 }
 
+/* Theme running status chips. */
 .status-chip-running {
   background: rgba(243, 109, 44, 0.18);
   color: #7f3613;
 }
 
+/* Theme completed status chips. */
 .status-chip-completed {
   background: rgba(25, 135, 84, 0.16);
   color: #155c3d;
 }
 
+/* Theme failed status chips. */
 .status-chip-failed {
   background: rgba(180, 55, 31, 0.16);
   color: #7d2414;
 }
 
+/* Theme syncing status chips. */
 .status-chip-syncing {
   background: rgba(31, 97, 192, 0.12);
   color: #1b4d97;
 }
 
+/* Theme draft status chips. */
 .status-chip-draft {
   background: rgba(16, 36, 60, 0.1);
   color: var(--navy);
 }
 
+/* Theme local status chips. */
 .status-chip-local {
   background: rgba(243, 109, 44, 0.14);
   color: #8d441a;
 }
 
+/* Build the preview stage. */
 .preview-stage {
   position: relative;
   display: grid;
@@ -878,6 +1145,7 @@ p {
   overflow: hidden;
 }
 
+/* Size preview media. */
 .preview-artifact,
 .preview-mock {
   width: min(100%, 300px);
@@ -886,6 +1154,7 @@ p {
   box-shadow: 0 22px 42px rgba(16, 36, 60, 0.18);
 }
 
+/* Frame final preview images. */
 .preview-artifact {
   padding: 12px;
   object-fit: contain;
@@ -893,6 +1162,7 @@ p {
   border: 1px solid rgba(16, 36, 60, 0.12);
 }
 
+/* Center placeholder copy. */
 .preview-placeholder {
   display: grid;
   gap: 10px;
@@ -902,17 +1172,20 @@ p {
   color: var(--muted);
 }
 
+/* Emphasize placeholder titles. */
 .preview-placeholder strong {
   color: var(--navy);
   font-size: 1rem;
   line-height: 1.4;
 }
 
+/* Tone placeholder body copy. */
 .preview-placeholder span {
   font-size: 0.88rem;
   line-height: 1.6;
 }
 
+/* Frame mock previews. */
 .preview-mock {
   position: relative;
   overflow: hidden;
@@ -920,6 +1193,7 @@ p {
   border: 1px solid rgba(16, 36, 60, 0.12);
 }
 
+/* Draw the mock grid. */
 .preview-mock-grid {
   position: absolute;
   inset: 0;
@@ -930,10 +1204,12 @@ p {
   opacity: 0.92;
 }
 
+/* Render dotted mock grids. */
 .preview-mock-dotted .preview-mock-grid {
   background: radial-gradient(circle at 12px 12px, var(--preview-dark) 0 6px, transparent 7px) 0 0 / 24px 24px, var(--preview-light);
 }
 
+/* Overlay preview gradients. */
 .preview-mock-gradient::after {
   content: "";
   position: absolute;
@@ -943,6 +1219,7 @@ p {
   opacity: 0.22;
 }
 
+/* Share finder layout primitives. */
 .preview-finder,
 .preview-finder-inner,
 .preview-finder-center {
@@ -950,6 +1227,7 @@ p {
   place-items: center;
 }
 
+/* Frame preview finders. */
 .preview-finder {
   position: absolute;
   width: 72px;
@@ -959,45 +1237,54 @@ p {
   z-index: 2;
 }
 
+/* Draw finder inner rings. */
 .preview-finder-inner {
   width: 100%;
   height: 100%;
   background: var(--preview-light);
 }
 
+/* Draw finder centers. */
 .preview-finder-center {
   width: 24px;
   height: 24px;
   background: var(--navy);
 }
 
+/* Position the top-left finder. */
 .preview-finder-top-left {
   top: 18px;
   left: 18px;
 }
 
+/* Position the top-right finder. */
 .preview-finder-top-right {
   top: 18px;
   right: 18px;
 }
 
+/* Position the bottom-left finder. */
 .preview-finder-bottom-left {
   bottom: 18px;
   left: 18px;
 }
 
+/* Square off preview shapes. */
 .shape-square {
   border-radius: 16px;
 }
 
+/* Round preview shapes. */
 .shape-rounded {
   border-radius: 26px;
 }
 
+/* Circularize preview shapes. */
 .shape-circle {
   border-radius: 999px;
 }
 
+/* Frame centered logo previews. */
 .preview-logo-frame {
   position: absolute;
   top: 50%;
@@ -1012,17 +1299,20 @@ p {
   box-shadow: 0 18px 38px rgba(16, 36, 60, 0.16);
 }
 
+/* Fit logo preview images. */
 .preview-logo-frame img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
+/* Stack preview actions. */
 .generator-preview-actions {
   display: grid;
   gap: 12px;
 }
 
+/* Share preview button frames. */
 .preview-primary-action,
 .preview-secondary-action {
   width: 100%;
@@ -1035,6 +1325,7 @@ p {
   font-weight: 600;
 }
 
+/* Theme primary preview action. */
 .preview-primary-action {
   border: none;
   color: #ffffff;
@@ -1042,12 +1333,14 @@ p {
   box-shadow: 0 18px 32px rgba(31, 97, 192, 0.22);
 }
 
+/* Theme secondary preview action. */
 .preview-secondary-action {
   border: 1px solid var(--line);
   background: var(--panel-muted);
   color: var(--navy);
 }
 
+/* Dim disabled preview actions. */
 .preview-primary-action:disabled,
 .preview-secondary-action:disabled {
   opacity: 0.58;
@@ -1055,19 +1348,23 @@ p {
   box-shadow: none;
 }
 
+/* Reserve feedback space. */
 .preview-feedback {
   min-height: 54px;
 }
 
+/* Style feedback copy. */
 .feedback-text {
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
+/* Build preview summary grids. */
 .preview-summary-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Style summary cards. */
 .preview-summary-card {
   padding: 14px;
   border-radius: 18px;
@@ -1077,6 +1374,7 @@ p {
   gap: 6px;
 }
 
+/* Style summary labels. */
 .preview-label {
   font-size: 0.73rem;
   letter-spacing: 0.14em;
@@ -1084,16 +1382,19 @@ p {
   color: var(--muted);
 }
 
+/* Style summary values. */
 .preview-value {
   font-size: 0.9rem;
   line-height: 1.6;
   word-break: break-word;
 }
 
+/* Tighten artifact gaps. */
 .artifact-row {
   gap: 10px;
 }
 
+/* Style artifact download links. */
 .artifact-link {
   display: inline-flex;
   align-items: center;
@@ -1107,11 +1408,14 @@ p {
   font-size: 0.87rem;
 }
 
+/* Strengthen hovered artifacts. */
 .artifact-link:hover {
   border-color: rgba(31, 97, 192, 0.26);
 }
 
+/* Medium screens collapse split layouts and sticky rails. */
 @media (max-width: 1200px) {
+  /* Stack split layouts. */
   .generator-hero,
   .route-hero-card,
   .route-split-grid,
@@ -1119,10 +1423,12 @@ p {
     grid-template-columns: 1fr;
   }
 
+  /* Release sticky preview. */
   .generator-preview-card {
     position: static;
   }
 
+  /* Reduce grid density. */
   .generator-fact-grid,
   .route-card-grid,
   .route-card-grid-wide {
@@ -1130,36 +1436,88 @@ p {
   }
 }
 
+/* Tablet widths swap desktop navigation for toggle. */
 @media (max-width: 960px) {
+  /* Hide desktop navigation. */
+  .site-header-nav,
+  .site-header-status,
+  .site-header-cta {
+    display: none;
+  }
+
+  /* Restore compact header grid. */
   .site-header-inner {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 16px;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    justify-items: stretch;
+    gap: 12px;
   }
 
-  .site-header-nav {
-    justify-content: center;
+  /* Keep actions aligned right. */
+  .site-header-actions {
+    justify-content: flex-end;
   }
 
+  /* Show the mobile toggle. */
+  .site-mobile-toggle {
+    display: inline-flex;
+  }
+
+  /* Wrap selector cards more naturally. */
   .generator-type-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
   }
 
+  /* Wrap preset cards naturally. */
+  .logo-preset-grid {
+    grid-template-columns: repeat(auto-fit, minmax(188px, 1fr));
+  }
+
+  /* Tighten type buttons slightly. */
+  .generator-type-button {
+    min-height: 118px;
+    padding: 14px;
+  }
+
+  /* Hide secondary selector copy. */
+  .generator-type-label span,
+  .logo-preset-copy span {
+    display: none;
+  }
+
+  /* Tighten preset cards slightly. */
+  .logo-preset-button {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  /* Shrink preset thumbnails. */
+  .logo-preset-thumb {
+    width: 56px;
+    height: 56px;
+    padding: 6px;
+  }
+
+  /* Reduce summary grid density. */
   .field-grid-three,
   .preview-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+/* Small phones tighten spacing and single-column grids. */
 @media (max-width: 640px) {
+  /* Tighten shell spacing. */
   .site-header-shell {
     padding: 12px 12px 0;
   }
 
+  /* Tighten page padding. */
   .site-page {
     padding: 18px 12px 52px;
   }
 
+  /* Soften card corners. */
   .site-header-inner,
   .generator-fact-card,
   .route-hero-card,
@@ -1172,49 +1530,92 @@ p {
     padding: 18px;
   }
 
+  /* Shrink the brand art. */
   .site-brand-mark img {
     width: 122px;
   }
 
+  /* Free title wrapping. */
   .page-title {
     max-width: none;
   }
 
-  .site-header-nav,
-  .site-header-actions {
-    width: 100%;
+  /* Keep the menu inside view. */
+  .site-mobile-menu {
+    right: 0;
+    left: auto;
+    width: min(320px, calc(100vw - 32px));
   }
 
-  .site-header-nav {
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 2px;
+  /* Wrap toggle copy cleanly. */
+  .toggle-row {
+    align-items: flex-start;
   }
 
-  .site-header-actions {
-    justify-content: stretch;
+  /* Shrink the mobile toggle. */
+  .site-mobile-toggle {
+    width: 42px;
+    height: 42px;
   }
 
-  .site-header-status,
-  .site-header-cta {
-    flex: 1 1 170px;
-  }
-
+  /* Stack all small grids. */
   .generator-fact-grid,
   .route-card-grid,
   .route-card-grid-wide,
-  .logo-preset-grid,
-  .generator-type-grid,
   .field-grid-two,
   .field-grid-three,
   .preview-summary-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Keep type cards in two columns. */
+  .generator-type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Keep preset cards in two columns. */
+  .logo-preset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Compact the type cards further. */
+  .generator-type-button {
+    min-height: 104px;
+    padding: 12px;
+  }
+
+  /* Shrink selector icons slightly. */
+  .generator-type-icon,
+  .upload-dropzone-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  /* Reduce primary selector text. */
+  .generator-type-label strong,
+  .logo-preset-copy strong {
+    font-size: 0.9rem;
+  }
+
+  /* Compact preset cards further. */
+  .logo-preset-button {
+    padding: 10px;
+  }
+
+  /* Shrink preset thumbnails further. */
+  .logo-preset-thumb {
+    width: 48px;
+    height: 48px;
+    padding: 5px;
+  }
+
+  /* Resize preview stage. */
   .preview-stage {
     min-height: 300px;
   }
 
+  /* Shrink preview artwork. */
   .preview-artifact,
   .preview-mock {
     width: min(100%, 280px);

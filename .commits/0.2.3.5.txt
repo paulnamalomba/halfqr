@@ -1,0 +1,12 @@
+HaveQR v0.2.3.5 Release Notes
+Release Date: 10 April, 2026
+===================================
+
+## [0.2.3.5] - 2026-04-10
+
+### Added
+
+- So now what we are doing is completely bootstrapping sisplays in css and functionality in jsx, no cross-confusion, only tweaking displays in jsx if necessary but avoiding that as much as possible
+- Added active state styling to the mobile menu links, so when a user clicks a link in the mobile menu, it gets highlighted to indicate it's the current page. This improves navigation clarity on mobile devices.
+- Updated the mobile menu link styles to ensure they are visually distinct and provide clear feedback on interaction, enhancing the overall user experience on mobile devices.
+- Updated all css by adding block-style html comments so that we can easily identify which styles correspond to which components or features, making future maintenance and updates easier for developers.
