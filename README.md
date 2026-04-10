@@ -1,6 +1,6 @@
 # HaveQR
 
-[![Version](https://img.shields.io/badge/version-0.2.3.1-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.3.1)
+[![Version](https://img.shields.io/badge/version-0.2.3.2-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.3.2)
 [![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)

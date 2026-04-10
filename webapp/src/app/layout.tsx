@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   },
   description: "Generate branded QR codes with async SVG and PNG rendering, dotted data modules, linear gradients, and centered logo uploads.",
   icons: {
-    icon: [{ url: "/logos/havqr_favicon_3000x3000.svg", type: "image/svg+xml" }],
-    shortcut: ["/logos/havqr_favicon_3000x3000.svg"],
-    apple: [{ url: "/logos/havqr_favicon_3000x3000.svg" }],
+    icon: [{ url: "/logos/favicon.ico", type: "image/x-icon" }],
+    shortcut: ["/logos/favicon.ico"],
+    apple: [{ url: "/logos/favicon.ico", type: "image/svg+xml" }],
   },
   openGraph: {
     title: "HaveQR | Styled QR Builder",

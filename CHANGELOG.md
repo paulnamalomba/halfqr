@@ -7,35 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
+    - [Changed](#changed)
+    - [Validation](#validation)
   - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
     - [Added](#added)
   - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-1)
-    - [Changed](#changed)
-    - [Validation](#validation)
+    - [Changed](#changed-1)
+    - [Validation](#validation-1)
   - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
     - [Added](#added-2)
   - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-3)
-    - [Changed](#changed-1)
-    - [Validation](#validation-1)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
-    - [Added](#added-4)
     - [Changed](#changed-2)
     - [Validation](#validation-2)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
-    - [Added](#added-5)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+    - [Added](#added-4)
     - [Changed](#changed-3)
     - [Validation](#validation-3)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
-    - [Added](#added-6)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+    - [Added](#added-5)
     - [Changed](#changed-4)
     - [Validation](#validation-4)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-6)
+    - [Changed](#changed-5)
+    - [Validation](#validation-5)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-5)
+  - [Validation:](#validation-6)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.3.2] - 2026-04-10
+
+### Changed
+
+- Switched raster logo background removal in the webapp to an explicit user-controlled checkbox instead of auto-enabling it for uploaded or preset raster logos.
+- Defaulted the builder background-removal toggle to false, so raster logos stay intact unless the user deliberately opts into transparent-background cleanup.
+- Updated the Logo-tab helper copy to explain that raster background removal is an opt-in transparency pass rather than a default upload behavior.
+
+### Validation
+
+- npm run build
+- Verified the builder keeps raster logo background removal unchecked after manual upload and preset selection until the checkbox is explicitly enabled
 
 ---
 

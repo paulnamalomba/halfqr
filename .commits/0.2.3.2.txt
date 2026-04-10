@@ -1,0 +1,16 @@
+HaveQR v0.2.3.2 Release Notes
+Release Date: 10 April, 2026
+===================================
+
+## [0.2.3.2] - 2026-04-10
+
+### Changed
+
+- Switched raster logo background removal in the webapp to an explicit user-controlled checkbox instead of auto-enabling it for uploaded or preset raster logos.
+- Defaulted the builder background-removal toggle to false, so raster logos stay intact unless the user deliberately opts into transparent-background cleanup.
+- Updated the Logo-tab helper copy to explain that raster background removal is an opt-in transparency pass rather than a default upload behavior.
+
+### Validation
+
+- npm run build
+- Verified the builder keeps raster logo background removal unchecked after manual upload and preset selection until the checkbox is explicitly enabled

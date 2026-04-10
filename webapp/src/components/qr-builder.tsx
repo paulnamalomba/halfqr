@@ -1,5 +1,6 @@
-"use client";
+"use client"; // This is a client component, it uses state and effects and is interactive, so we need this directive at the top of the file
 
+// Some imports here
 import qrcodeGenerator from "qrcode-generator";
 import AddPhotoAlternateRounded from "@mui/icons-material/AddPhotoAlternateRounded";
 import AppsRounded from "@mui/icons-material/AppsRounded";
@@ -16,8 +17,16 @@ import TuneRounded from "@mui/icons-material/TuneRounded";
 import WhatsApp from "@mui/icons-material/WhatsApp";
 import { startTransition, useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
+// --- INFO ----
+// The reason why we are here using types instead of the clssical typescript lib/api.ts is that the api is abstracting all functionality, i.e. SSR is king
+// there are no client-side maps or complex data strcture building for example in classical e-commerce we can have catalog to cart item maps, which here are not needed
+
+// IconComponent is a helper type
 type IconComponent = typeof LinkRounded;
 
+// BuilderType is the main type for the QR builder, 
+// representing each content route type and its associated metadata
+// IconComponet is runtime injected
 type BuilderType = {
   id: BuilderTypeId;
   label: string;
@@ -27,6 +36,8 @@ type BuilderType = {
   Icon: IconComponent;
 };
 
+// Here we have types for the various request and response shapes for the QR rendering API,
+// These are all strongly typed and strongly agted to certain values of those types
 type BuilderTypeId = "link" | "app" | "social" | "pdf" | "image" | "video" | "whatsapp";
 type DesignSectionId = "frame" | "colour" | "logo";
 type QrContentType = "Link" | "App" | "Social" | "Pdf" | "Image" | "Video" | "WhatsApp";
@@ -37,6 +48,7 @@ type QrDataPattern = "Square" | "Dotted";
 type QrGradientMode = "None" | "Linear";
 type QrLogoSourceType = "Svg" | "Png" | "Jpeg";
 
+// UploadedLogo is the type for the logo asset that a user can upload in the builder, it includes both the original file metadata and the processed content ready for API submission
 type UploadedLogo = {
   name: string;
   previewUrl: string;
@@ -48,6 +60,8 @@ type UploadedLogo = {
   contentType?: string;
 };
 
+// These types represent the shapes of the requests we send to the API and the responses we receive, 
+// all strongly typed for safety and clarity
 type SubmitRenderJobRequest = {
   contentType: QrContentType;
   targetUrl?: string;
@@ -82,12 +96,14 @@ type SubmitRenderJobRequest = {
   };
 };
 
+// These types represent the shapes of the responses we receive from the API when we submit a render job, poll for status, and retrieve artifacts
 type RenderJobAcceptedResponse = {
   jobId: string;
   status: QrJobStatus;
   statusUrl: string;
 };
 
+// These types represent the shapes of the responses we receive from the API when we request a draft preview, which is a lightweight rendering of the QR based on the current builder state, without queuing a full render job
 type RenderArtifactDescriptor = {
   format: string;
   contentType: string;
@@ -95,6 +111,7 @@ type RenderArtifactDescriptor = {
   downloadUrl: string;
 };
 
+// This type represents the shape of the response we receive when we poll for the status of a render job, which includes the current status, any resolved target URL, and the list of artifacts available when the job is completed
 type RenderJobStatusResponse = {
   jobId: string;
   status: QrJobStatus;
@@ -110,6 +127,7 @@ type RenderJobStatusResponse = {
   artifacts: RenderArtifactDescriptor[];
 };
 
+// This type represents the shape of the response we receive when we request a draft preview, which includes a resolved target URL, the encoded payload, and the SVG markup for the preview
 type RenderDraftPreviewResponse = {
   resolvedTargetUrl: string;
   encodedPayload: string;
@@ -118,6 +136,7 @@ type RenderDraftPreviewResponse = {
   svgMarkup: string;
 };
 
+// Here we define some constants for the builder, including the available content types, design sections, logo presets, and various configuration values for polling intervals, size limits, etc.
 type LogoPreset = {
   id: string;
   label: string;
@@ -125,12 +144,14 @@ type LogoPreset = {
   assetPath: string;
 };
 
+// Here we introduce some const values for the builder, such as the available content types, design sections, logo presets, and various configuration values for polling intervals, size limits, etc.
 const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HAVEQR_API_BASE_URL ?? "https://haveqr-api-demo.computemore.com")
   .trim()
   .replace(/\/$/, "");
 const publicApiOrigin = new URL(publicApiBaseUrl).origin;
 const apiProxyPrefix = "/api/haveqr";
 
+// A few more varibles regarding byte-parsing and render timing, these are used in the builder logic for validating uploads and managing the polling lifecycle
 const maxLogoBytes = 512 * 1024;
 const pollIntervalMs = 1500;
 const retryIntervalMs = 3000;
@@ -141,12 +162,13 @@ const previewFinderInnerSizeModules = 5;
 const previewFinderCenterSizeModules = 3;
 const previewDottedRadius = 0.38;
 
+// Hard-coded array that speicfies each builder type as selcted by the user, this is fired to our render job
 const builderTypes: BuilderType[] = [
   {
     id: "link",
     label: "Link",
     eyebrow: "Website",
-    placeholder: "https://computemore.com/campaign/spring-launch",
+    placeholder: "https://computemore.com",
     summary: "Classic static destination for pages, campaigns, and one-off flows.",
     Icon: LinkRounded,
   },
@@ -162,7 +184,7 @@ const builderTypes: BuilderType[] = [
     id: "social",
     label: "Social",
     eyebrow: "Profile route",
-    placeholder: "https://www.instagram.com/computemore",
+    placeholder: "https://www.linkedin.com/paulnamalomba",
     summary: "Route scans into a profile, link hub, or campaign social page.",
     Icon: ShareRounded,
   },
@@ -186,7 +208,7 @@ const builderTypes: BuilderType[] = [
     id: "video",
     label: "Video",
     eyebrow: "Hosted asset",
-    placeholder: "https://www.youtube.com/watch?v=launch-demo",
+    placeholder: "https://www.youtube.com/watch?v=<etc>",
     summary: "Launch product demos, promo clips, or embedded training content.",
     Icon: SmartDisplayRounded,
   },
@@ -200,6 +222,7 @@ const builderTypes: BuilderType[] = [
   },
 ];
 
+// Design sections represent the different categories of visual styling that users can configure in the builder, such as the frame, colour, and logo settings
 const designSections: Array<{
   id: DesignSectionId;
   label: string;
@@ -226,6 +249,7 @@ const designSections: Array<{
   },
 ];
 
+// Logo presets represent the different pre-defined logos that users can choose from, each with an ID, label, eyebrow, asset path, and a flag indicating whether to remove the background by default
 const logoPresets: LogoPreset[] = [
   {
     id: "scan-me",
@@ -253,8 +277,13 @@ const logoPresets: LogoPreset[] = [
   },
 ];
 
+// Now we make exposed some functions and classes (methods) that are used by our builder component, these include the main QrBuilder component which is the default export, as well as some helper functions for building requests, validating input, and managing the preview state
 export function QrBuilder() {
+  // useId is a React hook that generates a unique ID for the form, this is used for accessibility and to associate labels with inputs
   const formId = useId();
+
+  // --- State Variables ---
+  // Arrays using prescribed data structures and api shapes for the builder state, these are used to manage the user input and the API interactions in a strongly typed way
   const [selectedType, setSelectedType] = useState<BuilderType>(builderTypes[0]);
   const [designSection, setDesignSection] = useState<DesignSectionId>("frame");
   const [targetUrl, setTargetUrl] = useState("https://computemore.com/campaign/spring-launch");
@@ -274,7 +303,7 @@ export function QrBuilder() {
   const [logoAsset, setLogoAsset] = useState<UploadedLogo | null>(null);
   const [logoSizePercent, setLogoSizePercent] = useState("18");
   const [logoBackdropPadding, setLogoBackdropPadding] = useState("40");
-  const [removeLogoBackground, setRemoveLogoBackground] = useState(true);
+  const [removeLogoBackground, setRemoveLogoBackground] = useState(false);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [loadingPresetId, setLoadingPresetId] = useState<string | null>(null);
   const [acceptedJob, setAcceptedJob] = useState<RenderJobAcceptedResponse | null>(null);
@@ -287,8 +316,11 @@ export function QrBuilder() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [isDraftSyncing, setIsDraftSyncing] = useState(false);
+  
+  // We use a ref to store a cache of draft previews keyed by the stringified request payload, this allows us to avoid making redundant API calls for draft previews when the user toggles between design sections or makes changes that don't affect the preview output
   const draftPreviewCacheRef = useRef(new Map<string, RenderDraftPreviewResponse>());
 
+  // Here we have some derived state variables that compute values based on the current builder state, such as the normalized and validated input values, the request payload for the API, the preview image source, and various labels and messages to display in the UI
   const normalizedTargetUrl = targetUrl.trim();
   const normalizedPhone = phone.trim();
   const normalizedMessage = message.trim();
@@ -305,6 +337,9 @@ export function QrBuilder() {
   const resolvedLogoSize = hasValidLogoSize ? parsedLogoSizePercent : 18;
   const resolvedBackdropPadding = hasValidBackdropPadding ? parsedLogoBackdropPadding : 40;
   const activeDesignSection = designSections.find((section) => section.id === designSection) ?? designSections[0];
+  
+  // --- Request Payloads ---
+  // JSON-shaped request payload that we would send to the API when submitting a render job, this is derived from the current builder state and is used for both the actual API submission and for generating the draft preview
   const requestPreview = buildRenderRequest({
     typeId: selectedType.id,
     targetUrl: normalizedTargetUrl,
@@ -327,6 +362,8 @@ export function QrBuilder() {
     removeLogoBackground,
   });
   const requestPreviewKey = JSON.stringify(requestPreview);
+
+  // Validate the request payload to determine if we can automatically generate a preview
   const requestValidationError = validateRequest({
     typeId: selectedType.id,
     targetUrl: normalizedTargetUrl,
@@ -337,6 +374,8 @@ export function QrBuilder() {
     hasValidBackdropPadding,
   });
   const canAutoPreview = requestValidationError === null;
+
+  // --- Derived Preview State ---
   const previewPayload = resolvePreviewPayload(selectedType.id, normalizedTargetUrl, normalizedPhone, normalizedMessage);
   const previewTarget = resolvePreviewTarget(selectedType.id, normalizedTargetUrl, normalizedPhone, normalizedMessage);
   const activeAcceptedJob = queuedRequestKey === requestPreviewKey ? acceptedJob : null;
@@ -375,21 +414,23 @@ export function QrBuilder() {
       : "Local QR preview";
 
   useEffect(() => {
+    // Quickly short-circuit if we don't have an active job with a status URL to poll, this avoids setting up the polling lifecycle when it's not needed
     if (!activeAcceptedJob?.statusUrl) {
       return;
     }
 
     let cancelled = false;
     let timeoutId: number | undefined;
-
     setIsPolling(true);
 
+    // If not cancelled and we have a status URL, we schedule the next poll with the specified delay, this function is used to manage the polling lifecycle and ensure we keep polling at the right intervals until we get a terminal status or encounter an error
     const scheduleNext = (delayMs: number) => {
       if (!cancelled) {
         timeoutId = window.setTimeout(runPoll, delayMs);
       }
     };
 
+    // Polling the api for the status of the active job, we fetch the status URL and handle the response, if we get a successful response we update the latest job state and check if we reached a terminal status, if we get an error we set the error message and schedule a retry
     const runPoll = async () => {
       try {
         const response = await fetch(activeAcceptedJob.statusUrl, {
@@ -573,7 +614,7 @@ export function QrBuilder() {
       const uploadedLogo = await toUploadedLogo(file);
       setSelectedPresetId(null);
       setLogoSizePercent("18");
-      setRemoveLogoBackground(uploadedLogo.sourceType !== "Svg");
+      setRemoveLogoBackground(false);
       setLogoAsset(uploadedLogo);
       setErrorMessage(null);
     } catch (error) {
@@ -590,7 +631,7 @@ export function QrBuilder() {
       setSelectedPresetId(preset.id);
       setLogoSizePercent("12");
       setLogoBackdropPadding("40");
-      setRemoveLogoBackground(true);
+      setRemoveLogoBackground(false);
       setErrorMessage(null);
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
@@ -854,7 +895,7 @@ export function QrBuilder() {
                     onChange={(event) => setRemoveLogoBackground(event.target.checked)}
                     disabled={!logoAsset || logoAsset.sourceType === "Svg"}
                   />
-                  <span>Use heuristic background removal for raster logo uploads.</span>
+                  <span>Try to make the raster logo background transparent before embedding it.</span>
                 </label>
 
                 <div className="upload-meta-row">
@@ -1330,8 +1371,8 @@ function getLogoHint(logoAsset: UploadedLogo | null, removeLogoBackground: boole
   }
 
   return removeLogoBackground
-    ? "Raster logos use a local cutout heuristic aimed at common flat or light backgrounds before the worker embeds them."
-    : "Raster logos stay intact and are placed over a clean backdrop in the middle of the QR.";
+    ? "Raster logos now use an opt-in cutout heuristic to try to make flat or light backgrounds transparent before the worker embeds them."
+    : "Raster logos stay intact by default; enable background removal only when you want the worker to try making the background transparent.";
 }
 
 function summarizeRequest(request: SubmitRenderJobRequest) {

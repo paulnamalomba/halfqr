@@ -9,6 +9,8 @@ namespace HaveQR.QrEngine.Rendering;
 
 internal static class QrLogoProcessor
 {
+    private const int MaxRasterPixels = 2_000_000;
+
     private static readonly HashSet<string> AllowedSvgElements = new(StringComparer.OrdinalIgnoreCase)
     {
         "svg",
@@ -74,16 +76,19 @@ internal static class QrLogoProcessor
         var rawBytes = Convert.FromBase64String(logoOptions.ContentBase64!);
         using var bitmap = SKBitmap.Decode(rawBytes) ?? throw new InvalidOperationException("Unable to decode the uploaded raster logo.");
 
-        if (bitmap.Width <= 0 || bitmap.Height <= 0 || bitmap.Width * bitmap.Height > 2_000_000)
+        if (bitmap.Width <= 0 || bitmap.Height <= 0)
         {
-            throw new InvalidOperationException("Uploaded raster logos must stay below two million pixels.");
+            throw new InvalidOperationException("Uploaded raster logos must have valid dimensions.");
         }
 
-        using var workingBitmap = new SKBitmap(bitmap.Width, bitmap.Height, true);
+        var (targetWidth, targetHeight) = ResolveRasterDimensions(bitmap.Width, bitmap.Height);
+
+        using var workingBitmap = new SKBitmap(targetWidth, targetHeight, true);
         using (var canvas = new SKCanvas(workingBitmap))
+        using (var paint = new SKPaint { FilterQuality = SKFilterQuality.High, IsAntialias = true })
         {
             canvas.Clear(SKColors.Transparent);
-            canvas.DrawBitmap(bitmap, 0, 0);
+            canvas.DrawBitmap(bitmap, SKRect.Create(targetWidth, targetHeight), paint);
             canvas.Flush();
         }
 
@@ -96,6 +101,39 @@ internal static class QrLogoProcessor
         using var encoded = image.Encode(SKEncodedImageFormat.Png, 100);
         var dataUri = $"data:image/png;base64,{Convert.ToBase64String(encoded.ToArray())}";
         return new QrPreparedLogo(logoOptions.SourceType, dataUri, workingBitmap.Width, workingBitmap.Height, "image/png", null);
+    }
+
+    private static (int Width, int Height) ResolveRasterDimensions(int width, int height)
+    {
+        var pixelCount = (long)width * height;
+
+        if (pixelCount <= MaxRasterPixels)
+        {
+            return (width, height);
+        }
+
+        var scale = Math.Sqrt(MaxRasterPixels / (double)pixelCount);
+        var scaledWidth = Math.Max(1, (int)Math.Floor(width * scale));
+        var scaledHeight = Math.Max(1, (int)Math.Floor(height * scale));
+
+        while ((long)scaledWidth * scaledHeight > MaxRasterPixels)
+        {
+            if (scaledWidth >= scaledHeight && scaledWidth > 1)
+            {
+                scaledWidth -= 1;
+                continue;
+            }
+
+            if (scaledHeight > 1)
+            {
+                scaledHeight -= 1;
+                continue;
+            }
+
+            break;
+        }
+
+        return (scaledWidth, scaledHeight);
     }
 
     private static void ValidateSvgTree(XElement root)
@@ -179,17 +217,19 @@ internal static class QrLogoProcessor
 
     private static void ApplyFlatBackgroundRemoval(SKBitmap bitmap)
     {
-        var borderSamples = GetBorderSamples(bitmap);
+        var borderSamples = GetBorderSamples(bitmap)
+            .Where(static sample => sample.Alpha >= 235)
+            .ToArray();
 
-        if (borderSamples.Count == 0)
+        if (borderSamples.Length == 0)
         {
             return;
         }
 
         var reference = Average(borderSamples);
-        var similarSamples = borderSamples.Count(sample => ColorDistance(sample, reference) <= 48d);
+        var similarSamples = borderSamples.Count(sample => IsRemovableBackgroundSample(sample, reference));
 
-        if (similarSamples < borderSamples.Count * 0.75 || GetLuminance(reference) < 165d)
+        if (similarSamples < borderSamples.Length * 0.75 || !IsNearWhite(reference))
         {
             return;
         }
@@ -204,7 +244,7 @@ internal static class QrLogoProcessor
             var (x, y) = queue.Dequeue();
             var pixel = bitmap.GetPixel(x, y);
 
-            if (ColorDistance(pixel, reference) > 58d)
+            if (!IsRemovableBackgroundSample(pixel, reference))
             {
                 continue;
             }
@@ -269,10 +309,37 @@ internal static class QrLogoProcessor
 
         visited[index] = true;
 
-        if (ColorDistance(bitmap.GetPixel(x, y), reference) <= 58d)
+        if (IsRemovableBackgroundSample(bitmap.GetPixel(x, y), reference))
         {
             queue.Enqueue((x, y));
         }
+    }
+
+    private static bool IsNearWhite(SKColor color)
+        => color.Alpha >= 235
+            && color.Red >= 215
+            && color.Green >= 215
+            && color.Blue >= 215
+            && GetChannelSpread(color) <= 24d;
+
+    private static bool IsRemovableBackgroundSample(SKColor sample, SKColor reference)
+    {
+        if (sample.Alpha < 235)
+        {
+            return false;
+        }
+
+        if (sample.Red < 185 || sample.Green < 185 || sample.Blue < 185)
+        {
+            return false;
+        }
+
+        if (GetChannelSpread(sample) > 28d)
+        {
+            return false;
+        }
+
+        return ColorDistance(sample, reference) <= 46d;
     }
 
     private static SKColor Average(IReadOnlyCollection<SKColor> samples)
@@ -298,6 +365,13 @@ internal static class QrLogoProcessor
         var deltaGreen = left.Green - right.Green;
         var deltaBlue = left.Blue - right.Blue;
         return Math.Sqrt((deltaRed * deltaRed) + (deltaGreen * deltaGreen) + (deltaBlue * deltaBlue));
+    }
+
+    private static double GetChannelSpread(SKColor color)
+    {
+        var max = Math.Max(color.Red, Math.Max(color.Green, color.Blue));
+        var min = Math.Min(color.Red, Math.Min(color.Green, color.Blue));
+        return max - min;
     }
 
     private static double GetLuminance(SKColor color)
