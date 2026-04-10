@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/logos/favicon.ico", type: "image/x-icon" }],
     shortcut: ["/logos/favicon.ico"],
-    apple: [{ url: "/logos/favicon.ico", type: "image/svg+xml" }],
+    apple: [{ url: "/logos/havqr_favicon_180x180.png", type: "image/png" }],
   },
   openGraph: {
     title: "HaveQR | Styled QR Builder",

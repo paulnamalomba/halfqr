@@ -7,38 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
+    - [Fixed](#fixed)
+    - [Why](#why)
+    - [Problem Solved](#problem-solved)
+    - [Validation](#validation)
   - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
     - [Changed](#changed)
-    - [Validation](#validation)
+    - [Validation](#validation-1)
   - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
     - [Added](#added)
   - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-1)
     - [Changed](#changed-1)
-    - [Validation](#validation-1)
+    - [Validation](#validation-2)
   - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
     - [Added](#added-2)
   - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-3)
     - [Changed](#changed-2)
-    - [Validation](#validation-2)
+    - [Validation](#validation-3)
   - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-4)
     - [Changed](#changed-3)
-    - [Validation](#validation-3)
+    - [Validation](#validation-4)
   - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-5)
     - [Changed](#changed-4)
-    - [Validation](#validation-4)
+    - [Validation](#validation-5)
   - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
     - [Added](#added-6)
     - [Changed](#changed-5)
-    - [Validation](#validation-5)
+    - [Validation](#validation-6)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-6)
+  - [Validation:](#validation-7)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+### Fixed
+
+- Normalized uploaded and preset raster logos in the webapp before they enter builder state, automatically scaling PNG and JPEG assets down when their image area exceeds the supported threshold while preserving aspect ratio.
+- Added optimized-logo metadata and updated the Logo-tab guidance so the builder explains when a raster asset was scaled locally instead of failing later in the render pipeline.
+- Kept raster background removal opt-in while making the upload path safer, so large raster logos can be previewed and rendered without silently changing other logo settings.
+
+### Why
+
+- The existing upload guard only checked file size in bytes. That allowed highly compressed but very large-dimension raster logos to pass validation even though the render path still had to decode and embed the full pixel area.
+- Those requests could fail during draft preview or final rendering on stricter or older runtimes, producing an avoidable server-side error for an asset the builder should have normalized before submission.
+- Fixing the issue in the webapp protects both manual uploads and preset raster logos without requiring users to preprocess artwork themselves.
+
+### Problem Solved
+
+- Prevented large-dimension PNG and JPEG logos from breaking draft preview sync when they were under the byte limit but still too large in raw image area.
+- Removed the class of failures where the builder looked healthy locally but the server draft request errored as soon as the raster logo was included.
+- Preserved the existing behavior for SVG logos and already-safe raster files, so only oversized raster inputs are transformed.
+
+### Validation
+
+- npm run build from webapp
+- Verified the previously failing high-resolution raster logo path now scales the image locally and completes draft preview successfully
+- Verified optimized raster logos keep their aspect ratio and continue through the normal final render request flow
 
 ---
 

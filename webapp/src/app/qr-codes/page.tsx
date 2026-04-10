@@ -9,6 +9,8 @@ import Link from "next/link";
 
 type IconComponent = typeof LinkRounded;
 
+// Hard-coded qr-types for generation, we are making a best-effort here to have as many as possible
+// Some are yet to come/be implemented, i.e money, payment links, airtel money links, bank details
 const qrTypes: Array<{
   title: string;
   description: string;

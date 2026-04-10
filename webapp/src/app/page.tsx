@@ -32,15 +32,15 @@ export default function HomePage() {
     <main className="site-page page-shell-home">
       <section className="generator-hero">
         <div className="generator-hero-copy">
-          <p className="page-kicker">Public QR generator</p>
-          <h1 className="page-title">Build a production-ready QR code without leaving the page.</h1>
+          <p className="page-kicker">HaveQR: Easy, Anonymous QR Code Generation</p>
+          <h1 className="page-title">Have a production-ready QR code that you can share with others</h1>
           <p className="page-summary">
-            The landing page now behaves like the generator itself: choose a supported route, complete the content, style the code,
-            then queue a real worker render against the live API.
+            We provide advanced features such as marker-shape definition, we also provide data-shape definitions, custom logo-definitions for the generated code and completely synchronous processing - so what you see is what you get!
           </p>
         </div>
 
-        <div className="generator-fact-grid">
+        {/* Will wire properly later */}
+        {/* <div className="generator-fact-grid">
           {generatorFacts.map((fact) => {
             const Icon = fact.Icon;
 
@@ -54,7 +54,7 @@ export default function HomePage() {
               </article>
             );
           })}
-        </div>
+        </div> */}
       </section>
 
       <QrBuilder />

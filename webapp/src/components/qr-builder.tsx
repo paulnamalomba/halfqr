@@ -54,6 +54,7 @@ type UploadedLogo = {
   previewUrl: string;
   sizeBytes: number;
   aspectRatio: number;
+  wasOptimized: boolean;
   sourceType: QrLogoSourceType;
   svg?: string;
   contentBase64?: string;
@@ -153,6 +154,7 @@ const apiProxyPrefix = "/api/haveqr";
 
 // A few more varibles regarding byte-parsing and render timing, these are used in the builder logic for validating uploads and managing the polling lifecycle
 const maxLogoBytes = 512 * 1024;
+const maxRasterLogoPixels = 2_000_000;
 const pollIntervalMs = 1500;
 const retryIntervalMs = 3000;
 const draftPreviewDebounceMs = 450;
@@ -175,7 +177,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "app",
     label: "App",
-    eyebrow: "Store route",
+    eyebrow: "Google/Apple App Store Links",
     placeholder: "https://apps.apple.com/app/id123456789",
     summary: "Deep-link into app stores, onboarding flows, or install landing pages.",
     Icon: AppsRounded,
@@ -183,7 +185,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "social",
     label: "Social",
-    eyebrow: "Profile route",
+    eyebrow: "Socials Profile Link",
     placeholder: "https://www.linkedin.com/paulnamalomba",
     summary: "Route scans into a profile, link hub, or campaign social page.",
     Icon: ShareRounded,
@@ -191,7 +193,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "pdf",
     label: "PDF",
-    eyebrow: "Hosted asset",
+    eyebrow: "Link to a PDF",
     placeholder: "https://cdn.haveqr.dev/brochures/launch-pack.pdf",
     summary: "Send scans into brochures, menus, decks, or printable collateral.",
     Icon: PictureAsPdfRounded,
@@ -199,7 +201,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "image",
     label: "Image",
-    eyebrow: "Hosted asset",
+    eyebrow: "Link to an Image",
     placeholder: "https://cdn.haveqr.dev/posters/flyer-front.jpg",
     summary: "Point straight into poster art, packaging, menus, or image galleries.",
     Icon: ImageRounded,
@@ -207,7 +209,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "video",
     label: "Video",
-    eyebrow: "Hosted asset",
+    eyebrow: "Map to a Video Link (YouTube, Dailymotion)",
     placeholder: "https://www.youtube.com/watch?v=<etc>",
     summary: "Launch product demos, promo clips, or embedded training content.",
     Icon: SmartDisplayRounded,
@@ -215,7 +217,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "whatsapp",
     label: "WhatsApp",
-    eyebrow: "Fallback route",
+    eyebrow: "WhatsApp Contact Link",
     placeholder: "https://wa.me/260977000000?text=Hello%20from%20HaveQR",
     summary: "Use a direct URL or generate a wa.me route from phone and message fields.",
     Icon: WhatsApp,
@@ -1370,6 +1372,12 @@ function getLogoHint(logoAsset: UploadedLogo | null, removeLogoBackground: boole
     return "SVG logos are sanitized and embedded as vector content in the final SVG render path.";
   }
 
+  if (logoAsset.wasOptimized) {
+    return removeLogoBackground
+      ? "Raster logo was scaled down locally before upload, and the background-removal heuristic remains opt-in for light or flat artwork."
+      : "Raster logo was scaled down locally before upload so draft preview and final render requests stay within supported image limits.";
+  }
+
   return removeLogoBackground
     ? "Raster logos now use an opt-in cutout heuristic to try to make flat or light backgrounds transparent before the worker embeds them."
     : "Raster logos stay intact by default; enable background removal only when you want the worker to try making the background transparent.";
@@ -1642,28 +1650,112 @@ async function toUploadedLogo(file: File): Promise<UploadedLogo> {
       previewUrl,
       sizeBytes: file.size,
       aspectRatio,
+      wasOptimized: false,
       sourceType: "Svg",
       svg,
     };
   }
 
   if (file.type === "image/png" || file.type === "image/jpeg") {
-    const dataUrl = await readFileAsDataUrl(file);
-    const [, contentBase64] = dataUrl.split(",", 2);
-    const aspectRatio = await readImageAspectRatio(dataUrl);
+    const normalizedRaster = await normalizeRasterLogo(file);
 
     return {
       name: file.name,
-      previewUrl: dataUrl,
-      sizeBytes: file.size,
-      aspectRatio,
+      previewUrl: normalizedRaster.dataUrl,
+      sizeBytes: normalizedRaster.sizeBytes,
+      aspectRatio: normalizedRaster.aspectRatio,
+      wasOptimized: normalizedRaster.wasOptimized,
       sourceType: file.type === "image/png" ? "Png" : "Jpeg",
-      contentBase64,
+      contentBase64: normalizedRaster.contentBase64,
       contentType: file.type,
     };
   }
 
   throw new Error("Upload an SVG, PNG, or JPEG logo.");
+}
+
+async function normalizeRasterLogo(file: File) {
+  const dataUrl = await readFileAsDataUrl(file);
+  const image = await loadImage(dataUrl, "Unable to decode the uploaded raster logo.");
+
+  if (image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+    throw new Error("Raster logos must expose valid image dimensions.");
+  }
+
+  const aspectRatio = image.naturalWidth / image.naturalHeight;
+  const targetDimensions = resolveRasterDimensions(image.naturalWidth, image.naturalHeight);
+
+  if (targetDimensions.width === image.naturalWidth && targetDimensions.height === image.naturalHeight) {
+    const [, contentBase64 = ""] = dataUrl.split(",", 2);
+
+    return {
+      dataUrl,
+      contentBase64,
+      aspectRatio,
+      sizeBytes: file.size,
+      wasOptimized: false,
+    };
+  }
+
+  const resizedDataUrl = resizeRasterDataUrl(image, targetDimensions.width, targetDimensions.height, file.type);
+  const [, contentBase64 = ""] = resizedDataUrl.split(",", 2);
+
+  return {
+    dataUrl: resizedDataUrl,
+    contentBase64,
+    aspectRatio,
+    sizeBytes: estimateBase64Bytes(contentBase64),
+    wasOptimized: true,
+  };
+}
+
+function resolveRasterDimensions(width: number, height: number) {
+  const pixelCount = width * height;
+
+  if (pixelCount <= maxRasterLogoPixels) {
+    return { width, height };
+  }
+
+  const scale = Math.sqrt(maxRasterLogoPixels / pixelCount);
+  let scaledWidth = Math.max(1, Math.floor(width * scale));
+  let scaledHeight = Math.max(1, Math.floor(height * scale));
+
+  while ((scaledWidth * scaledHeight) > maxRasterLogoPixels) {
+    if (scaledWidth >= scaledHeight && scaledWidth > 1) {
+      scaledWidth -= 1;
+      continue;
+    }
+
+    if (scaledHeight > 1) {
+      scaledHeight -= 1;
+      continue;
+    }
+
+    break;
+  }
+
+  return { width: scaledWidth, height: scaledHeight };
+}
+
+function resizeRasterDataUrl(image: HTMLImageElement, width: number, height: number, mimeType: string) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("Unable to prepare the uploaded raster logo.");
+  }
+
+  context.clearRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+  return canvas.toDataURL(mimeType, mimeType === "image/jpeg" ? 0.92 : undefined);
+}
+
+function estimateBase64Bytes(contentBase64: string) {
+  const sanitized = contentBase64.replace(/=+$/, "");
+  return Math.floor((sanitized.length * 3) / 4);
 }
 
 function readFileAsText(file: File) {
@@ -1684,21 +1776,28 @@ function readFileAsDataUrl(file: File) {
   });
 }
 
-function readImageAspectRatio(source: string) {
-  return new Promise<number>((resolve) => {
+function loadImage(source: string, errorMessage = "Unable to load the uploaded image.") {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
 
-    image.onload = () => {
-      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-        resolve(image.naturalWidth / image.naturalHeight);
-        return;
-      }
-
-      resolve(1);
-    };
-
-    image.onerror = () => resolve(1);
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(errorMessage));
     image.src = source;
+  });
+}
+
+function readImageAspectRatio(source: string) {
+  return new Promise<number>((resolve) => {
+    void loadImage(source)
+      .then((image) => {
+        if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+          resolve(image.naturalWidth / image.naturalHeight);
+          return;
+        }
+
+        resolve(1);
+      })
+      .catch(() => resolve(1));
   });
 }
 
