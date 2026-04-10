@@ -649,6 +649,71 @@ p {
   font-size: 0.86rem;
 }
 
+.logo-preset-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.logo-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.logo-preset-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.9);
+  text-align: left;
+}
+
+.logo-preset-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.logo-preset-button-active {
+  border-color: rgba(31, 97, 192, 0.34);
+  background: linear-gradient(180deg, rgba(31, 97, 192, 0.12), rgba(16, 36, 60, 0.05));
+  box-shadow: inset 0 0 0 1px rgba(31, 97, 192, 0.14);
+}
+
+.logo-preset-thumb {
+  flex: none;
+  width: 68px;
+  height: 68px;
+  padding: 8px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+}
+
+.logo-preset-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logo-preset-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.logo-preset-copy strong {
+  font-size: 0.92rem;
+}
+
+.logo-preset-copy span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 .toggle-row {
   display: flex;
   align-items: center;
@@ -786,6 +851,21 @@ p {
   color: #7d2414;
 }
 
+.status-chip-syncing {
+  background: rgba(31, 97, 192, 0.12);
+  color: #1b4d97;
+}
+
+.status-chip-draft {
+  background: rgba(16, 36, 60, 0.1);
+  color: var(--navy);
+}
+
+.status-chip-local {
+  background: rgba(243, 109, 44, 0.14);
+  color: #8d441a;
+}
+
 .preview-stage {
   position: relative;
   display: grid;
@@ -811,6 +891,26 @@ p {
   object-fit: contain;
   background: #ffffff;
   border: 1px solid rgba(16, 36, 60, 0.12);
+}
+
+.preview-placeholder {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  max-width: 28ch;
+  text-align: center;
+  color: var(--muted);
+}
+
+.preview-placeholder strong {
+  color: var(--navy);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.preview-placeholder span {
+  font-size: 0.88rem;
+  line-height: 1.6;
 }
 
 .preview-mock {
@@ -1103,6 +1203,7 @@ p {
   .generator-fact-grid,
   .route-card-grid,
   .route-card-grid-wide,
+  .logo-preset-grid,
   .generator-type-grid,
   .field-grid-two,
   .field-grid-three,

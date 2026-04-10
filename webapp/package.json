@@ -1,6 +1,6 @@
 {
   "name": "haveqr-webapp",
-  "version": "0.2.2.2",
+  "version": "0.2.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,6 +13,7 @@
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
     "next": "^15.5.15",
+    "qrcode-generator": "^2.0.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

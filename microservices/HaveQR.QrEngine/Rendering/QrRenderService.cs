@@ -14,7 +14,27 @@ public sealed class QrRenderService(
     IQrPayloadEncoder payloadEncoder,
     IHashService hashService) : IQrRenderService
 {
+    public Task<QrDraftRenderResult> RenderDraftAsync(SubmitRenderJobRequest request, CancellationToken cancellationToken)
+    {
+        var draft = BuildDraftRenderResult(request, cancellationToken);
+        return Task.FromResult(draft);
+    }
+
     public Task<QrRenderArtifacts> RenderAsync(SubmitRenderJobRequest request, CancellationToken cancellationToken)
+    {
+        var draft = BuildDraftRenderResult(request, cancellationToken);
+        var pngBytes = RasterizePng(draft.SvgMarkup, request.Output.SizePx);
+
+        return Task.FromResult(new QrRenderArtifacts(
+            ResolvedTargetUrl: draft.ResolvedTargetUrl,
+            EncodedPayload: draft.EncodedPayload,
+            ConfigurationHash: draft.ConfigurationHash,
+            PayloadHash: draft.PayloadHash,
+            SvgMarkup: draft.SvgMarkup,
+            PngBytes: pngBytes));
+    }
+
+    private QrDraftRenderResult BuildDraftRenderResult(SubmitRenderJobRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         QrRenderRequestValidator.EnsureValid(request);
@@ -23,15 +43,13 @@ public sealed class QrRenderService(
         var configurationHash = hashService.Compute(SerializeCanonicalRequest(request));
         var payloadHash = hashService.Compute(encodedPayload);
         var svgMarkup = GenerateSvg(encodedPayload, request);
-        var pngBytes = RasterizePng(svgMarkup, request.Output.SizePx);
 
-        return Task.FromResult(new QrRenderArtifacts(
+        return new QrDraftRenderResult(
             ResolvedTargetUrl: encodedPayload,
             EncodedPayload: encodedPayload,
             ConfigurationHash: configurationHash,
             PayloadHash: payloadHash,
-            SvgMarkup: svgMarkup,
-            PngBytes: pngBytes));
+            SvgMarkup: svgMarkup);
     }
 
     private static string SerializeCanonicalRequest(SubmitRenderJobRequest request)

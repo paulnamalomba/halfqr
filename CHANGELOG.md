@@ -7,29 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
-    - [Added](#added-1)
     - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+    - [Added](#added-1)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-2)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-3)
     - [Changed](#changed-2)
     - [Validation](#validation-2)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-4)
     - [Changed](#changed-3)
     - [Validation](#validation-3)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-5)
+    - [Changed](#changed-4)
+    - [Validation](#validation-4)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-4)
+  - [Validation:](#validation-5)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.3.0] - 2026-04-10
+
+### Added
+
+- Added a synchronous SVG-only draft preview route at `POST /api/v1/qr/render/draft`, returning resolved target metadata plus SVG markup without queueing a worker job or generating PNG output.
+- Added browser-side local SVG preview generation in the `webapp` so the builder can render styled QR previews immediately while the server draft sync catches up.
+- Added Logo-tab preset selection backed by `webapp/public/assets/qr-watermarks`, with preset logos loading as centered overlays and defaulting to `12%` logo size.
+
+### Changed
+
+- Reworked the builder preview lifecycle into three stages: instant local preview, debounced server draft preview, and final worker artifact preview after an explicit render job completes.
+- Updated the builder to debounce and cache draft-preview requests, ignore stale preview responses, and prevent outdated completed jobs from overwriting the current request state.
+- Replaced the old approximate preview behavior with a more realistic SVG preview path that reflects the active data styling configuration, including live gradient settings and centered logo placement.
+- Expanded the builder status UI and styles to distinguish `Local preview`, `Draft synced`, and final render states, and to surface the new preset-logo controls.
+
+### Validation
+
+- `dotnet build HaveQR.sln`
+- `npm run build` from `webapp`
+- Verified `POST /api/v1/qr/render/draft` returns `200` for a styled link render request against the local PublicApi
+- Verified the builder transitions from local SVG preview to server draft preview
+- Verified selecting a logo preset loads the image and resets logo size to `12%`
 
 ---
 

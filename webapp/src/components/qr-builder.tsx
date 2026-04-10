@@ -1,5 +1,6 @@
 "use client";
 
+import qrcodeGenerator from "qrcode-generator";
 import AddPhotoAlternateRounded from "@mui/icons-material/AddPhotoAlternateRounded";
 import AppsRounded from "@mui/icons-material/AppsRounded";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
@@ -13,7 +14,7 @@ import ShareRounded from "@mui/icons-material/ShareRounded";
 import SmartDisplayRounded from "@mui/icons-material/SmartDisplayRounded";
 import TuneRounded from "@mui/icons-material/TuneRounded";
 import WhatsApp from "@mui/icons-material/WhatsApp";
-import { startTransition, useEffect, useId, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
+import { startTransition, useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
 type IconComponent = typeof LinkRounded;
 
@@ -40,17 +41,11 @@ type UploadedLogo = {
   name: string;
   previewUrl: string;
   sizeBytes: number;
+  aspectRatio: number;
   sourceType: QrLogoSourceType;
   svg?: string;
   contentBase64?: string;
   contentType?: string;
-};
-
-type PreviewStyle = CSSProperties & {
-  "--preview-dark": string;
-  "--preview-light": string;
-  "--preview-gradient-start": string;
-  "--preview-gradient-end": string;
 };
 
 type SubmitRenderJobRequest = {
@@ -115,6 +110,21 @@ type RenderJobStatusResponse = {
   artifacts: RenderArtifactDescriptor[];
 };
 
+type RenderDraftPreviewResponse = {
+  resolvedTargetUrl: string;
+  encodedPayload: string;
+  configurationHash: string;
+  payloadHash: string;
+  svgMarkup: string;
+};
+
+type LogoPreset = {
+  id: string;
+  label: string;
+  eyebrow: string;
+  assetPath: string;
+};
+
 const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HAVEQR_API_BASE_URL ?? "https://haveqr-api-demo.computemore.com")
   .trim()
   .replace(/\/$/, "");
@@ -124,6 +134,12 @@ const apiProxyPrefix = "/api/haveqr";
 const maxLogoBytes = 512 * 1024;
 const pollIntervalMs = 1500;
 const retryIntervalMs = 3000;
+const draftPreviewDebounceMs = 450;
+const previewQuietZoneModules = 4;
+const previewFinderSizeModules = 7;
+const previewFinderInnerSizeModules = 5;
+const previewFinderCenterSizeModules = 3;
+const previewDottedRadius = 0.38;
 
 const builderTypes: BuilderType[] = [
   {
@@ -210,10 +226,31 @@ const designSections: Array<{
   },
 ];
 
-const previewFinderPositions = [
-  { className: "preview-finder-top-left" },
-  { className: "preview-finder-top-right" },
-  { className: "preview-finder-bottom-left" },
+const logoPresets: LogoPreset[] = [
+  {
+    id: "scan-me",
+    label: "Scan Me",
+    eyebrow: "Generic callout",
+    assetPath: "/assets/qr-watermarks/scan-me-logo_in-qr-code.png",
+  },
+  {
+    id: "link",
+    label: "Link",
+    eyebrow: "Landing route",
+    assetPath: "/assets/qr-watermarks/link-logo_in-qr-code.png",
+  },
+  {
+    id: "menu",
+    label: "Menu",
+    eyebrow: "Restaurant card",
+    assetPath: "/assets/qr-watermarks/menu-logo_in-qr-code.png",
+  },
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    eyebrow: "Chat fallback",
+    assetPath: "/assets/qr-watermarks/whatsapp-logo_in-qr-code.png",
+  },
 ];
 
 export function QrBuilder() {
@@ -238,11 +275,19 @@ export function QrBuilder() {
   const [logoSizePercent, setLogoSizePercent] = useState("18");
   const [logoBackdropPadding, setLogoBackdropPadding] = useState("40");
   const [removeLogoBackground, setRemoveLogoBackground] = useState(true);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+  const [loadingPresetId, setLoadingPresetId] = useState<string | null>(null);
   const [acceptedJob, setAcceptedJob] = useState<RenderJobAcceptedResponse | null>(null);
   const [latestJob, setLatestJob] = useState<RenderJobStatusResponse | null>(null);
+  const [queuedRequestKey, setQueuedRequestKey] = useState<string | null>(null);
+  const [draftPreview, setDraftPreview] = useState<RenderDraftPreviewResponse | null>(null);
+  const [draftPreviewRequestKey, setDraftPreviewRequestKey] = useState<string | null>(null);
+  const [draftErrorMessage, setDraftErrorMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
+  const [isDraftSyncing, setIsDraftSyncing] = useState(false);
+  const draftPreviewCacheRef = useRef(new Map<string, RenderDraftPreviewResponse>());
 
   const normalizedTargetUrl = targetUrl.trim();
   const normalizedPhone = phone.trim();
@@ -260,7 +305,6 @@ export function QrBuilder() {
   const resolvedLogoSize = hasValidLogoSize ? parsedLogoSizePercent : 18;
   const resolvedBackdropPadding = hasValidBackdropPadding ? parsedLogoBackdropPadding : 40;
   const activeDesignSection = designSections.find((section) => section.id === designSection) ?? designSections[0];
-  const previewTarget = resolvePreviewTarget(selectedType.id, normalizedTargetUrl, normalizedPhone, normalizedMessage);
   const requestPreview = buildRenderRequest({
     typeId: selectedType.id,
     targetUrl: normalizedTargetUrl,
@@ -282,25 +326,56 @@ export function QrBuilder() {
     logoBackdropPadding: resolvedBackdropPadding,
     removeLogoBackground,
   });
-  const currentStatus = latestJob?.status ?? acceptedJob?.status ?? null;
-  const preferredArtifact = selectPreferredArtifact(latestJob?.artifacts ?? []);
-  const previewArtifact = selectPreviewArtifact(latestJob?.artifacts ?? []);
-  const statusMessage = getStatusMessage(acceptedJob, latestJob, isPolling);
-  const timelineText = getTimelineText(acceptedJob, latestJob);
+  const requestPreviewKey = JSON.stringify(requestPreview);
+  const requestValidationError = validateRequest({
+    typeId: selectedType.id,
+    targetUrl: normalizedTargetUrl,
+    phone: normalizedPhone,
+    hasValidSize,
+    hasValidGradientRotation,
+    hasValidLogoSize,
+    hasValidBackdropPadding,
+  });
+  const canAutoPreview = requestValidationError === null;
+  const previewPayload = resolvePreviewPayload(selectedType.id, normalizedTargetUrl, normalizedPhone, normalizedMessage);
+  const previewTarget = resolvePreviewTarget(selectedType.id, normalizedTargetUrl, normalizedPhone, normalizedMessage);
+  const activeAcceptedJob = queuedRequestKey === requestPreviewKey ? acceptedJob : null;
+  const activeLatestJob = queuedRequestKey === requestPreviewKey ? latestJob : null;
+  const activeDraftPreview = draftPreviewRequestKey === requestPreviewKey ? draftPreview : null;
+  const currentStatus = activeLatestJob?.status ?? activeAcceptedJob?.status ?? null;
+  const preferredArtifact = selectPreferredArtifact(activeLatestJob?.artifacts ?? []);
+  const previewArtifact = selectPreviewArtifact(activeLatestJob?.artifacts ?? []);
+  const localPreviewSvgMarkup = canAutoPreview && previewPayload
+    ? buildLocalPreviewSvgMarkup(previewPayload, requestPreview, logoAsset)
+    : null;
+  const previewImageSrc = previewArtifact?.downloadUrl
+    ?? (activeDraftPreview ? toSvgDataUrl(activeDraftPreview.svgMarkup) : null)
+    ?? (localPreviewSvgMarkup ? toSvgDataUrl(localPreviewSvgMarkup) : null);
+  const previewBadge = getPreviewBadge(currentStatus, isPolling, isDraftSyncing, Boolean(activeDraftPreview), Boolean(localPreviewSvgMarkup));
+  const previewSourceLabel = getPreviewSourceLabel(Boolean(previewArtifact), Boolean(activeDraftPreview), Boolean(localPreviewSvgMarkup));
+  const previewMessage = getPreviewMessage(
+    activeAcceptedJob,
+    activeLatestJob,
+    isPolling,
+    isDraftSyncing,
+    Boolean(activeDraftPreview),
+    Boolean(localPreviewSvgMarkup),
+  );
+  const timelineText = getTimelineText(activeAcceptedJob, activeLatestJob);
   const requestDump = summarizeRequest(requestPreview);
   const logoHint = getLogoHint(logoAsset, removeLogoBackground);
-  const renderPlan = latestJob?.artifacts.length
-    ? latestJob.artifacts.map((artifact) => artifact.format.toUpperCase()).join(" + ")
+  const renderPlan = activeLatestJob?.artifacts.length
+    ? activeLatestJob.artifacts.map((artifact) => artifact.format.toUpperCase()).join(" + ")
     : `PNG ${resolvedSizePx}px · ECC ${eccLevel}`;
-  const previewStyle: PreviewStyle = {
-    "--preview-dark": darkColor,
-    "--preview-light": lightColor,
-    "--preview-gradient-start": gradientStart,
-    "--preview-gradient-end": gradientEnd,
-  };
+  const resolvedPreviewTarget = activeLatestJob?.resolvedTargetUrl ?? activeDraftPreview?.resolvedTargetUrl ?? previewPayload ?? previewTarget;
+  const previewImageAlt = previewArtifact
+    ? "Rendered QR artifact preview"
+    : activeDraftPreview
+      ? "Draft QR preview"
+      : "Local QR preview";
 
   useEffect(() => {
-    if (!acceptedJob?.statusUrl) {
+    if (!activeAcceptedJob?.statusUrl) {
       return;
     }
 
@@ -317,7 +392,7 @@ export function QrBuilder() {
 
     const runPoll = async () => {
       try {
-        const response = await fetch(acceptedJob.statusUrl, {
+        const response = await fetch(activeAcceptedJob.statusUrl, {
           cache: "no-store",
           headers: {
             Accept: "application/json",
@@ -362,7 +437,75 @@ export function QrBuilder() {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [acceptedJob?.jobId, acceptedJob?.statusUrl]);
+  }, [activeAcceptedJob?.jobId, activeAcceptedJob?.statusUrl]);
+
+  useEffect(() => {
+    if (!canAutoPreview || !previewPayload) {
+      setIsDraftSyncing(false);
+      setDraftErrorMessage(null);
+      return;
+    }
+
+    const cachedPreview = draftPreviewCacheRef.current.get(requestPreviewKey);
+
+    if (cachedPreview) {
+      setDraftPreview(cachedPreview);
+      setDraftPreviewRequestKey(requestPreviewKey);
+      setDraftErrorMessage(null);
+      setIsDraftSyncing(false);
+      return;
+    }
+
+    let cancelled = false;
+    const abortController = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      setIsDraftSyncing(true);
+      setDraftErrorMessage(null);
+
+      try {
+        const response = await fetch(resolveApiUrl("/api/v1/qr/render/draft"), {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: requestPreviewKey,
+          cache: "no-store",
+          signal: abortController.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(await readErrorResponse(response, "Unable to sync the draft preview."));
+        }
+
+        const preview = (await response.json()) as RenderDraftPreviewResponse;
+
+        if (cancelled) {
+          return;
+        }
+
+        draftPreviewCacheRef.current.set(requestPreviewKey, preview);
+        setDraftPreview(preview);
+        setDraftPreviewRequestKey(requestPreviewKey);
+      } catch (error) {
+        if (cancelled || isAbortError(error)) {
+          return;
+        }
+
+        setDraftErrorMessage(getErrorMessage(error));
+      } finally {
+        if (!cancelled) {
+          setIsDraftSyncing(false);
+        }
+      }
+    }, draftPreviewDebounceMs);
+
+    return () => {
+      cancelled = true;
+      abortController.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [canAutoPreview, previewPayload, requestPreviewKey]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -370,23 +513,14 @@ export function QrBuilder() {
   };
 
   const queueRenderJob = async () => {
-    const validationError = validateRequest({
-      typeId: selectedType.id,
-      targetUrl: normalizedTargetUrl,
-      phone: normalizedPhone,
-      hasValidSize,
-      hasValidGradientRotation,
-      hasValidLogoSize,
-      hasValidBackdropPadding,
-    });
-
-    if (validationError) {
-      setErrorMessage(validationError);
+    if (requestValidationError) {
+      setErrorMessage(requestValidationError);
       return;
     }
 
     setAcceptedJob(null);
     setLatestJob(null);
+    setQueuedRequestKey(null);
     setErrorMessage(null);
     setIsSubmitting(true);
 
@@ -397,7 +531,7 @@ export function QrBuilder() {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestPreview),
+        body: requestPreviewKey,
       });
 
       if (!response.ok) {
@@ -405,6 +539,7 @@ export function QrBuilder() {
       }
 
       const accepted = (await response.json()) as RenderJobAcceptedResponse;
+      setQueuedRequestKey(requestPreviewKey);
       setAcceptedJob(normalizeAcceptedJob(accepted));
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
@@ -436,11 +571,38 @@ export function QrBuilder() {
 
     try {
       const uploadedLogo = await toUploadedLogo(file);
+      setSelectedPresetId(null);
+      setLogoSizePercent("18");
+      setRemoveLogoBackground(uploadedLogo.sourceType !== "Svg");
       setLogoAsset(uploadedLogo);
       setErrorMessage(null);
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
     }
+  };
+
+  const handlePresetSelect = async (preset: LogoPreset) => {
+    setLoadingPresetId(preset.id);
+
+    try {
+      const presetLogo = await loadPresetLogo(preset);
+      setLogoAsset(presetLogo);
+      setSelectedPresetId(preset.id);
+      setLogoSizePercent("12");
+      setLogoBackdropPadding("40");
+      setRemoveLogoBackground(true);
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error));
+    } finally {
+      setLoadingPresetId(null);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoAsset(null);
+    setSelectedPresetId(null);
+    setErrorMessage(null);
   };
 
   return (
@@ -639,6 +801,38 @@ export function QrBuilder() {
                   <span>{logoAsset ? formatBytes(logoAsset.sizeBytes) : "SVG, PNG, or JPEG up to 512 KB"}</span>
                 </label>
 
+                <div className="logo-preset-shell">
+                  <p className="field-hint">Popular watermark presets</p>
+
+                  <div className="logo-preset-grid">
+                    {logoPresets.map((preset) => {
+                      const isActive = selectedPresetId === preset.id;
+                      const isLoading = loadingPresetId === preset.id;
+
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          className={isActive ? "logo-preset-button logo-preset-button-active" : "logo-preset-button"}
+                          onClick={() => void handlePresetSelect(preset)}
+                          disabled={loadingPresetId !== null}
+                        >
+                          <span className="logo-preset-thumb">
+                            <img src={preset.assetPath} alt="" aria-hidden="true" />
+                          </span>
+
+                          <span className="logo-preset-copy">
+                            <strong>{isLoading ? "Loading..." : preset.label}</strong>
+                            <span>{preset.eyebrow}</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <p className="field-hint">Choosing a preset keeps the logo centred and resets the logo size to 12% by default.</p>
+                </div>
+
                 <div className="field-grid field-grid-two">
                   <label className="field">
                     <span>Logo size</span>
@@ -666,7 +860,7 @@ export function QrBuilder() {
                 <div className="upload-meta-row">
                   <p>{logoHint}</p>
                   {logoAsset ? (
-                    <button className="text-action" type="button" onClick={() => setLogoAsset(null)}>
+                    <button className="text-action" type="button" onClick={handleRemoveLogo}>
                       Remove logo
                     </button>
                   ) : null}
@@ -712,35 +906,22 @@ export function QrBuilder() {
           <span className="generator-step-badge">4</span>
           <div className="generator-step-copy">
             <h2>Preview and download</h2>
-            <p>Queue a real worker render when you are ready, then download the returned artifact.</p>
+            <p>Preview updates locally first, then syncs against the SVG draft endpoint before you queue the final worker render.</p>
           </div>
         </div>
 
         <div className="generator-preview-meta">
-          <span className={getStatusChipClassName(currentStatus)}>{getStatusLabel(currentStatus, isPolling)}</span>
-          <span className="generator-api-chip">Live API</span>
+          <span className={previewBadge.className}>{previewBadge.label}</span>
+          <span className="generator-api-chip">{previewSourceLabel}</span>
         </div>
 
         <div className="preview-stage">
-          {previewArtifact ? (
-            <img className="preview-artifact" src={previewArtifact.downloadUrl} alt="Rendered QR artifact preview" />
+          {previewImageSrc ? (
+            <img className="preview-artifact" src={previewImageSrc} alt={previewImageAlt} />
           ) : (
-            <div className={`preview-mock preview-mock-${dataPattern.toLowerCase()} ${gradientMode === "Linear" ? "preview-mock-gradient" : ""}`}>
-              <div className="preview-mock-grid" style={previewStyle} />
-
-              {previewFinderPositions.map((position) => (
-                <div key={position.className} className={`preview-finder ${position.className} ${toShapeClass(finderBorder)}`}>
-                  <div className={`preview-finder-inner ${toShapeClass(finderBorder)}`}>
-                    <div className={`preview-finder-center ${toShapeClass(finderCenter)}`} />
-                  </div>
-                </div>
-              ))}
-
-              {logoAsset ? (
-                <div className="preview-logo-frame">
-                  <img src={logoAsset.previewUrl} alt="Uploaded logo preview" />
-                </div>
-              ) : null}
+            <div className="preview-placeholder">
+              <strong>Enter a valid destination to start the live preview.</strong>
+              <span>The builder switches from local SVG preview to server draft sync automatically once the request validates.</span>
             </div>
           )}
         </div>
@@ -748,7 +929,7 @@ export function QrBuilder() {
         <div className="generator-preview-actions">
           <button className="preview-primary-action" form={formId} type="submit" disabled={isSubmitting}>
             <AutoAwesomeRounded fontSize="small" />
-            <span>{isSubmitting ? "Generating..." : acceptedJob ? "Generate another QR code" : "Generate QR code"}</span>
+            <span>{isSubmitting ? "Generating..." : activeAcceptedJob ? "Generate another QR code" : "Generate QR code"}</span>
           </button>
 
           <button className="preview-secondary-action" type="button" disabled={!preferredArtifact} onClick={handlePreferredDownload}>
@@ -758,14 +939,15 @@ export function QrBuilder() {
         </div>
 
         <div className="preview-feedback" aria-live="polite">
-          {statusMessage ? <p className="feedback-text">{statusMessage}</p> : null}
+          {previewMessage ? <p className="feedback-text">{previewMessage}</p> : null}
+          {draftErrorMessage ? <p className="feedback-text feedback-text-error">{draftErrorMessage}</p> : null}
           {errorMessage ? <p className="feedback-text feedback-text-error">{errorMessage}</p> : null}
         </div>
 
         <div className="preview-summary-grid">
           <article className="preview-summary-card">
             <p className="preview-label">Resolved target</p>
-            <p className="preview-value">{latestJob?.resolvedTargetUrl ?? previewTarget}</p>
+            <p className="preview-value">{resolvedPreviewTarget}</p>
           </article>
 
           <article className="preview-summary-card">
@@ -784,9 +966,9 @@ export function QrBuilder() {
           </article>
         </div>
 
-        {latestJob?.artifacts.length ? (
+        {activeLatestJob?.artifacts.length ? (
           <div className="artifact-row">
-            {latestJob.artifacts.map((artifact) => (
+            {activeLatestJob.artifacts.map((artifact) => (
               <a key={artifact.format} className="artifact-link" href={artifact.downloadUrl}>
                 {artifact.format.toUpperCase()} · {formatBytes(artifact.sizeBytes)}
               </a>
@@ -911,18 +1093,32 @@ function toContentType(typeId: BuilderTypeId): QrContentType {
 }
 
 function resolvePreviewTarget(typeId: BuilderTypeId, targetUrl: string, phone: string, message: string) {
+  const previewPayload = resolvePreviewPayload(typeId, targetUrl, phone, message);
+
+  if (previewPayload) {
+    return previewPayload;
+  }
+
   if (typeId !== "whatsapp") {
-    return targetUrl || "Provide an absolute URL to queue a render.";
+    return "Provide an absolute URL to activate live preview.";
+  }
+
+  return "Provide a WhatsApp URL or phone number.";
+}
+
+function resolvePreviewPayload(typeId: BuilderTypeId, targetUrl: string, phone: string, message: string) {
+  if (typeId !== "whatsapp") {
+    return targetUrl.length > 0 ? normalizeAbsoluteHttpUrl(targetUrl) : null;
   }
 
   if (targetUrl.length > 0) {
-    return targetUrl;
+    return normalizeAbsoluteHttpUrl(targetUrl);
   }
 
   const normalizedPhone = phone.replace(/[^\d+]/g, "");
 
   if (normalizedPhone.length === 0) {
-    return "Provide a WhatsApp URL or phone number.";
+    return null;
   }
 
   const baseUrl = `https://wa.me/${normalizedPhone}`;
@@ -977,6 +1173,15 @@ function isAbsoluteHttpUrl(value: string) {
   }
 }
 
+function normalizeAbsoluteHttpUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 function isTerminalStatus(status: QrJobStatus) {
   return status === "Completed" || status === "Failed";
 }
@@ -989,57 +1194,98 @@ function selectPreviewArtifact(artifacts: RenderArtifactDescriptor[]) {
   return selectPreferredArtifact(artifacts);
 }
 
-function getStatusLabel(status: QrJobStatus | null, isPolling: boolean) {
+function getPreviewBadge(
+  status: QrJobStatus | null,
+  isPolling: boolean,
+  isDraftSyncing: boolean,
+  hasDraftPreview: boolean,
+  hasLocalPreview: boolean,
+) {
   if (!status) {
-    return "Ready to queue";
+    if (isDraftSyncing) {
+      return { className: "status-chip status-chip-syncing", label: "Syncing draft" };
+    }
+
+    if (hasDraftPreview) {
+      return { className: "status-chip status-chip-draft", label: "Draft synced" };
+    }
+
+    if (hasLocalPreview) {
+      return { className: "status-chip status-chip-local", label: "Local preview" };
+    }
+
+    return { className: "status-chip status-chip-neutral", label: "Waiting for input" };
   }
 
   if (status === "Running" && isPolling) {
-    return "Rendering";
+    return { className: "status-chip status-chip-running", label: "Rendering" };
   }
 
   if (status === "Completed") {
-    return "Artifacts ready";
+    return { className: "status-chip status-chip-completed", label: "Artifacts ready" };
   }
 
   if (status === "Failed") {
-    return "Render failed";
+    return { className: "status-chip status-chip-failed", label: "Render failed" };
   }
 
-  return status;
+  return { className: `status-chip status-chip-${status.toLowerCase()}`, label: status };
 }
 
-function getStatusChipClassName(status: QrJobStatus | null) {
-  if (!status) {
-    return "status-chip status-chip-neutral";
+function getPreviewSourceLabel(hasPreviewArtifact: boolean, hasDraftPreview: boolean, hasLocalPreview: boolean) {
+  if (hasPreviewArtifact) {
+    return "Final render";
   }
 
-  return `status-chip status-chip-${status.toLowerCase()}`;
+  if (hasDraftPreview) {
+    return "Server draft";
+  }
+
+  if (hasLocalPreview) {
+    return "Local SVG";
+  }
+
+  return "Preview idle";
 }
 
-function getStatusMessage(
+function getPreviewMessage(
   acceptedJob: RenderJobAcceptedResponse | null,
   latestJob: RenderJobStatusResponse | null,
   isPolling: boolean,
+  isDraftSyncing: boolean,
+  hasDraftPreview: boolean,
+  hasLocalPreview: boolean,
 ) {
-  if (!acceptedJob) {
-    return "Queue a render job to start polling the worker and unlock artifact downloads.";
+  if (acceptedJob) {
+    if (!latestJob) {
+      return `Job ${shortenJobId(acceptedJob.jobId)} queued. Waiting for worker pickup.`;
+    }
+
+    switch (latestJob.status) {
+      case "Queued":
+        return `Job ${shortenJobId(latestJob.jobId)} is queued${isPolling ? " and being polled." : "."}`;
+      case "Running":
+        return `Job ${shortenJobId(latestJob.jobId)} is rendering SVG and PNG artifacts.`;
+      case "Completed":
+        return `Job ${shortenJobId(latestJob.jobId)} completed with ${latestJob.artifacts.length} artifact(s) ready.`;
+      case "Failed":
+        return latestJob.failureReason ?? `Job ${shortenJobId(latestJob.jobId)} failed during rendering.`;
+    }
   }
 
-  if (!latestJob) {
-    return `Job ${shortenJobId(acceptedJob.jobId)} queued. Waiting for worker pickup.`;
+  if (isDraftSyncing) {
+    return "Syncing the live preview against the SVG draft endpoint.";
   }
 
-  switch (latestJob.status) {
-    case "Queued":
-      return `Job ${shortenJobId(latestJob.jobId)} is queued${isPolling ? " and being polled." : "."}`;
-    case "Running":
-      return `Job ${shortenJobId(latestJob.jobId)} is rendering SVG and PNG artifacts.`;
-    case "Completed":
-      return `Job ${shortenJobId(latestJob.jobId)} completed with ${latestJob.artifacts.length} artifact(s) ready.`;
-    case "Failed":
-      return latestJob.failureReason ?? `Job ${shortenJobId(latestJob.jobId)} failed during rendering.`;
+  if (hasDraftPreview) {
+    return "Preview synced from the server draft. Generate when you need final downloadable artifacts.";
   }
+
+  if (hasLocalPreview) {
+    return "Local SVG preview is active. Keep editing and the server draft will follow automatically.";
+  }
+
+  return "Enter a valid destination to activate live preview.";
 }
 
 function getTimelineText(acceptedJob: RenderJobAcceptedResponse | null, latestJob: RenderJobStatusResponse | null) {
@@ -1142,18 +1388,219 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unexpected request failure.";
 }
 
-function toShapeClass(shape: FinderShape) {
-  return `shape-${shape.toLowerCase()}`;
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+function toSvgDataUrl(svgMarkup: string) {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
+}
+
+function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRenderJobRequest, logoAsset: UploadedLogo | null) {
+  const qr = qrcodeGenerator(0, request.errorCorrectionLevel);
+  qr.addData(encodedPayload);
+  qr.make();
+
+  const moduleCount = qr.getModuleCount();
+  const parts: string[] = [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" role="img" aria-label="HaveQR code">`,
+  ];
+
+  appendLocalPreviewDefs(parts, request);
+  parts.push(`<rect x="0" y="0" width="${moduleCount}" height="${moduleCount}" fill="${request.colors.light}"/>`);
+  parts.push(`<g id="haveqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
+
+  for (let row = 0; row < moduleCount; row += 1) {
+    for (let column = 0; column < moduleCount; column += 1) {
+      if (!qr.isDark(row, column) || isInPreviewFinderWindow(row, column, moduleCount)) {
+        continue;
+      }
+
+      if (request.data.pattern === "Dotted") {
+        parts.push(
+          `<circle cx="${formatPreviewNumber(column + 0.5)}" cy="${formatPreviewNumber(row + 0.5)}" r="${formatPreviewNumber(previewDottedRadius)}"/>`,
+        );
+        continue;
+      }
+
+      parts.push(`<rect x="${column}" y="${row}" width="1" height="1"/>`);
+    }
+  }
+
+  parts.push("</g>");
+  parts.push(buildLocalPreviewFinderOverlay(moduleCount, request.finder.borderShape, request.finder.centerShape, request.colors.dark, request.colors.light));
+
+  if (logoAsset && request.logo) {
+    appendLocalPreviewLogo(parts, logoAsset, request.logo.sizePercent, request.logo.backdropPaddingPercent, request.colors.light, moduleCount);
+  }
+
+  parts.push("</svg>");
+  return parts.join("");
+}
+
+function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest) {
+  if (request.data.gradientMode !== "Linear" || !request.data.gradientStart || !request.data.gradientEnd) {
+    return;
+  }
+
+  const angle = request.data.gradientRotation * (Math.PI / 180);
+  const x1 = 0.5 - (0.5 * Math.cos(angle));
+  const y1 = 0.5 - (0.5 * Math.sin(angle));
+  const x2 = 0.5 + (0.5 * Math.cos(angle));
+  const y2 = 0.5 + (0.5 * Math.sin(angle));
+
+  parts.push("<defs>");
+  parts.push(
+    `<linearGradient id="haveqr-data-gradient" gradientUnits="objectBoundingBox" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
+  );
+  parts.push(`<stop offset="0%" stop-color="${request.data.gradientStart}"/>`);
+  parts.push(`<stop offset="100%" stop-color="${request.data.gradientEnd}"/>`);
+  parts.push("</linearGradient>");
+  parts.push("</defs>");
+}
+
+function resolveLocalPreviewDataFill(request: SubmitRenderJobRequest) {
+  return request.data.gradientMode === "Linear" ? "url(#haveqr-data-gradient)" : request.colors.dark;
+}
+
+function buildLocalPreviewFinderOverlay(
+  moduleCount: number,
+  finderBorder: FinderShape,
+  finderCenter: FinderShape,
+  darkColor: string,
+  lightColor: string,
+) {
+  const origins: Array<[number, number]> = [
+    [previewQuietZoneModules, previewQuietZoneModules],
+    [moduleCount - previewQuietZoneModules - previewFinderSizeModules, previewQuietZoneModules],
+    [previewQuietZoneModules, moduleCount - previewQuietZoneModules - previewFinderSizeModules],
+  ];
+  const parts = ["<g id=\"haveqr-finder-compositor\" shape-rendering=\"geometricPrecision\">"];
+
+  for (const [originX, originY] of origins) {
+    appendLocalPreviewRect(parts, originX, originY, previewFinderSizeModules, previewFinderSizeModules, lightColor, 0);
+    appendLocalPreviewShape(parts, finderBorder, originX, originY, previewFinderSizeModules, darkColor);
+    appendLocalPreviewShape(parts, finderBorder, originX + 1, originY + 1, previewFinderInnerSizeModules, lightColor);
+    appendLocalPreviewShape(parts, finderCenter, originX + 2, originY + 2, previewFinderCenterSizeModules, darkColor);
+  }
+
+  parts.push("</g>");
+  return parts.join("");
+}
+
+function appendLocalPreviewShape(parts: string[], shape: FinderShape, x: number, y: number, size: number, fill: string) {
+  if (shape === "Circle") {
+    appendLocalPreviewCircle(parts, x + (size / 2), y + (size / 2), size / 2, fill);
+    return;
+  }
+
+  appendLocalPreviewRect(parts, x, y, size, size, fill, shape === "Rounded" ? getPreviewRoundedCornerRadius(size) : 0);
+}
+
+function appendLocalPreviewRect(parts: string[], x: number, y: number, width: number, height: number, fill: string, cornerRadius: number) {
+  if (cornerRadius > 0) {
+    parts.push(
+      `<rect x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(width)}" height="${formatPreviewNumber(height)}" fill="${fill}" rx="${formatPreviewNumber(cornerRadius)}" ry="${formatPreviewNumber(cornerRadius)}"/>`,
+    );
+    return;
+  }
+
+  parts.push(
+    `<rect x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(width)}" height="${formatPreviewNumber(height)}" fill="${fill}"/>`,
+  );
+}
+
+function appendLocalPreviewCircle(parts: string[], centerX: number, centerY: number, radius: number, fill: string) {
+  parts.push(
+    `<circle cx="${formatPreviewNumber(centerX)}" cy="${formatPreviewNumber(centerY)}" r="${formatPreviewNumber(radius)}" fill="${fill}"/>`,
+  );
+}
+
+function appendLocalPreviewLogo(
+  parts: string[],
+  logoAsset: UploadedLogo,
+  sizePercent: number,
+  backdropPaddingPercent: number,
+  backdropFill: string,
+  moduleCount: number,
+) {
+  const activeCodeSize = moduleCount - (previewQuietZoneModules * 2);
+  const logoBoxSize = activeCodeSize * (sizePercent / 100);
+  const aspectRatio = logoAsset.aspectRatio > 0 ? logoAsset.aspectRatio : 1;
+  const logoWidth = aspectRatio >= 1 ? logoBoxSize : logoBoxSize * aspectRatio;
+  const logoHeight = aspectRatio >= 1 ? logoBoxSize / aspectRatio : logoBoxSize;
+  const x = (moduleCount - logoWidth) / 2;
+  const y = (moduleCount - logoHeight) / 2;
+  const backdropWidth = logoWidth * (1 + (backdropPaddingPercent / 100));
+  const backdropHeight = logoHeight * (1 + (backdropPaddingPercent / 100));
+  const backdropX = (moduleCount - backdropWidth) / 2;
+  const backdropY = (moduleCount - backdropHeight) / 2;
+  const cornerRadius = Math.min(backdropWidth, backdropHeight) * 0.22;
+
+  parts.push(`<g id="haveqr-logo"><rect x="${formatPreviewNumber(backdropX)}" y="${formatPreviewNumber(backdropY)}" width="${formatPreviewNumber(backdropWidth)}" height="${formatPreviewNumber(backdropHeight)}" rx="${formatPreviewNumber(cornerRadius)}" ry="${formatPreviewNumber(cornerRadius)}" fill="${backdropFill}"/>`);
+  parts.push(
+    `<image x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(logoWidth)}" height="${formatPreviewNumber(logoHeight)}" href="${escapeSvgAttribute(logoAsset.previewUrl)}" preserveAspectRatio="xMidYMid meet"/>`,
+  );
+  parts.push("</g>");
+}
+
+function getPreviewRoundedCornerRadius(size: number) {
+  if (size <= previewFinderCenterSizeModules) {
+    return 0.85;
+  }
+
+  if (size <= previewFinderInnerSizeModules) {
+    return 1.25;
+  }
+
+  return 1.75;
+}
+
+function isInPreviewFinderWindow(row: number, column: number, moduleCount: number) {
+  const maxOrigin = moduleCount - previewQuietZoneModules - previewFinderSizeModules;
+  return (row >= previewQuietZoneModules && row < previewQuietZoneModules + previewFinderSizeModules && column >= previewQuietZoneModules && column < previewQuietZoneModules + previewFinderSizeModules)
+    || (row >= previewQuietZoneModules && row < previewQuietZoneModules + previewFinderSizeModules && column >= maxOrigin && column < maxOrigin + previewFinderSizeModules)
+    || (row >= maxOrigin && row < maxOrigin + previewFinderSizeModules && column >= previewQuietZoneModules && column < previewQuietZoneModules + previewFinderSizeModules);
+}
+
+function formatPreviewNumber(value: number) {
+  return Number.isInteger(value) ? value.toString() : value.toFixed(3).replace(/\.?0+$/, "");
+}
+
+function escapeSvgAttribute(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+async function loadPresetLogo(preset: LogoPreset) {
+  const response = await fetch(preset.assetPath, { cache: "force-cache" });
+
+  if (!response.ok) {
+    throw new Error(`Unable to load the ${preset.label} preset logo.`);
+  }
+
+  const blob = await response.blob();
+  const file = new File([blob], preset.assetPath.split("/").pop() ?? `${preset.id}.png`, {
+    type: blob.type || "image/png",
+  });
+
+  return toUploadedLogo(file);
 }
 
 async function toUploadedLogo(file: File): Promise<UploadedLogo> {
   if (file.type === "image/svg+xml") {
     const svg = await readFileAsText(file);
+    const previewUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    const aspectRatio = await readImageAspectRatio(previewUrl);
 
     return {
       name: file.name,
-      previewUrl: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
+      previewUrl,
       sizeBytes: file.size,
+      aspectRatio,
       sourceType: "Svg",
       svg,
     };
@@ -1162,11 +1609,13 @@ async function toUploadedLogo(file: File): Promise<UploadedLogo> {
   if (file.type === "image/png" || file.type === "image/jpeg") {
     const dataUrl = await readFileAsDataUrl(file);
     const [, contentBase64] = dataUrl.split(",", 2);
+    const aspectRatio = await readImageAspectRatio(dataUrl);
 
     return {
       name: file.name,
       previewUrl: dataUrl,
       sizeBytes: file.size,
+      aspectRatio,
       sourceType: file.type === "image/png" ? "Png" : "Jpeg",
       contentBase64,
       contentType: file.type,
@@ -1191,6 +1640,24 @@ function readFileAsDataUrl(file: File) {
     reader.onerror = () => reject(new Error("Unable to read the uploaded raster logo."));
     reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
     reader.readAsDataURL(file);
+  });
+}
+
+function readImageAspectRatio(source: string) {
+  return new Promise<number>((resolve) => {
+    const image = new Image();
+
+    image.onload = () => {
+      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+        resolve(image.naturalWidth / image.naturalHeight);
+        return;
+      }
+
+      resolve(1);
+    };
+
+    image.onerror = () => resolve(1);
+    image.src = source;
   });
 }
 

@@ -46,6 +46,7 @@ builder.Services.Configure<PostgresRenderStoreOptions>(builder.Configuration.Get
 builder.Services.Configure<R2StorageOptions>(builder.Configuration.GetSection("R2Storage"));
 builder.Services.AddSingleton<IQrPayloadEncoder, QrPayloadEncoder>();
 builder.Services.AddSingleton<IHashService, Sha256HashService>();
+builder.Services.AddSingleton<IQrRenderService, QrRenderService>();
 
 if (string.Equals(builder.Configuration["RenderStorage:JobStateProvider"], RenderStorageOptions.PostgreSqlProvider, StringComparison.OrdinalIgnoreCase))
 {
@@ -77,12 +78,33 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HaveQR.PublicApi",
 	status = "ok",
-	version = "0.2.2.2",
+	version = "0.2.3.0",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));
 
 app.MapGet("/api/v1/qr/content-types", () => Results.Ok(Enum.GetNames<QrContentType>()));
+
+app.MapPost("/api/v1/qr/render/draft", async (
+	SubmitRenderJobRequest request,
+	IQrRenderService renderService,
+	CancellationToken cancellationToken) =>
+{
+	var validationErrors = QrRenderRequestValidator.Validate(request);
+
+	if (validationErrors.Count > 0)
+	{
+		return Results.ValidationProblem(validationErrors);
+	}
+
+	var preview = await renderService.RenderDraftAsync(request, cancellationToken);
+	return Results.Ok(new RenderDraftPreviewResponse(
+		preview.ResolvedTargetUrl,
+		preview.EncodedPayload,
+		preview.ConfigurationHash,
+		preview.PayloadHash,
+		preview.SvgMarkup));
+});
 
 app.MapPost("/api/v1/qr/render", async (
 	SubmitRenderJobRequest request,
