@@ -7,26 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
+  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
     - [Added](#added)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
+    - [Added](#added-1)
     - [Changed](#changed)
     - [Validation](#validation)
   - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
-    - [Added](#added-1)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-2)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
+    - [Added](#added-3)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
   - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
-    - [Added](#added-3)
+    - [Added](#added-4)
     - [Changed](#changed-2)
     - [Validation](#validation-2)
   - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
-    - [Added](#added-4)
+    - [Added](#added-5)
     - [Changed](#changed-3)
     - [Validation](#validation-3)
   - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
-    - [Added](#added-5)
+    - [Added](#added-6)
     - [Changed](#changed-4)
     - [Validation](#validation-4)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
@@ -34,6 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Validation:](#validation-5)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.3.1] - 2026-04-10
+
+### Added
+
+- Generated favicon and app icons for the web app, surfaced in the builder UI and as part of the public assets.
 
 ---
 
