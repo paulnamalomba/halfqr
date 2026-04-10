@@ -78,7 +78,7 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HaveQR.PublicApi",
 	status = "ok",
-	version = "0.2.6.0",
+	version = "0.2.7.0",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));
@@ -97,13 +97,23 @@ app.MapPost("/api/v1/qr/render/draft", async (
 		return Results.ValidationProblem(validationErrors);
 	}
 
-	var preview = await renderService.RenderDraftAsync(request, cancellationToken);
-	return Results.Ok(new RenderDraftPreviewResponse(
-		preview.ResolvedTargetUrl,
-		preview.EncodedPayload,
-		preview.ConfigurationHash,
-		preview.PayloadHash,
-		preview.SvgMarkup));
+	try
+	{
+		var preview = await renderService.RenderDraftAsync(request, cancellationToken);
+		return Results.Ok(new RenderDraftPreviewResponse(
+			preview.ResolvedTargetUrl,
+			preview.EncodedPayload,
+			preview.ConfigurationHash,
+			preview.PayloadHash,
+			preview.SvgMarkup));
+	}
+	catch (InvalidOperationException exception)
+	{
+		return Results.ValidationProblem(new Dictionary<string, string[]>
+		{
+			["request"] = [exception.Message],
+		});
+	}
 });
 
 app.MapPost("/api/v1/qr/render", async (

@@ -272,25 +272,25 @@ const logoPresets: LogoPreset[] = [
     id: "scan-me",
     label: "Scan Me",
     eyebrow: "Generic callout",
-    assetPath: "/assets/qr-watermarks/scan-me-logo_in-qr-code.png",
+    assetPath: "/assets/qr-watermarks/scan-me-logo_in-qr-code.svg",
   },
   {
     id: "link",
     label: "Link",
     eyebrow: "Landing route",
-    assetPath: "/assets/qr-watermarks/link-logo_in-qr-code.png",
+    assetPath: "/assets/qr-watermarks/link-logo_in-qr-code.svg",
   },
   {
     id: "menu",
     label: "Menu",
     eyebrow: "Restaurant card",
-    assetPath: "/assets/qr-watermarks/menu-logo_in-qr-code.png",
+    assetPath: "/assets/qr-watermarks/menu-logo_in-qr-code.svg",
   },
   {
     id: "whatsapp",
     label: "WhatsApp",
     eyebrow: "Chat fallback",
-    assetPath: "/assets/qr-watermarks/whatsapp-logo_in-qr-code.png",
+    assetPath: "/assets/qr-watermarks/whatsapp-logo_in-qr-code.svg",
   },
 ];
 
@@ -401,9 +401,11 @@ export function QrBuilder() {
   const currentStatus = activeLatestJob?.status ?? activeAcceptedJob?.status ?? null;
   const preferredArtifact = selectPreferredArtifact(activeLatestJob?.artifacts ?? []);
   const previewArtifact = selectPreviewArtifact(activeLatestJob?.artifacts ?? []);
-  const localPreviewSvgMarkup = canAutoPreview && previewPayload
+  const configuredApiTarget = formatApiTarget(publicApiBaseUrl);
+  const rawLocalPreviewSvgMarkup = canAutoPreview && previewPayload
     ? buildLocalPreviewSvgMarkup(previewPayload, requestPreview, logoAsset)
     : null;
+  const localPreviewSvgMarkup = activeDraftPreview ? null : rawLocalPreviewSvgMarkup;
   const previewImageSrc = previewArtifact?.downloadUrl
     ?? (activeDraftPreview ? toSvgDataUrl(activeDraftPreview.svgMarkup) : null)
     ?? (localPreviewSvgMarkup ? toSvgDataUrl(localPreviewSvgMarkup) : null);
@@ -1022,6 +1024,11 @@ export function QrBuilder() {
             <p className="preview-label">Timeline</p>
             <p className="preview-value">{timelineText}</p>
           </article>
+
+          <article className="preview-summary-card">
+            <p className="preview-label">API target</p>
+            <p className="preview-value">{configuredApiTarget}</p>
+          </article>
         </div>
 
         {activeLatestJob?.artifacts.length ? (
@@ -1448,6 +1455,19 @@ function formatBytes(value: number) {
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function formatApiTarget(apiBaseUrl: string) {
+  try {
+    const url = new URL(apiBaseUrl);
+    const originLabel = `${url.hostname}${url.port ? `:${url.port}` : ""}`;
+
+    return ["localhost", "127.0.0.1"].includes(url.hostname)
+      ? `Local API via ${originLabel}`
+      : `Hosted API via ${originLabel}`;
+  } catch {
+    return apiBaseUrl;
+  }
+}
+
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unexpected request failure.";
 }
@@ -1465,7 +1485,8 @@ function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRende
   qr.addData(encodedPayload);
   qr.make();
 
-  const moduleCount = qr.getModuleCount();
+  const sourceModuleCount = qr.getModuleCount();
+  const moduleCount = sourceModuleCount + (previewQuietZoneModules * 2);
   const logoLayout = logoAsset && request.logo
     ? resolvePreviewLogoLayout(logoAsset.aspectRatio, request.logo.sizePercent, request.logo.backdropPaddingPercent, moduleCount)
     : null;
@@ -1477,20 +1498,27 @@ function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRende
   parts.push(`<rect x="0" y="0" width="${moduleCount}" height="${moduleCount}" fill="${request.colors.light}"/>`);
   parts.push(`<g id="haveqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
 
-  for (let row = 0; row < moduleCount; row += 1) {
-    for (let column = 0; column < moduleCount; column += 1) {
-      if (!qr.isDark(row, column) || isInPreviewFinderWindow(row, column, moduleCount) || isInPreviewLogoSafeRegion(row, column, logoLayout)) {
+  for (let row = 0; row < sourceModuleCount; row += 1) {
+    for (let column = 0; column < sourceModuleCount; column += 1) {
+      if (!qr.isDark(row, column)) {
+        continue;
+      }
+
+      const paddedRow = row + previewQuietZoneModules;
+      const paddedColumn = column + previewQuietZoneModules;
+
+      if (isInPreviewFinderWindow(paddedRow, paddedColumn, moduleCount) || isInPreviewLogoSafeRegion(paddedRow, paddedColumn, logoLayout)) {
         continue;
       }
 
       if (request.data.pattern === "Dotted") {
         parts.push(
-          `<circle cx="${formatPreviewNumber(column + 0.5)}" cy="${formatPreviewNumber(row + 0.5)}" r="${formatPreviewNumber(previewDottedRadius)}"/>`,
+          `<circle cx="${formatPreviewNumber(paddedColumn + 0.5)}" cy="${formatPreviewNumber(paddedRow + 0.5)}" r="${formatPreviewNumber(previewDottedRadius)}"/>`,
         );
         continue;
       }
 
-      parts.push(`<rect x="${column}" y="${row}" width="1" height="1"/>`);
+      parts.push(`<rect x="${paddedColumn}" y="${paddedRow}" width="1" height="1"/>`);
     }
   }
 

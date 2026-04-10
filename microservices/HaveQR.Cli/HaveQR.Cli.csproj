@@ -2,6 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HaveQR.Contracts\HaveQR.Contracts.csproj" />
+    <ProjectReference Include="..\HaveQR.QrEngine\HaveQR.QrEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
   </ItemGroup>
 
   <PropertyGroup>

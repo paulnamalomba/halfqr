@@ -7,57 +7,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
+  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+    - [Added](#added)
     - [Fixed](#fixed)
     - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
-    - [Changed](#changed-1)
-  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
-    - [Changed](#changed-2)
+  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
     - [Fixed](#fixed-1)
+    - [Changed](#changed-1)
     - [Validation](#validation-1)
-  - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
-    - [Added](#added)
-  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
-    - [Added](#added-1)
-  - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
+  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+    - [Changed](#changed-2)
+  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
+    - [Changed](#changed-3)
     - [Fixed](#fixed-2)
+    - [Validation](#validation-2)
+  - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
+    - [Added](#added-1)
+  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
+    - [Added](#added-2)
+  - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
+    - [Fixed](#fixed-3)
     - [Why](#why)
     - [Problem Solved](#problem-solved)
-    - [Validation](#validation-2)
-  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed-3)
     - [Validation](#validation-3)
-  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
-    - [Added](#added-2)
-  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
-    - [Added](#added-3)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
     - [Changed](#changed-4)
     - [Validation](#validation-4)
-  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
+    - [Added](#added-3)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-4)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
-    - [Added](#added-5)
     - [Changed](#changed-5)
     - [Validation](#validation-5)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+    - [Added](#added-5)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-6)
     - [Changed](#changed-6)
     - [Validation](#validation-6)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-7)
     - [Changed](#changed-7)
     - [Validation](#validation-7)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-8)
     - [Changed](#changed-8)
     - [Validation](#validation-8)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-9)
+    - [Changed](#changed-9)
+    - [Validation](#validation-9)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-9)
+  - [Validation:](#validation-10)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.7.0] - 2026-04-10
+
+### Added
+
+- Added a `verify-render` command to `HaveQR.Cli` so draft SVG and final PNG artifacts can be rendered, decoded, and written to disk from the same backend pipeline used by the product.
+- Added curated transparent SVG preset watermark assets for `Scan Me`, `Link`, `Menu`, and `WhatsApp` so preset logos no longer depend on brittle raster background removal.
+- Added a shared `QrArtifactRasterizer` helper in `HaveQR.QrEngine` so SVG-to-PNG conversion is reusable across render validation and production rendering flows.
+
+### Fixed
+
+- Fixed the local preview matrix geometry to include the same quiet-zone padding used by the backend renderer, so preview placement no longer drifts away from the server-generated QR layout.
+- Fixed the preset watermark path that could produce opaque or blackout center logos by switching the builder to transparent SVG presets.
+- Fixed draft render failures surfacing as opaque server errors by returning a validation-style message when payload encoding cannot be completed.
+
+### Changed
+
+- Changed the builder preview flow to prefer the server draft once it is available, keeping the on-screen QR closer to the authoritative backend render.
+- Changed the preview summary to show whether the builder is currently targeting a local API or the hosted API, removing ambiguity during render debugging.
+
+### Validation
+
+- dotnet build HaveQR.sln
+- npm run build from webapp
+- Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
+- Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied
 
 ---
 
