@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
+  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
     - [Changed](#changed)
+  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
+    - [Changed](#changed-1)
     - [Fixed](#fixed)
     - [Validation](#validation)
   - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
@@ -20,31 +23,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - [Problem Solved](#problem-solved)
     - [Validation](#validation-1)
   - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed-1)
+    - [Changed](#changed-2)
     - [Validation](#validation-2)
   - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
     - [Added](#added-2)
   - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-3)
-    - [Changed](#changed-2)
+    - [Changed](#changed-3)
     - [Validation](#validation-3)
   - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
     - [Added](#added-4)
   - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-5)
-    - [Changed](#changed-3)
+    - [Changed](#changed-4)
     - [Validation](#validation-4)
   - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-6)
-    - [Changed](#changed-4)
+    - [Changed](#changed-5)
     - [Validation](#validation-5)
   - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-7)
-    - [Changed](#changed-5)
+    - [Changed](#changed-6)
     - [Validation](#validation-6)
   - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
     - [Added](#added-8)
-    - [Changed](#changed-6)
+    - [Changed](#changed-7)
     - [Validation](#validation-7)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
@@ -53,6 +56,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - [Changes](#changes-1)
 
 ---
+
+## [0.2.5.0] - 2026-04-10
+
+### Changed
+
+- Fixed the non-loading assets
+- Moving forward the versioning quickly
+
+---
+
+## [0.2.4.0] - 2026-04-10
 
 ### Changed
 

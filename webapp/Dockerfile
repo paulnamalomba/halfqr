@@ -27,6 +27,7 @@ ENV NEXT_PUBLIC_HAVEQR_API_BASE_URL=$NEXT_PUBLIC_HAVEQR_API_BASE_URL
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 

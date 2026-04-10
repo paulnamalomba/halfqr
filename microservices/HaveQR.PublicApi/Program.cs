@@ -78,7 +78,7 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HaveQR.PublicApi",
 	status = "ok",
-	version = "0.2.4.0",
+	version = "0.2.5.0",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));
