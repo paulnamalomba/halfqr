@@ -1,0 +1,9 @@
+HaveQR v0.2.3.4 Release Notes
+Release Date: 10 April, 2026
+===================================
+
+## [0.2.3.4] - 2026-04-10
+
+### Added
+
+- Started documenting code improvements.
