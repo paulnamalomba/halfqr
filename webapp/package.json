@@ -1,6 +1,6 @@
 {
   "name": "halfqr-webapp",
-  "version": "0.2.7.0",
+  "version": "0.2.9.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

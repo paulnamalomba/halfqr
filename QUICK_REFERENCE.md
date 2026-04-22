@@ -1,6 +1,6 @@
 # HalfQR Quick Reference
 
-**App Version**: 0.2.7.0  
+**App Version**: 0.2.9.0  
 **Date**: 2026-04-09  
 **Repository**: `halfqr`
 
