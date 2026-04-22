@@ -1,4 +1,4 @@
-HaveQR v0.2.0.0 Release Notes
+HalfQR v0.2.0.0 Release Notes
 Release Date: 9 April, 2026
 ===================================
 
@@ -6,8 +6,8 @@ Release Date: 9 April, 2026
 
 ### Added
 
-- Added QRCoder-backed SVG rendering and Docker-safe PNG rasterization in `HaveQR.QrEngine`.
-- Added RabbitMQ-backed job dispatch in `HaveQR.PublicApi` and worker-side queue consumption in `HaveQR.Worker`.
+- Added QRCoder-backed SVG rendering and Docker-safe PNG rasterization in `HalfQR.QrEngine`.
+- Added RabbitMQ-backed job dispatch in `HalfQR.PublicApi` and worker-side queue consumption in `HalfQR.Worker`.
 - Added file-backed render job state and artifact storage for generated SVG and PNG outputs.
 - Added `QUICK_REFERENCE.md` with build, run, infrastructure, and request examples.
 
@@ -18,4 +18,4 @@ Release Date: 9 April, 2026
 
 ### Validation
 
-- `dotnet build HaveQR.sln`
+- `dotnet build HalfQR.sln`

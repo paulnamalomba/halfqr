@@ -1,4 +1,4 @@
-HaveQR v0.1.1.0 Release Notes
+HalfQR v0.1.1.0 Release Notes
 Release Date: 9 April, 2026
 ===================================
 
@@ -6,8 +6,8 @@ Release Date: 9 April, 2026
 
 ### Changes
 
-- Created the solution and backend project structure in `HaveQR.sln` and `HaveQR.slnx`, with service projects under microservices.
-- Added the first shared QR contracts in `HaveQR.Contracts`, including content types, finder shapes, render modes, output options, and async render job request and response models.
+- Created the solution and backend project structure in `HalfQR.sln` and `HalfQR.slnx`, with service projects under microservices.
+- Added the first shared QR contracts in `HalfQR.Contracts`, including content types, finder shapes, render modes, output options, and async render job request and response models.
 - Added real payload encoding logic in `QrPayloadEncoder.cs` and hashing in `Sha256HashService.cs`. This now canonicalizes link, text, email, call, SMS, WhatsApp, Wi-Fi, vCard, event, app, social, PDF, image, and video payloads.
 - Replaced the template API with an initial async in-memory render flow in `Program.cs` and `InMemoryRenderJobService.cs`. The API now exposes health, content-type discovery, render job submission, and job status endpoints.
 - Added infrastructure scaffolding in `docker-compose.yml` and `.env.example` for PostgreSQL, Redis, and RabbitMQ.
@@ -15,5 +15,5 @@ Release Date: 9 April, 2026
 
 ## Validation:
 
-- The full solution builds successfully through both `HaveQR.sln` and `HaveQR.slnx`.
+- The full solution builds successfully through both `HalfQR.sln` and `HalfQR.slnx`.
 - Target is .NET 10

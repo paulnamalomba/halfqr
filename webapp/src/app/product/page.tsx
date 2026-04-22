@@ -36,7 +36,7 @@ export default function ProductPage() {
           <p className="page-kicker">Product overview</p>
           <h1 className="page-title">One product surface, three delivery layers.</h1>
           <p className="page-summary">
-            HaveQR keeps the public builder, render API, and future customer workspace in the same visual and technical system so the
+            HalfQR keeps the public builder, render API, and future customer workspace in the same visual and technical system so the
             experience can scale without changing the underlying model.
           </p>
 

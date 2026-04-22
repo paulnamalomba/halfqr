@@ -1,4 +1,4 @@
-HaveQR v0.2.2.0 Release Notes
+HalfQR v0.2.2.0 Release Notes
 Release Date: 9 April, 2026
 ===================================
 
@@ -8,7 +8,7 @@ Release Date: 9 April, 2026
 
 - Added a same-origin Next.js rewrite so the webapp can call the render API through `/api/v1/qr/*` without browser-side CORS workarounds.
 - Added webapp job polling and artifact download actions for generated SVG and PNG outputs.
-- Added a finder-pattern SVG compositor in `HaveQR.QrEngine` so `square`, `rounded`, and `circle` now affect the three finder markers without changing normal data modules.
+- Added a finder-pattern SVG compositor in `HalfQR.QrEngine` so `square`, `rounded`, and `circle` now affect the three finder markers without changing normal data modules.
 - Added provider-backed render storage seams with PostgreSQL job-state and Cloudflare R2 artifact implementations behind `IRenderJobStore`.
 - Added runtime configuration and operator notes for split dev-machine and power-machine workflows in `QUICK_REFERENCE.md`.
 
@@ -22,5 +22,5 @@ Release Date: 9 April, 2026
 ### Validation
 
 - `npm run build --prefix webapp`
-- `dotnet build HaveQR.sln`
+- `dotnet build HalfQR.sln`
 - End-to-end queue smoke test is still blocked on this dev machine because RabbitMQ and PostgreSQL are not reachable locally; use the documented tunnel and power-machine commands to run it against live infra.

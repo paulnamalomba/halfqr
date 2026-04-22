@@ -32,7 +32,7 @@ export default function HomePage() {
     <main className="site-page page-shell-home">
       <section className="generator-hero">
         <div className="generator-hero-copy">
-          <p className="page-kicker" style={{ color: "var(--text-white)" }}>HaveQR: Easy, Anonymous QR Code Generation</p>
+          <p className="page-kicker" style={{ color: "var(--text-white)" }}>HalfQR: Easy, Anonymous QR Code Generation</p>
           <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Have a production-ready QR code that you can share with others</h1>
           <p className="page-summary" style={{ color: "var(--cobalt-light-white)" }}>
             We provide advanced features such as marker-shape definition, we also provide data-shape definitions, custom logo-definitions for the generated code and completely synchronous processing - so what you see is what you get!

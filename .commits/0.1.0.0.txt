@@ -1,4 +1,4 @@
-HaveQR v0.1.0.0 Release Notes
+HalfQR v0.1.0.0 Release Notes
 Release Date: 9 April, 2026
 ===================================
 

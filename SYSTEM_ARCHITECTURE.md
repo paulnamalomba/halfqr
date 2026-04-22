@@ -1,14 +1,14 @@
-# HaveQR System Architecture
+# HalfQR System Architecture
 
-> Architecture and product-technical direction for HaveQR, the QR generation platform built in this `haveqr` repository.
+> Architecture and product-technical direction for HalfQR, the QR generation platform built in this `halfqr` repository.
 
 **App Version**: 0.2.7.0  
 **Date**: 2026-04-09  
-**Repository**: `haveqr`
+**Repository**: `halfqr`
 
 ## Contents
 
-- [HaveQR System Architecture](#haveqr-system-architecture)
+- [HalfQR System Architecture](#halfqr-system-architecture)
   - [Contents](#contents)
   - [1. Executive Summary](#1-executive-summary)
   - [2. Product Scope](#2-product-scope)
@@ -31,13 +31,13 @@
     - [UI/visual direction](#uivisual-direction)
     - [Public UX policy](#public-ux-policy)
   - [9. Backend Services](#9-backend-services)
-    - [9.1 HaveQR.PublicApi](#91-haveqrpublicapi)
-    - [9.2 HaveQR.QrEngine](#92-haveqrqrengine)
-    - [9.3 HaveQR.Identity](#93-haveqridentity)
-    - [9.4 HaveQR.Redirector](#94-haveqrredirector)
-    - [9.5 HaveQR.Billing](#95-haveqrbilling)
-    - [9.6 HaveQR.Worker](#96-haveqrworker)
-    - [9.7 HaveQR.Cli](#97-haveqrcli)
+    - [9.1 HalfQR.PublicApi](#91-halfqrpublicapi)
+    - [9.2 HalfQR.QrEngine](#92-halfqrqrengine)
+    - [9.3 HalfQR.Identity](#93-halfqridentity)
+    - [9.4 HalfQR.Redirector](#94-halfqrredirector)
+    - [9.5 HalfQR.Billing](#95-halfqrbilling)
+    - [9.6 HalfQR.Worker](#96-halfqrworker)
+    - [9.7 HalfQR.Cli](#97-halfqrcli)
   - [10. QR Generation Pipeline](#10-qr-generation-pipeline)
     - [10.1 Request model](#101-request-model)
     - [10.2 Render pipeline steps](#102-render-pipeline-steps)
@@ -93,7 +93,7 @@
 
 ## 1. Executive Summary
 
-HaveQR is an anonymous-first QR generation platform that lets users create high-quality QR codes across link-backed categories such as links, app routes, social destinations, PDFs, images, videos, and campaign landing pages, optionally brand them with SVG logos, export print-ready SVG and PNG files, and later manage saved and trackable QR assets through authenticated dashboards. WhatsApp remains the first explicit native builder exception, because generating a `wa.me` route from phone and message data is materially useful in the product flow.
+HalfQR is an anonymous-first QR generation platform that lets users create high-quality QR codes across link-backed categories such as links, app routes, social destinations, PDFs, images, videos, and campaign landing pages, optionally brand them with SVG logos, export print-ready SVG and PNG files, and later manage saved and trackable QR assets through authenticated dashboards. WhatsApp remains the first explicit native builder exception, because generating a `wa.me` route from phone and message data is materially useful in the product flow.
 
 The system will be built as a monorepo with these top-level areas:
 
@@ -151,9 +151,9 @@ The public web experience will be anonymous by default. Authentication, Google O
 
 ### Brand and launch context
 
-- Product name: `haveQR`
-- Temporary public host: `haveqr.computemore.com`
-- Future primary domain: `haveqr.io`
+- Product name: `halfQR`
+- Temporary public host: `halfqr.computemore.com`
+- Future primary domain: `halfqr.io`
 - UX inspiration: `qr.io`
 - Visual styling direction: `AfriFlex`
 
@@ -196,7 +196,7 @@ The public web experience will be anonymous by default. Authentication, Google O
 | Message bus | RabbitMQ over ActiveMQ | Better fit for .NET teams, easier Docker Compose operations, better docs and tooling |
 | Data store | PostgreSQL + Redis + Cloudflare R2 | Strong relational core, fast cache/rate limit layer, cheap asset storage |
 | Auth model | JWT access tokens + refresh tokens + Google OAuth2 | Supports future dashboards and subscriptions without forcing launch login |
-| Deployment | Docker Compose behind a public tunnel/reverse proxy | Fits current staging reality at `haveqr.computemore.com` |
+| Deployment | Docker Compose behind a public tunnel/reverse proxy | Fits current staging reality at `halfqr.computemore.com` |
 | URL persistence | Static one-off QR can remain non-persistent; dynamic tracked QR must store encrypted destination | A hash alone cannot power redirect and scan analytics |
 
 ---
@@ -257,22 +257,22 @@ This gives the speed of a modern SPA where it matters and the correctness of ser
 ## 7. Monorepo Structure
 
 ```text
-haveqr/
+halfqr/
 ├── webapp/                # Next.js public site and future customer dashboard
 ├── admin/                 # Next.js internal admin console
 ├── docs/                  # Docs site, architecture docs, API reference, guides
 ├── microservices/
-│   ├── HaveQR.PublicApi/  # Public REST facade and orchestration layer
-│   ├── HaveQR.QrEngine/   # QRCoder integration and SVG composition
-│   ├── HaveQR.Identity/   # Auth, JWT, refresh tokens, Google OAuth2
-│   ├── HaveQR.Redirector/ # Dynamic QR redirect + scan tracking
-│   ├── HaveQR.Billing/    # Plans, checkout, subscriptions, invoices
-│   ├── HaveQR.Worker/     # Batch jobs, storage, analytics rollups, email outbox
-│   ├── HaveQR.Contracts/  # Shared DTOs and event contracts
-│   └── HaveQR.Cli/        # .NET CLI for local and CI workflows
+│   ├── HalfQR.PublicApi/  # Public REST facade and orchestration layer
+│   ├── HalfQR.QrEngine/   # QRCoder integration and SVG composition
+│   ├── HalfQR.Identity/   # Auth, JWT, refresh tokens, Google OAuth2
+│   ├── HalfQR.Redirector/ # Dynamic QR redirect + scan tracking
+│   ├── HalfQR.Billing/    # Plans, checkout, subscriptions, invoices
+│   ├── HalfQR.Worker/     # Batch jobs, storage, analytics rollups, email outbox
+│   ├── HalfQR.Contracts/  # Shared DTOs and event contracts
+│   └── HalfQR.Cli/        # .NET CLI for local and CI workflows
 ├── inspiration/           # Saved reference material only, not shippable assets
 ├── docker-compose.yml
-├── HaveQR.sln
+├── HalfQR.sln
 └── SYSTEM_ARCHITECTURE.md
 ```
 
@@ -335,7 +335,7 @@ Purpose:
 Technology:
 
 - Next.js static docs site or Nextra-style MDX site
-- OpenAPI sync from `HaveQR.PublicApi`
+- OpenAPI sync from `HalfQR.PublicApi`
 
 ### UI/visual direction
 
@@ -363,7 +363,7 @@ Do not copy `qr.io` markup, assets, copy, or layout verbatim.
 
 ## 9. Backend Services
 
-### 9.1 HaveQR.PublicApi
+### 9.1 HalfQR.PublicApi
 
 Responsibilities:
 
@@ -387,7 +387,7 @@ Representative endpoints:
 - `POST /api/v1/billing/checkout`
 - `GET /api/v1/dashboard/summary`
 
-### 9.2 HaveQR.QrEngine
+### 9.2 HalfQR.QrEngine
 
 Responsibilities:
 
@@ -404,7 +404,7 @@ Important implementation rule:
 
 Use `QRCoder.SvgQRCode` as the primary render path. Avoid relying on bitmap renderers that are tightly coupled to `System.Drawing` in Linux containers.
 
-### 9.3 HaveQR.Identity
+### 9.3 HalfQR.Identity
 
 Responsibilities:
 
@@ -415,7 +415,7 @@ Responsibilities:
 - role and claim issuance
 - future API key support for automation users
 
-### 9.4 HaveQR.Redirector
+### 9.4 HalfQR.Redirector
 
 Responsibilities:
 
@@ -427,7 +427,7 @@ Responsibilities:
 
 This service exists because scan analytics and asset-backed content flows require a resolvable redirect target. A pure hash-only model cannot support that.
 
-### 9.5 HaveQR.Billing
+### 9.5 HalfQR.Billing
 
 Responsibilities:
 
@@ -437,7 +437,7 @@ Responsibilities:
 - payment webhook handling
 - entitlement projection for feature limits
 
-### 9.6 HaveQR.Worker
+### 9.6 HalfQR.Worker
 
 Responsibilities:
 
@@ -448,7 +448,7 @@ Responsibilities:
 - analytics rollups
 - orphan cleanup for abandoned transient assets
 
-### 9.7 HaveQR.Cli
+### 9.7 HalfQR.Cli
 
 Responsibilities:
 
@@ -460,7 +460,7 @@ Responsibilities:
 Example commands:
 
 ```bash
-haveqr render \
+halfqr render \
   --url "https://computemore.com" \
   --logo "./logo.svg" \
   --out "./out/qr.png" \
@@ -469,7 +469,7 @@ haveqr render \
   --finder-border rounded \
   --finder-center circle
 
-haveqr batch \
+halfqr batch \
   --input "./batch.csv" \
   --output-dir "./dist"
 ```
@@ -541,7 +541,7 @@ Additional 2D barcode symbologies remain a future extension and are not part of 
 
 ### 10.3 Finder marker shape strategy
 
-QRCoder does not directly expose the exact finder-marker selector described in the product requirement. Therefore HaveQR needs a small custom rendering layer that operates on the QR matrix or SVG output.
+QRCoder does not directly expose the exact finder-marker selector described in the product requirement. Therefore HalfQR needs a small custom rendering layer that operates on the QR matrix or SVG output.
 
 Supported shapes in v1:
 
@@ -687,13 +687,13 @@ ActiveMQ would make more sense in a JMS-heavy or Java-first environment. That is
 
 ### Important limitation
 
-RabbitMQ should be treated as the **message bus**, not the long-term analytics event log. If HaveQR later needs event replay at large scale, Kafka or a warehouse pipeline can be introduced later.
+RabbitMQ should be treated as the **message bus**, not the long-term analytics event log. If HalfQR later needs event replay at large scale, Kafka or a warehouse pipeline can be introduced later.
 
 ### Suggested exchanges and events
 
 Exchange:
 
-- `haveqr.events` (topic)
+- `halfqr.events` (topic)
 
 Representative routing keys:
 
@@ -709,7 +709,7 @@ Representative routing keys:
 ### Batch strategy
 
 - Small batch requests can execute synchronously for fast feedback.
-- Larger batch jobs should enqueue work to RabbitMQ and process through `HaveQR.Worker`.
+- Larger batch jobs should enqueue work to RabbitMQ and process through `HalfQR.Worker`.
 - Completed batch outputs should be zipped, uploaded to R2, and exposed through expiring download links.
 
 ---
@@ -849,15 +849,15 @@ If the product wants to display public proof such as "X QR codes generated", tha
 
 ### Current deployment mode
 
-Use Docker Compose and expose the current devops/testing bench through public tunnels at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
+Use Docker Compose and expose the current devops/testing bench through public tunnels at `halfqr.computemore.com` and `halfqr-api-demo.computemore.com`.
 
 Preferred routing layout:
 
-- `haveqr.computemore.com` -> webapp on `localhost:5173`
-- `haveqr-api-demo.computemore.com` -> public API on `localhost:8083`
-- `admin.haveqr.computemore.com` -> admin
-- `docs.haveqr.computemore.com` -> docs
-- `go.haveqr.computemore.com` or `/r/{slug}` -> redirector
+- `halfqr.computemore.com` -> webapp on `localhost:5173`
+- `halfqr-api-demo.computemore.com` -> public API on `localhost:8083`
+- `admin.halfqr.computemore.com` -> admin
+- `docs.halfqr.computemore.com` -> docs
+- `go.halfqr.computemore.com` or `/r/{slug}` -> redirector
 
 If subdomains are not yet practical, use path-based routing temporarily.
 
@@ -921,7 +921,7 @@ The same service boundaries should support a later move from tunneled Docker Com
 
 ## 20. Final Recommendation
 
-Build HaveQR as a **hybrid Next.js frontend plus ASP.NET Core microservice backend**, using **QRCoder as the matrix engine but not as the entire rendering story**.
+Build HalfQR as a **hybrid Next.js frontend plus ASP.NET Core microservice backend**, using **QRCoder as the matrix engine but not as the entire rendering story**.
 
 The core technical pattern should be:
 

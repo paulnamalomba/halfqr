@@ -158,11 +158,11 @@ type LogoPreset = {
 };
 
 // Here we introduce some const values for the builder, such as the available content types, design sections, logo presets, and various configuration values for polling intervals, size limits, etc.
-const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HAVEQR_API_BASE_URL ?? "https://haveqr-api-demo.computemore.com")
+const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HALFQR_API_BASE_URL ?? "https://halfqr-api-demo.computemore.com")
   .trim()
   .replace(/\/$/, "");
 const publicApiOrigin = new URL(publicApiBaseUrl).origin;
-const apiProxyPrefix = "/api/haveqr";
+const apiProxyPrefix = "/api/halfqr";
 
 // A few more varibles regarding byte-parsing and render timing, these are used in the builder logic for validating uploads and managing the polling lifecycle
 const maxLogoBytes = 512 * 1024;
@@ -209,7 +209,7 @@ const builderTypes: BuilderType[] = [
     id: "pdf",
     label: "PDF",
     eyebrow: "Link to a PDF",
-    placeholder: "https://cdn.haveqr.dev/brochures/launch-pack.pdf",
+    placeholder: "https://cdn.halfqr.dev/brochures/launch-pack.pdf",
     summary: "Send scans into brochures, menus, decks, or printable collateral.",
     Icon: PictureAsPdfRounded,
   },
@@ -217,7 +217,7 @@ const builderTypes: BuilderType[] = [
     id: "image",
     label: "Image",
     eyebrow: "Link to an Image",
-    placeholder: "https://cdn.haveqr.dev/posters/flyer-front.jpg",
+    placeholder: "https://cdn.halfqr.dev/posters/flyer-front.jpg",
     summary: "Point straight into poster art, packaging, menus, or image galleries.",
     Icon: ImageRounded,
   },
@@ -233,7 +233,7 @@ const builderTypes: BuilderType[] = [
     id: "whatsapp",
     label: "WhatsApp",
     eyebrow: "WhatsApp Contact Link",
-    placeholder: "https://wa.me/260977000000?text=Hello%20from%20HaveQR",
+    placeholder: "https://wa.me/260977000000?text=Hello%20from%20HalfQR",
     summary: "Use a direct URL or generate a wa.me route from phone and message fields.",
     Icon: WhatsApp,
   },
@@ -305,7 +305,7 @@ export function QrBuilder() {
   const [designSection, setDesignSection] = useState<DesignSectionId>("frame");
   const [targetUrl, setTargetUrl] = useState("https://computemore.com/campaign/spring-launch");
   const [phone, setPhone] = useState("+260977000000");
-  const [message, setMessage] = useState("Hello from HaveQR");
+  const [message, setMessage] = useState("Hello from HalfQR");
   const [finderBorder, setFinderBorder] = useState<FinderShape>("Rounded");
   const [finderCenter, setFinderCenter] = useState<FinderShape>("Circle");
   const [dataPattern, setDataPattern] = useState<QrDataPattern>("Square");
@@ -852,8 +852,8 @@ export function QrBuilder() {
 
             {designSection === "logo" ? (
               <>
-                <label className="upload-dropzone" htmlFor="haveqr-logo-upload">
-                  <input id="haveqr-logo-upload" type="file" accept="image/svg+xml,image/png,image/jpeg" onChange={handleLogoChange} />
+                <label className="upload-dropzone" htmlFor="halfqr-logo-upload">
+                  <input id="halfqr-logo-upload" type="file" accept="image/svg+xml,image/png,image/jpeg" onChange={handleLogoChange} />
                   <span className="upload-dropzone-icon">
                     <AddPhotoAlternateRounded fontSize="small" />
                   </span>
@@ -1491,12 +1491,12 @@ function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRende
     ? resolvePreviewLogoLayout(logoAsset.aspectRatio, request.logo.sizePercent, request.logo.backdropPaddingPercent, moduleCount)
     : null;
   const parts: string[] = [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" role="img" aria-label="HaveQR code">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" role="img" aria-label="HalfQR code">`,
   ];
 
   appendLocalPreviewDefs(parts, request, moduleCount);
   parts.push(`<rect x="0" y="0" width="${moduleCount}" height="${moduleCount}" fill="${request.colors.light}"/>`);
-  parts.push(`<g id="haveqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
+  parts.push(`<g id="halfqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
 
   for (let row = 0; row < sourceModuleCount; row += 1) {
     for (let column = 0; column < sourceModuleCount; column += 1) {
@@ -1542,7 +1542,7 @@ function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest
 
   parts.push("<defs>");
   parts.push(
-    `<linearGradient id="haveqr-data-gradient" gradientUnits="userSpaceOnUse" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
+    `<linearGradient id="halfqr-data-gradient" gradientUnits="userSpaceOnUse" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
   );
   parts.push(`<stop offset="0%" stop-color="${request.data.gradientStart}"/>`);
   parts.push(`<stop offset="100%" stop-color="${request.data.gradientEnd}"/>`);
@@ -1551,7 +1551,7 @@ function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest
 }
 
 function resolveLocalPreviewDataFill(request: SubmitRenderJobRequest) {
-  return request.data.gradientMode === "Linear" ? "url(#haveqr-data-gradient)" : request.colors.dark;
+  return request.data.gradientMode === "Linear" ? "url(#halfqr-data-gradient)" : request.colors.dark;
 }
 
 function buildLocalPreviewFinderOverlay(
@@ -1566,7 +1566,7 @@ function buildLocalPreviewFinderOverlay(
     [moduleCount - previewQuietZoneModules - previewFinderSizeModules, previewQuietZoneModules],
     [previewQuietZoneModules, moduleCount - previewQuietZoneModules - previewFinderSizeModules],
   ];
-  const parts = ["<g id=\"haveqr-finder-compositor\" shape-rendering=\"geometricPrecision\">"];
+  const parts = ["<g id=\"halfqr-finder-compositor\" shape-rendering=\"geometricPrecision\">"];
 
   for (const [originX, originY] of origins) {
     appendLocalPreviewRect(parts, originX, originY, previewFinderSizeModules, previewFinderSizeModules, lightColor, 0);
@@ -1613,7 +1613,7 @@ function appendLocalPreviewLogo(
   backdropFill: string,
   layout: PreviewLogoLayout,
 ) {
-  parts.push(`<g id="haveqr-logo"><rect x="${formatPreviewNumber(layout.backdropX)}" y="${formatPreviewNumber(layout.backdropY)}" width="${formatPreviewNumber(layout.backdropWidth)}" height="${formatPreviewNumber(layout.backdropHeight)}" rx="${formatPreviewNumber(layout.cornerRadius)}" ry="${formatPreviewNumber(layout.cornerRadius)}" fill="${backdropFill}"/>`);
+  parts.push(`<g id="halfqr-logo"><rect x="${formatPreviewNumber(layout.backdropX)}" y="${formatPreviewNumber(layout.backdropY)}" width="${formatPreviewNumber(layout.backdropWidth)}" height="${formatPreviewNumber(layout.backdropHeight)}" rx="${formatPreviewNumber(layout.cornerRadius)}" ry="${formatPreviewNumber(layout.cornerRadius)}" fill="${backdropFill}"/>`);
   parts.push(
     `<image x="${formatPreviewNumber(layout.x)}" y="${formatPreviewNumber(layout.y)}" width="${formatPreviewNumber(layout.width)}" height="${formatPreviewNumber(layout.height)}" href="${escapeSvgAttribute(logoAsset.previewUrl)}" preserveAspectRatio="xMidYMid meet"/>`,
   );

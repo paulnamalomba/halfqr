@@ -1,15 +1,15 @@
-# HaveQR System Imbroglio
+# HalfQR System Imbroglio
 
-> **A truthful, code-verified record of how the current HaveQR backend is actually wired, which parts are real runtime services versus naming boundaries, what data each layer moves, and where the implemented system still diverges from the plan in `SYSTEM_ARCHITECTURE.md`.**
+> **A truthful, code-verified record of how the current HalfQR backend is actually wired, which parts are real runtime services versus naming boundaries, what data each layer moves, and where the implemented system still diverges from the plan in `SYSTEM_ARCHITECTURE.md`.**
 
 **Version**: 0.2.7.0
 **Verified against**: `microservices/`, `webapp/src/components/qr-builder.tsx`, `docker-compose.yml` (April 2026)  
-**Primary implemented entry points**: `microservices/HaveQR.PublicApi/Program.cs`, `microservices/HaveQR.Worker/Program.cs`  
+**Primary implemented entry points**: `microservices/HalfQR.PublicApi/Program.cs`, `microservices/HalfQR.Worker/Program.cs`  
 **Planning baseline**: `SYSTEM_ARCHITECTURE.md`
 
 ## Contents
 
-- [HaveQR System Imbroglio](#haveqr-system-imbroglio)
+- [HalfQR System Imbroglio](#halfqr-system-imbroglio)
   - [Contents](#contents)
   - [1. Why This File Exists](#1-why-this-file-exists)
   - [2. Reality Snapshot](#2-reality-snapshot)
@@ -77,19 +77,19 @@ If there is ever a disagreement between the planned architecture and the code, t
 
 | Area | Current reality | Notes |
 | --- | --- | --- |
-| Actual long-running .NET runtimes | `HaveQR.PublicApi`, `HaveQR.Worker` | These are the only meaningful backend processes in the current implementation. |
-| Shared code libraries | `HaveQR.Contracts`, `HaveQR.QrEngine` | These are not remote services. They are linked directly into the runtime processes. |
-| Placeholder service names | `HaveQR.Identity`, `HaveQR.Redirector`, `HaveQR.Billing` | They exist as projects, but each currently returns `Hello World!` only. |
-| CLI status | `HaveQR.Cli` is a bootstrap console placeholder | Its status message is stale and still mentions "in-memory" render jobs. |
+| Actual long-running .NET runtimes | `HalfQR.PublicApi`, `HalfQR.Worker` | These are the only meaningful backend processes in the current implementation. |
+| Shared code libraries | `HalfQR.Contracts`, `HalfQR.QrEngine` | These are not remote services. They are linked directly into the runtime processes. |
+| Placeholder service names | `HalfQR.Identity`, `HalfQR.Redirector`, `HalfQR.Billing` | They exist as projects, but each currently returns `Hello World!` only. |
+| CLI status | `HalfQR.Cli` is a bootstrap console placeholder | Its status message is stale and still mentions "in-memory" render jobs. |
 | Active asynchronous backbone | RabbitMQ | The render flow really does queue work through RabbitMQ. |
-| Default persistence path | File system | Render job state and artifacts default to `.data/render-jobs` locally or `/var/lib/haveqr/render-jobs` in Docker. |
+| Default persistence path | File system | Render job state and artifacts default to `.data/render-jobs` locally or `/var/lib/halfqr/render-jobs` in Docker. |
 | Optional state store | PostgreSQL | Implemented in code, but only active if `RenderStorage:JobStateProvider=PostgreSql` and a connection string is supplied. |
 | Optional artifact store | Cloudflare R2 via S3 API | Implemented in code, but not the checked-in default path. |
 | Redis usage | None in current code path | Redis is present in Docker Compose, but no runtime code uses it yet. |
 | Auth / JWT / OAuth | Not implemented in the current backend runtime | No auth middleware, no tokens, no identity pipeline. |
 | Managed QR mode | Declared in the contract | No distinct managed-flow behavior exists yet. |
 
-The most important architectural truth is this: **HaveQR is currently a two-process render system, not a full multi-service platform yet.**
+The most important architectural truth is this: **HalfQR is currently a two-process render system, not a full multi-service platform yet.**
 
 ---
 
@@ -102,25 +102,25 @@ Browser / CLI / Future clients
         |
         | HTTP JSON
         v
-HaveQR.PublicApi  --------------------------->  state store (FileSystem or PostgreSQL)
+HalfQR.PublicApi  --------------------------->  state store (FileSystem or PostgreSQL)
         |
         | AMQP message containing only JobId
         v
-RabbitMQ queue: haveqr.render.jobs
+RabbitMQ queue: halfqr.render.jobs
         |
         v
-HaveQR.Worker  ------------------------------>  artifact store (FileSystem or R2)
+HalfQR.Worker  ------------------------------>  artifact store (FileSystem or R2)
         |
-        | in-process calls into HaveQR.QrEngine
+        | in-process calls into HalfQR.QrEngine
         v
 QR generation, SVG composition, PNG rasterization
 ```
 
 Important consequences:
 
-1. `HaveQR.PublicApi` is not doing the rendering itself.
-2. `HaveQR.Worker` is the authoritative rendering process.
-3. `HaveQR.QrEngine` is not a deployed service boundary; it is a library referenced directly by both runtimes.
+1. `HalfQR.PublicApi` is not doing the rendering itself.
+2. `HalfQR.Worker` is the authoritative rendering process.
+3. `HalfQR.QrEngine` is not a deployed service boundary; it is a library referenced directly by both runtimes.
 4. The queue message is intentionally tiny. The source of truth is the persisted render job state, not the RabbitMQ payload.
 5. The platform names under `microservices/` are ahead of the actual network topology.
 
@@ -130,8 +130,8 @@ Important consequences:
 
 | Technology | Version / Package | Wire protocol or runtime role | What it actually does now |
 | --- | --- | --- | --- |
-| ASP.NET Core Minimal API | .NET 10 | HTTP JSON | Powers `HaveQR.PublicApi` routes. |
-| .NET Worker Host | .NET 10 | background host | Powers `HaveQR.Worker`. |
+| ASP.NET Core Minimal API | .NET 10 | HTTP JSON | Powers `HalfQR.PublicApi` routes. |
+| .NET Worker Host | .NET 10 | background host | Powers `HalfQR.Worker`. |
 | RabbitMQ.Client | 7.2.1 | AMQP 0-9-1 | Publishes and consumes render-job messages. |
 | RabbitMQ server | 3.13 management image | TCP 5672 / HTTP 15672 | Active queue backbone in Docker bench. |
 | QRCoder | 1.8.0 | in-process library | Generates the QR SVG base markup. |
@@ -166,7 +166,7 @@ Notably absent from the current runtime:
                                 │ HTTPS / HTTP JSON
                                 ▼
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                         HAVEQR.PUBLICAPI                                  │
+│                         HALFQR.PUBLICAPI                                  │
 │                                                                            │
 │  POST /api/v1/qr/render                                                    │
 │  GET  /api/v1/qr/jobs/{jobId}                                              │
@@ -183,7 +183,7 @@ Notably absent from the current runtime:
                                                 │
                                                 ▼
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                           HAVEQR.WORKER                                   │
+│                           HALFQR.WORKER                                   │
 │                                                                            │
 │  - consumes queue                                                          │
 │  - reloads persisted request                                               │
@@ -211,14 +211,14 @@ What does **not** currently move data in the render path:
 
 | Project | Actual role today | Boundary type |
 | --- | --- | --- |
-| `microservices/HaveQR.PublicApi` | Public HTTP surface for queueing renders, checking status, and downloading artifacts | real runtime process |
-| `microservices/HaveQR.Worker` | Background queue consumer and renderer | real runtime process |
-| `microservices/HaveQR.QrEngine` | Payload encoding, hashing, SVG composition, PNG rasterization, storage implementations | in-process shared library |
-| `microservices/HaveQR.Contracts` | Request/response models, enums, options, queued message contracts | in-process shared library |
-| `microservices/HaveQR.Cli` | Placeholder bootstrap console | placeholder project |
-| `microservices/HaveQR.Identity` | `Hello World!` minimal API shell | placeholder service boundary |
-| `microservices/HaveQR.Redirector` | `Hello World!` minimal API shell | placeholder service boundary |
-| `microservices/HaveQR.Billing` | `Hello World!` minimal API shell | placeholder service boundary |
+| `microservices/HalfQR.PublicApi` | Public HTTP surface for queueing renders, checking status, and downloading artifacts | real runtime process |
+| `microservices/HalfQR.Worker` | Background queue consumer and renderer | real runtime process |
+| `microservices/HalfQR.QrEngine` | Payload encoding, hashing, SVG composition, PNG rasterization, storage implementations | in-process shared library |
+| `microservices/HalfQR.Contracts` | Request/response models, enums, options, queued message contracts | in-process shared library |
+| `microservices/HalfQR.Cli` | Placeholder bootstrap console | placeholder project |
+| `microservices/HalfQR.Identity` | `Hello World!` minimal API shell | placeholder service boundary |
+| `microservices/HalfQR.Redirector` | `Hello World!` minimal API shell | placeholder service boundary |
+| `microservices/HalfQR.Billing` | `Hello World!` minimal API shell | placeholder service boundary |
 
 This means the repository is **service-oriented in naming**, but only partially **microservice-oriented in runtime reality**.
 
@@ -226,7 +226,7 @@ This means the repository is **service-oriented in naming**, but only partially 
 
 ## 7. Public API Surface
 
-The current API is a minimal API defined entirely in `microservices/HaveQR.PublicApi/Program.cs`.
+The current API is a minimal API defined entirely in `microservices/HalfQR.PublicApi/Program.cs`.
 
 ### Route map
 
@@ -260,7 +260,7 @@ There is **no** current implementation of:
 
 The API allows configured browser origins from `Cors:AllowedOrigins`, with defaults centered around:
 
-- `https://haveqr.computemore.com`
+- `https://halfqr.computemore.com`
 - `http://localhost:5173`
 - `http://127.0.0.1:5173`
 - local fallback values for port `3000`
@@ -269,13 +269,13 @@ That exists because the webapp now calls the public API host directly instead of
 
 ### Important route contract detail
 
-`RenderJobAcceptedResponse.StatusUrl` and the `DownloadUrl` values inside `RenderJobStatusResponse` are **relative** API paths, not absolute URLs. The webapp resolves them against `NEXT_PUBLIC_HAVEQR_API_BASE_URL` before polling or downloading.
+`RenderJobAcceptedResponse.StatusUrl` and the `DownloadUrl` values inside `RenderJobStatusResponse` are **relative** API paths, not absolute URLs. The webapp resolves them against `NEXT_PUBLIC_HALFQR_API_BASE_URL` before polling or downloading.
 
 ---
 
 ## 8. Render Job Lifecycle
 
-The render job flow is the most important implemented subsystem in HaveQR.
+The render job flow is the most important implemented subsystem in HalfQR.
 
 ### 8.1 Submission and Initial Persistence
 
@@ -306,7 +306,7 @@ That means **RabbitMQ is a wake-up signal, not the source of truth for request d
 
 1. Creates a new RabbitMQ connection.
 2. Creates a new channel.
-3. Declares the queue `haveqr.render.jobs` as durable.
+3. Declares the queue `halfqr.render.jobs` as durable.
 4. Serializes `RenderJobQueuedMessage` to UTF-8 JSON.
 5. Publishes to the default exchange with the queue name as the routing key.
 6. Marks the message as persistent.
@@ -321,7 +321,7 @@ This is operationally simple, but not yet optimized for very high throughput.
 
 ### 8.3 Worker Consumption Model
 
-`HaveQR.Worker` uses `BackgroundService` and an `AsyncEventingBasicConsumer`.
+`HalfQR.Worker` uses `BackgroundService` and an `AsyncEventingBasicConsumer`.
 
 The consumption model is:
 
@@ -392,7 +392,7 @@ So the browser never talks to RabbitMQ, PostgreSQL, the file system, or R2 direc
 
 ## 9. QR Engine Internals
 
-`HaveQR.QrEngine` contains the real rendering logic, and most of the implementation complexity is here.
+`HalfQR.QrEngine` contains the real rendering logic, and most of the implementation complexity is here.
 
 ### 9.1 Request Model Reality
 
@@ -478,7 +478,7 @@ Right now the system trusts the submitted logo SVG string.
 
 ### 9.5 Finder Pattern Composition
 
-`QrFinderSvgComposer` is the custom visual layer that differentiates HaveQR from a plain QRCoder default output.
+`QrFinderSvgComposer` is the custom visual layer that differentiates HalfQR from a plain QRCoder default output.
 
 Key behavior:
 
@@ -553,7 +553,7 @@ The default file-system layout is deterministic:
 Where:
 
 - `<root>` is `.data/render-jobs` locally by default
-- in Docker it is typically `/var/lib/haveqr/render-jobs`
+- in Docker it is typically `/var/lib/halfqr/render-jobs`
 
 `FileSystemRenderJobStateStore` writes the entire serialized `RenderJobState` to `job.json`.
 
@@ -631,7 +631,7 @@ Current wiring details:
 - `public-api` and `worker` both receive RabbitMQ settings
 - `public-api` and `worker` both receive render storage provider settings
 - `public-api` and `worker` share the same mounted render-jobs volume
-- `webapp` is built with `NEXT_PUBLIC_HAVEQR_API_BASE_URL`
+- `webapp` is built with `NEXT_PUBLIC_HALFQR_API_BASE_URL`
 - the browser-side app is designed to call the public API hostname directly
 
 What this means operationally:
@@ -673,55 +673,55 @@ One more subtle divergence:
 
 | File | Key methods or setup points | What it controls |
 | --- | --- | --- |
-| `microservices/HaveQR.PublicApi/Program.cs` | route registrations, CORS policy, JSON enum conversion, provider selection | the entire current public backend surface |
-| `microservices/HaveQR.Worker/Program.cs` | host setup, provider selection, `AddHostedService<Worker>` | the queue consumer runtime |
+| `microservices/HalfQR.PublicApi/Program.cs` | route registrations, CORS policy, JSON enum conversion, provider selection | the entire current public backend surface |
+| `microservices/HalfQR.Worker/Program.cs` | host setup, provider selection, `AddHostedService<Worker>` | the queue consumer runtime |
 
 ### Render Flow Services
 
 | File | Key methods | What they do |
 | --- | --- | --- |
-| `microservices/HaveQR.PublicApi/Services/RenderJobService.cs` | `EnqueueAsync`, `GetStatusAsync`, `GetArtifactAsync`, `ToResponse` | creates job records, dispatches queue messages, maps stored state to HTTP responses |
-| `microservices/HaveQR.PublicApi/Services/RabbitMqJobDispatcher.cs` | `DispatchAsync` | declares the queue and publishes a persistent JSON job message |
-| `microservices/HaveQR.Worker/Worker.cs` | `ExecuteAsync`, `ConsumeAsync`, `ProcessAsync` | manages the consumer loop and executes the actual render workflow |
+| `microservices/HalfQR.PublicApi/Services/RenderJobService.cs` | `EnqueueAsync`, `GetStatusAsync`, `GetArtifactAsync`, `ToResponse` | creates job records, dispatches queue messages, maps stored state to HTTP responses |
+| `microservices/HalfQR.PublicApi/Services/RabbitMqJobDispatcher.cs` | `DispatchAsync` | declares the queue and publishes a persistent JSON job message |
+| `microservices/HalfQR.Worker/Worker.cs` | `ExecuteAsync`, `ConsumeAsync`, `ProcessAsync` | manages the consumer loop and executes the actual render workflow |
 
 ### QR Engine
 
 | File | Key methods | What they do |
 | --- | --- | --- |
-| `microservices/HaveQR.QrEngine/PayloadEncoding/QrPayloadEncoder.cs` | `Encode`, `BuildWhatsAppPayload`, `BuildUrlPayload`, `NormalizeAbsoluteUrl` | converts request intent into the payload string encoded in the QR code |
-| `microservices/HaveQR.QrEngine/Rendering/QrRenderService.cs` | `RenderAsync`, `SerializeCanonicalRequest`, `GenerateSvg`, `RasterizePng` | performs the complete render pipeline and computes hashes |
-| `microservices/HaveQR.QrEngine/Rendering/QrFinderSvgComposer.cs` | `Compose`, `BuildOverlay`, `AppendFinder`, `AppendShape` | redraws the three finder patterns with custom shapes |
-| `microservices/HaveQR.QrEngine/Hashing/Sha256HashService.cs` | `Compute` | hashes configuration and payload strings |
+| `microservices/HalfQR.QrEngine/PayloadEncoding/QrPayloadEncoder.cs` | `Encode`, `BuildWhatsAppPayload`, `BuildUrlPayload`, `NormalizeAbsoluteUrl` | converts request intent into the payload string encoded in the QR code |
+| `microservices/HalfQR.QrEngine/Rendering/QrRenderService.cs` | `RenderAsync`, `SerializeCanonicalRequest`, `GenerateSvg`, `RasterizePng` | performs the complete render pipeline and computes hashes |
+| `microservices/HalfQR.QrEngine/Rendering/QrFinderSvgComposer.cs` | `Compose`, `BuildOverlay`, `AppendFinder`, `AppendShape` | redraws the three finder patterns with custom shapes |
+| `microservices/HalfQR.QrEngine/Hashing/Sha256HashService.cs` | `Compute` | hashes configuration and payload strings |
 
 ### Storage
 
 | File | Key methods | What they do |
 | --- | --- | --- |
-| `microservices/HaveQR.QrEngine/Storage/CompositeRenderJobStore.cs` | `SaveAsync`, `GetAsync`, `SaveArtifactAsync`, `GetArtifactAsync` | composes state and artifact stores into one abstraction |
-| `microservices/HaveQR.QrEngine/Storage/FileSystemRenderJobStateStore.cs` | `SaveAsync`, `GetAsync` | writes and reads `job.json` |
-| `microservices/HaveQR.QrEngine/Storage/FileSystemRenderArtifactStore.cs` | `SaveAsync`, `GetAsync` | writes and reads artifact files from disk |
-| `microservices/HaveQR.QrEngine/Storage/FileSystemRenderStorageLayout.cs` | `EnsureJobDirectory`, `EnsureArtifactsDirectory`, `GetJobFilePath` | defines the on-disk directory structure |
-| `microservices/HaveQR.QrEngine/Storage/RenderArtifactNaming.cs` | `NormalizeFormat`, `GetFileName` | normalizes artifact format names and file names |
-| `microservices/HaveQR.QrEngine/Storage/PostgresRenderJobStateStore.cs` | `SaveAsync`, `GetAsync`, `EnsureInitializedAsync`, `GetQualifiedTableName` | optional JSONB-backed job-state persistence |
-| `microservices/HaveQR.QrEngine/Storage/R2RenderArtifactStore.cs` | `SaveAsync`, `GetAsync`, `BuildObjectKey`, `CreateClient`, `ResolveServiceUrl` | optional R2-backed artifact persistence |
-| `microservices/HaveQR.QrEngine/Storage/RenderJobStateJson.cs` | serializer options | keeps persisted enum encoding aligned with API responses |
+| `microservices/HalfQR.QrEngine/Storage/CompositeRenderJobStore.cs` | `SaveAsync`, `GetAsync`, `SaveArtifactAsync`, `GetArtifactAsync` | composes state and artifact stores into one abstraction |
+| `microservices/HalfQR.QrEngine/Storage/FileSystemRenderJobStateStore.cs` | `SaveAsync`, `GetAsync` | writes and reads `job.json` |
+| `microservices/HalfQR.QrEngine/Storage/FileSystemRenderArtifactStore.cs` | `SaveAsync`, `GetAsync` | writes and reads artifact files from disk |
+| `microservices/HalfQR.QrEngine/Storage/FileSystemRenderStorageLayout.cs` | `EnsureJobDirectory`, `EnsureArtifactsDirectory`, `GetJobFilePath` | defines the on-disk directory structure |
+| `microservices/HalfQR.QrEngine/Storage/RenderArtifactNaming.cs` | `NormalizeFormat`, `GetFileName` | normalizes artifact format names and file names |
+| `microservices/HalfQR.QrEngine/Storage/PostgresRenderJobStateStore.cs` | `SaveAsync`, `GetAsync`, `EnsureInitializedAsync`, `GetQualifiedTableName` | optional JSONB-backed job-state persistence |
+| `microservices/HalfQR.QrEngine/Storage/R2RenderArtifactStore.cs` | `SaveAsync`, `GetAsync`, `BuildObjectKey`, `CreateClient`, `ResolveServiceUrl` | optional R2-backed artifact persistence |
+| `microservices/HalfQR.QrEngine/Storage/RenderJobStateJson.cs` | serializer options | keeps persisted enum encoding aligned with API responses |
 
 ### Contracts
 
 | File | Purpose |
 | --- | --- |
-| `microservices/HaveQR.Contracts/Requests/SubmitRenderJobRequest.cs` | incoming render job request contract |
-| `microservices/HaveQR.Contracts/Responses/RenderJobAcceptedResponse.cs` | accepted-job response contract |
-| `microservices/HaveQR.Contracts/Responses/RenderJobStatusResponse.cs` | status polling response contract |
-| `microservices/HaveQR.Contracts/Messages/RenderJobQueuedMessage.cs` | RabbitMQ message containing only `JobId` |
-| `microservices/HaveQR.Contracts/Models/RenderJobState.cs` | durable job-state model |
-| `microservices/HaveQR.Contracts/Models/RenderArtifactState.cs` | durable artifact metadata model |
-| `microservices/HaveQR.Contracts/Models/QrLogoOptions.cs` | logo SVG and size contract |
-| `microservices/HaveQR.Contracts/Models/QrFinderOptions.cs` | border and center finder shape contract |
-| `microservices/HaveQR.Contracts/Models/QrColorOptions.cs` | dark and light color contract |
-| `microservices/HaveQR.Contracts/Models/QrOutputOptions.cs` | output format and size contract |
-| `microservices/HaveQR.Contracts/Enums/*.cs` | content types, finder shapes, ECC level, render mode, job status |
-| `microservices/HaveQR.Contracts/Options/*.cs` | RabbitMQ, render storage, PostgreSQL store, and R2 option models |
+| `microservices/HalfQR.Contracts/Requests/SubmitRenderJobRequest.cs` | incoming render job request contract |
+| `microservices/HalfQR.Contracts/Responses/RenderJobAcceptedResponse.cs` | accepted-job response contract |
+| `microservices/HalfQR.Contracts/Responses/RenderJobStatusResponse.cs` | status polling response contract |
+| `microservices/HalfQR.Contracts/Messages/RenderJobQueuedMessage.cs` | RabbitMQ message containing only `JobId` |
+| `microservices/HalfQR.Contracts/Models/RenderJobState.cs` | durable job-state model |
+| `microservices/HalfQR.Contracts/Models/RenderArtifactState.cs` | durable artifact metadata model |
+| `microservices/HalfQR.Contracts/Models/QrLogoOptions.cs` | logo SVG and size contract |
+| `microservices/HalfQR.Contracts/Models/QrFinderOptions.cs` | border and center finder shape contract |
+| `microservices/HalfQR.Contracts/Models/QrColorOptions.cs` | dark and light color contract |
+| `microservices/HalfQR.Contracts/Models/QrOutputOptions.cs` | output format and size contract |
+| `microservices/HalfQR.Contracts/Enums/*.cs` | content types, finder shapes, ECC level, render mode, job status |
+| `microservices/HalfQR.Contracts/Options/*.cs` | RabbitMQ, render storage, PostgreSQL store, and R2 option models |
 
 ### Frontend Integration
 
@@ -733,10 +733,10 @@ One more subtle divergence:
 
 | File | Reality |
 | --- | --- |
-| `microservices/HaveQR.Identity/Program.cs` | `Hello World!` placeholder |
-| `microservices/HaveQR.Redirector/Program.cs` | `Hello World!` placeholder |
-| `microservices/HaveQR.Billing/Program.cs` | `Hello World!` placeholder |
-| `microservices/HaveQR.Cli/Program.cs` | bootstrap console with stale status text |
+| `microservices/HalfQR.Identity/Program.cs` | `Hello World!` placeholder |
+| `microservices/HalfQR.Redirector/Program.cs` | `Hello World!` placeholder |
+| `microservices/HalfQR.Billing/Program.cs` | `Hello World!` placeholder |
+| `microservices/HalfQR.Cli/Program.cs` | bootstrap console with stale status text |
 
 ---
 
@@ -753,6 +753,6 @@ These are the most important implementation truths a new contributor should unde
 7. RabbitMQ failure handling is simple and understandable, but there is no dead-letter queue or structured retry policy yet.
 8. The API streams artifacts back through itself even when the backing store is remote object storage; there is no presigned URL path yet.
 9. Redis and several named microservices are currently structural placeholders, not live parts of the runtime.
-10. `HaveQR.PublicApi` registers `IQrPayloadEncoder` and `IHashService`, but the current public API path does not actually invoke them directly; those services are consumed by the worker-side render engine.
+10. `HalfQR.PublicApi` registers `IQrPayloadEncoder` and `IHashService`, but the current public API path does not actually invoke them directly; those services are consumed by the worker-side render engine.
 
-If the team keeps this document updated as the system grows, it will remain the fastest route to understanding the difference between **HaveQR as planned** and **HaveQR as implemented**.
+If the team keeps this document updated as the system grows, it will remain the fastest route to understanding the difference between **HalfQR as planned** and **HalfQR as implemented**.

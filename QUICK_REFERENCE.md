@@ -1,12 +1,12 @@
-# HaveQR Quick Reference
+# HalfQR Quick Reference
 
 **App Version**: 0.2.7.0  
 **Date**: 2026-04-09  
-**Repository**: `haveqr`
+**Repository**: `halfqr`
 
 ## Contents
 
-- [HaveQR Quick Reference](#haveqr-quick-reference)
+- [HalfQR Quick Reference](#halfqr-quick-reference)
   - [Contents](#contents)
   - [Prerequisites](#prerequisites)
   - [Docker Bench Commands](#docker-bench-commands)
@@ -54,19 +54,19 @@ http://127.0.0.1:15673 -> RabbitMQ management
 ## Tunnel Targets
 
 ```text
-haveqr.computemore.com -> localhost:5173
-haveqr-api-demo.computemore.com -> localhost:8083
+halfqr.computemore.com -> localhost:5173
+halfqr-api-demo.computemore.com -> localhost:8083
 ```
 
 ## Browser Request Policy
 
-- Build and run the webapp with `NEXT_PUBLIC_HAVEQR_API_BASE_URL=https://haveqr-api-demo.computemore.com`.
+- Build and run the webapp with `NEXT_PUBLIC_HALFQR_API_BASE_URL=https://halfqr-api-demo.computemore.com`.
 - The browser should not call `http://localhost:8083`; localhost is reserved for operator checks and CLI smoke tests on the devops bench.
 
 ## Optional Host Builds
 
 ```bash
-dotnet build HaveQR.sln
+dotnet build HalfQR.sln
 npm install --prefix webapp
 npm run build --prefix webapp
 ```
@@ -76,25 +76,25 @@ npm run build --prefix webapp
 ```bash
 curl http://127.0.0.1:8083/healthz
 curl http://127.0.0.1:5173
-curl https://haveqr-api-demo.computemore.com/healthz
-curl https://haveqr.computemore.com
+curl https://halfqr-api-demo.computemore.com/healthz
+curl https://halfqr.computemore.com
 ```
 
 ## Default Configuration Keys
 
 ```text
-NEXT_PUBLIC_HAVEQR_API_BASE_URL=https://haveqr-api-demo.computemore.com
-HAVEQR_WEBAPP_PUBLIC_ORIGIN=https://haveqr.computemore.com
-HAVEQR_WEBAPP_LOCAL_ORIGIN=http://localhost:5173
+NEXT_PUBLIC_HALFQR_API_BASE_URL=https://halfqr-api-demo.computemore.com
+HALFQR_WEBAPP_PUBLIC_ORIGIN=https://halfqr.computemore.com
+HALFQR_WEBAPP_LOCAL_ORIGIN=http://localhost:5173
 RabbitMq__HostName=rabbitmq
 RabbitMq__Port=5672
-RabbitMq__UserName=haveqr
-RabbitMq__Password=haveqr_dev_password
-RabbitMq__RenderQueueName=haveqr.render.jobs
+RabbitMq__UserName=halfqr
+RabbitMq__Password=halfqr_dev_password
+RabbitMq__RenderQueueName=halfqr.render.jobs
 RenderStorage__JobStateProvider=FileSystem
 RenderStorage__ArtifactProvider=FileSystem
-RenderStorage__RootPath=/var/lib/haveqr/render-jobs
-PostgresRenderStore__ConnectionString=Host=127.0.0.1;Port=5433;Database=haveqr;Username=haveqr;Password=haveqr_dev_password
+RenderStorage__RootPath=/var/lib/halfqr/render-jobs
+PostgresRenderStore__ConnectionString=Host=127.0.0.1;Port=5433;Database=halfqr;Username=halfqr;Password=halfqr_dev_password
 PostgresRenderStore__Schema=public
 PostgresRenderStore__TableName=render_jobs
 R2Storage__BucketName=
@@ -110,8 +110,8 @@ R2Storage__KeyPrefix=render-jobs
 ```bash
 export RenderStorage__JobStateProvider=PostgreSql
 export RenderStorage__ArtifactProvider=R2
-export PostgresRenderStore__ConnectionString="Host=127.0.0.1;Port=5433;Database=haveqr;Username=haveqr;Password=haveqr_dev_password"
-export R2Storage__BucketName="haveqr-render-artifacts"
+export PostgresRenderStore__ConnectionString="Host=127.0.0.1;Port=5433;Database=halfqr;Username=halfqr;Password=halfqr_dev_password"
+export R2Storage__BucketName="halfqr-render-artifacts"
 export R2Storage__AccountId="<cloudflare-account-id>"
 export R2Storage__AccessKeyId="<r2-access-key-id>"
 export R2Storage__SecretAccessKey="<r2-secret-access-key>"
@@ -151,7 +151,7 @@ curl -X POST http://127.0.0.1:8083/api/v1/qr/render \
     "contentType": "WhatsApp",
     "payload": {
       "phone": "+260977000000",
-      "message": "Hello from HaveQR"
+      "message": "Hello from HalfQR"
     },
     "output": {
       "sizePx": 1024
@@ -163,6 +163,6 @@ curl -X POST http://127.0.0.1:8083/api/v1/qr/render \
 
 ```bash
 curl http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>
-curl -L http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>/artifacts/png --output haveqr.png
-curl -L http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>/artifacts/svg --output haveqr.svg
+curl -L http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>/artifacts/png --output halfqr.png
+curl -L http://127.0.0.1:8083/api/v1/qr/jobs/<job-id>/artifacts/svg --output halfqr.svg
 ```

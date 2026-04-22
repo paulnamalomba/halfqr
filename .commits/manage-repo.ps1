@@ -1,4 +1,4 @@
-# haveQR Repository Management Script
+# halfQR Repository Management Script
 # Manages git operations with version-based commits and tags
 # Usage:
 # # List available versions
@@ -252,7 +252,7 @@ function Invoke-Release {
     
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  haveQR Driver Release: $VersionNumber" -ForegroundColor Yellow
+    Write-Host "  halfQR Driver Release: $VersionNumber" -ForegroundColor Yellow
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -292,7 +292,7 @@ function Invoke-Release {
     Write-Host "========================================" -ForegroundColor Green
     Write-Host ""
     Write-Info "View release on GitHub:"
-    Write-Host "  https://github.com/paulnamalomba/haveqr/releases/tag/$VersionNumber" -ForegroundColor Cyan
+    Write-Host "  https://github.com/paulnamalomba/halfqr/releases/tag/$VersionNumber" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -355,7 +355,7 @@ switch ($Action.ToLower()) {
     
     "help" {
         Write-Host ""
-        Write-Host "haveQR Repository Management Script" -ForegroundColor Cyan
+        Write-Host "halfQR Repository Management Script" -ForegroundColor Cyan
         Write-Host "====================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "Usage:" -ForegroundColor Yellow

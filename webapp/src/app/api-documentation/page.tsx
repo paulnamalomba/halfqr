@@ -42,10 +42,10 @@ const requestNotes = [
   "Content types currently supported by the public generator: Link, App, Social, Pdf, Image, Video, and WhatsApp.",
   "Data styling supports square or dotted modules plus an optional two-colour linear gradient on the main QR body.",
   "Logo uploads accept Svg, Png, and Jpeg sources with centered placement and backdrop padding.",
-  "In local webapp development, browser requests are routed through /api/haveqr/... to avoid CORS preflight failures.",
+  "In local webapp development, browser requests are routed through /api/halfqr/... to avoid CORS preflight failures.",
 ];
 
-const sampleRequest = `const response = await fetch("https://haveqr-api-demo.computemore.com/api/v1/qr/render", {
+const sampleRequest = `const response = await fetch("https://halfqr-api-demo.computemore.com/api/v1/qr/render", {
   method: "POST",
   headers: {
     "Accept": "application/json",
@@ -85,7 +85,7 @@ export default function ApiDocumentationPage() {
             <Link className="route-primary-link" href="/">
               Open generator
             </Link>
-            <a className="route-secondary-link" href="https://haveqr-api-demo.computemore.com/healthz" target="_blank" rel="noreferrer">
+            <a className="route-secondary-link" href="https://halfqr-api-demo.computemore.com/healthz" target="_blank" rel="noreferrer">
               Check live API status
             </a>
           </div>
