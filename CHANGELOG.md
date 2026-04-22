@@ -7,62 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HaveQR](#haveqr)
   - [Contents](#contents)
-  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+  - [\[0.2.8.0\] - 2026-04-22](#0280---2026-04-22)
     - [Added](#added)
-    - [Fixed](#fixed)
     - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
-    - [Fixed](#fixed-1)
+  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+    - [Added](#added-1)
+    - [Fixed](#fixed)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
-  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
+    - [Fixed](#fixed-1)
     - [Changed](#changed-2)
-  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
-    - [Changed](#changed-3)
-    - [Fixed](#fixed-2)
     - [Validation](#validation-2)
+  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+    - [Changed](#changed-3)
+  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
+    - [Changed](#changed-4)
+    - [Fixed](#fixed-2)
+    - [Validation](#validation-3)
   - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
-    - [Added](#added-1)
-  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
     - [Added](#added-2)
+  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
+    - [Added](#added-3)
   - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
     - [Fixed](#fixed-3)
     - [Why](#why)
     - [Problem Solved](#problem-solved)
-    - [Validation](#validation-3)
-  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed-4)
     - [Validation](#validation-4)
-  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
-    - [Added](#added-3)
-  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
-    - [Added](#added-4)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
     - [Changed](#changed-5)
     - [Validation](#validation-5)
-  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
+    - [Added](#added-4)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-5)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
-    - [Added](#added-6)
     - [Changed](#changed-6)
     - [Validation](#validation-6)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+    - [Added](#added-6)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-7)
     - [Changed](#changed-7)
     - [Validation](#validation-7)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-8)
     - [Changed](#changed-8)
     - [Validation](#validation-8)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-9)
     - [Changed](#changed-9)
     - [Validation](#validation-9)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-10)
+    - [Changed](#changed-10)
+    - [Validation](#validation-10)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-10)
+  - [Validation:](#validation-11)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.2.8.0] - 2026-04-22
+
+### Added
+
+- Continued Fast versioning
+
+### Changed
+
+- Changed the builder preview flow to prefer the server draft once it is available, keeping the on-screen QR closer to the authoritative backend render.
+
+### Validation
+
+- dotnet build HalfQR.sln
+- npm run build from webapp
+- Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
+- Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied
 
 ---
 

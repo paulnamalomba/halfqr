@@ -1,0 +1,20 @@
+HaveQR v0.2.8.0 Release Notes
+Release Date: 22 April, 2026
+===================================
+
+## [0.2.8.0] - 2026-04-22
+
+### Added
+
+- Continued Fast versioning
+
+### Changed
+
+- Changed the builder preview flow to prefer the server draft once it is available, keeping the on-screen QR closer to the authoritative backend render.
+
+### Validation
+
+- dotnet build HalfQR.sln
+- npm run build from webapp
+- Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
+- Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied

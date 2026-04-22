@@ -966,7 +966,7 @@ export function QrBuilder() {
           <span className="generator-step-badge">4</span>
           <div className="generator-step-copy">
             <h2>Preview and download</h2>
-            <p>Preview updates locally first, then syncs against the SVG draft endpoint before you queue the final worker render.</p>
+            <p>Preview your generated QR code.</p>
           </div>
         </div>
 
@@ -1025,10 +1025,10 @@ export function QrBuilder() {
             <p className="preview-value">{timelineText}</p>
           </article>
 
-          <article className="preview-summary-card">
+          {/* <article className="preview-summary-card">
             <p className="preview-label">API target</p>
             <p className="preview-value">{configuredApiTarget}</p>
-          </article>
+          </article> */}
         </div>
 
         {activeLatestJob?.artifacts.length ? (
