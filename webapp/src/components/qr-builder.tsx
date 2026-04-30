@@ -158,7 +158,7 @@ type LogoPreset = {
 };
 
 // Here we introduce some const values for the builder, such as the available content types, design sections, logo presets, and various configuration values for polling intervals, size limits, etc.
-const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HALFQR_API_BASE_URL ?? "https://halfqr-api-demo.computemore.com")
+const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HALFQR_API_BASE_URL ?? "https://api.halfqr.com")
   .trim()
   .replace(/\/$/, "");
 const publicApiOrigin = new URL(publicApiBaseUrl).origin;
@@ -209,7 +209,7 @@ const builderTypes: BuilderType[] = [
     id: "pdf",
     label: "PDF",
     eyebrow: "Link to a PDF",
-    placeholder: "https://cdn.halfqr.dev/brochures/launch-pack.pdf",
+    placeholder: "https://cdn.halfqr.com/brochures/launch-pack.pdf",
     summary: "Send scans into brochures, menus, decks, or printable collateral.",
     Icon: PictureAsPdfRounded,
   },
@@ -217,7 +217,7 @@ const builderTypes: BuilderType[] = [
     id: "image",
     label: "Image",
     eyebrow: "Link to an Image",
-    placeholder: "https://cdn.halfqr.dev/posters/flyer-front.jpg",
+    placeholder: "https://cdn.halfqr.com/posters/flyer-front.jpg",
     summary: "Point straight into poster art, packaging, menus, or image galleries.",
     Icon: ImageRounded,
   },
@@ -303,7 +303,7 @@ export function QrBuilder() {
   // Arrays using prescribed data structures and api shapes for the builder state, these are used to manage the user input and the API interactions in a strongly typed way
   const [selectedType, setSelectedType] = useState<BuilderType>(builderTypes[0]);
   const [designSection, setDesignSection] = useState<DesignSectionId>("frame");
-  const [targetUrl, setTargetUrl] = useState("https://computemore.com/campaign/spring-launch");
+  const [targetUrl, setTargetUrl] = useState("https://computemore.com");
   const [phone, setPhone] = useState("+260977000000");
   const [message, setMessage] = useState("Hello from HalfQR");
   const [finderBorder, setFinderBorder] = useState<FinderShape>("Rounded");

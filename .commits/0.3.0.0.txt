@@ -1,0 +1,24 @@
+HalfQR v0.3.0.0 Release Notes
+Release Date: 30 April, 2026
+===================================
+
+## [0.3.0.0] - 2026-04-30
+
+### Added
+
+- Continued Fast versioning
+- Added a shared webapp icon barrel and `SiteTitleIcon` wrapper so the public header can render the refreshed HalfQR logo set without depending on the legacy `havqr_*` image references.
+
+### Changed
+
+- Changed the public deployment surface from the temporary `computemore.com` bench hosts to the production `www.halfqr.com` and `api.halfqr.com` domains across the README, Docker Compose defaults, API documentation, and Public API CORS allowlist.
+- Changed the public webapp shell to use the refreshed HalfQR branding layer, including the new logo assets, updated typography, revised header treatment, landing-page hero copy, and refreshed marketing copy on the `Why HalfQR` and API documentation pages.
+- Changed top-level documentation and asset naming to better match the public-release surface, including normalizing guide filenames and replacing the older `havqr_*` logos with `halfqr_*` equivalents.
+- Changed the webapp delivery stack for the public release by updating the Next.js and TypeScript toolchain versions and renaming backend service containers to the `halfqr-backend-*` convention.
+
+### Validation
+
+- git diff --stat
+- git diff -- README.md docker-compose.yml microservices/HalfQR.PublicApi/Program.cs webapp/src/app/layout.tsx webapp/src/app/page.tsx webapp/src/app/why-halfqr/page.tsx webapp/src/app/api-documentation/page.tsx webapp/src/components/site-header.tsx
+- npm run build from webapp
+- dotnet build HalfQR.sln currently fails locally with `NETSDK1045` because the installed SDK is `9.0.313` while the solution targets `.NET 10.0`

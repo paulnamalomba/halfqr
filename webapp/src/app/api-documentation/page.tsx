@@ -45,7 +45,7 @@ const requestNotes = [
   "In local webapp development, browser requests are routed through /api/halfqr/... to avoid CORS preflight failures.",
 ];
 
-const sampleRequest = `const response = await fetch("https://halfqr-api-demo.computemore.com/api/v1/qr/render", {
+const sampleRequest = `const response = await fetch("https://api.halfqr.com/api/v1/qr/render", {
   method: "POST",
   headers: {
     "Accept": "application/json",
@@ -53,7 +53,7 @@ const sampleRequest = `const response = await fetch("https://halfqr-api-demo.com
   },
   body: JSON.stringify({
     contentType: "Link",
-    targetUrl: "https://computemore.com/demo-launch",
+    targetUrl: "https://computemore.com",
     payload: {},
     errorCorrectionLevel: "H",
     output: { sizePx: 1024 },
@@ -85,7 +85,7 @@ export default function ApiDocumentationPage() {
             <Link className="route-primary-link" href="/">
               Open generator
             </Link>
-            <a className="route-secondary-link" href="https://halfqr-api-demo.computemore.com/healthz" target="_blank" rel="noreferrer">
+            <a className="route-secondary-link" href="https://api.halfqr.com/healthz" target="_blank" rel="noreferrer">
               Check live API status
             </a>
           </div>

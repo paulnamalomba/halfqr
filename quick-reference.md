@@ -1,6 +1,6 @@
 # HalfQR Quick Reference
 
-**App Version**: 0.2.9.0  
+**App Version**: 0.3.0.0  
 **Date**: 2026-04-09  
 **Repository**: `halfqr`
 
@@ -54,13 +54,13 @@ http://127.0.0.1:15673 -> RabbitMQ management
 ## Tunnel Targets
 
 ```text
-halfqr.computemore.com -> localhost:5173
-halfqr-api-demo.computemore.com -> localhost:8083
+www.halfqr.com -> localhost:5173
+api.halfqr.com -> localhost:8083
 ```
 
 ## Browser Request Policy
 
-- Build and run the webapp with `NEXT_PUBLIC_HALFQR_API_BASE_URL=https://halfqr-api-demo.computemore.com`.
+- Build and run the webapp with `NEXT_PUBLIC_HALFQR_API_BASE_URL=https://api.halfqr.com`.
 - The browser should not call `http://localhost:8083`; localhost is reserved for operator checks and CLI smoke tests on the devops bench.
 
 ## Optional Host Builds
@@ -76,15 +76,15 @@ npm run build --prefix webapp
 ```bash
 curl http://127.0.0.1:8083/healthz
 curl http://127.0.0.1:5173
-curl https://halfqr-api-demo.computemore.com/healthz
-curl https://halfqr.computemore.com
+curl https://api.halfqr.com/healthz
+curl https://www.halfqr.com
 ```
 
 ## Default Configuration Keys
 
 ```text
-NEXT_PUBLIC_HALFQR_API_BASE_URL=https://halfqr-api-demo.computemore.com
-HALFQR_WEBAPP_PUBLIC_ORIGIN=https://halfqr.computemore.com
+NEXT_PUBLIC_HALFQR_API_BASE_URL=https://api.halfqr.com
+HALFQR_WEBAPP_PUBLIC_ORIGIN=https://www.halfqr.com
 HALFQR_WEBAPP_LOCAL_ORIGIN=http://localhost:5173
 RabbitMq__HostName=rabbitmq
 RabbitMq__Port=5672

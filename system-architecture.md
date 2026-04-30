@@ -2,7 +2,7 @@
 
 > Architecture and product-technical direction for HalfQR, the QR generation platform built in this `halfqr` repository.
 
-**App Version**: 0.2.9.0  
+**App Version**: 0.3.0.0  
 **Date**: 2026-04-09  
 **Repository**: `halfqr`
 
@@ -152,7 +152,7 @@ The public web experience will be anonymous by default. Authentication, Google O
 ### Brand and launch context
 
 - Product name: `halfQR`
-- Temporary public host: `halfqr.computemore.com`
+- Temporary public host: `www.halfqr.com`
 - Future primary domain: `halfqr.io`
 - UX inspiration: `qr.io`
 - Visual styling direction: `AfriFlex`
@@ -196,7 +196,7 @@ The public web experience will be anonymous by default. Authentication, Google O
 | Message bus | RabbitMQ over ActiveMQ | Better fit for .NET teams, easier Docker Compose operations, better docs and tooling |
 | Data store | PostgreSQL + Redis + Cloudflare R2 | Strong relational core, fast cache/rate limit layer, cheap asset storage |
 | Auth model | JWT access tokens + refresh tokens + Google OAuth2 | Supports future dashboards and subscriptions without forcing launch login |
-| Deployment | Docker Compose behind a public tunnel/reverse proxy | Fits current staging reality at `halfqr.computemore.com` |
+| Deployment | Docker Compose behind a public tunnel/reverse proxy | Fits current staging reality at `www.halfqr.com` |
 | URL persistence | Static one-off QR can remain non-persistent; dynamic tracked QR must store encrypted destination | A hash alone cannot power redirect and scan analytics |
 
 ---
@@ -849,15 +849,15 @@ If the product wants to display public proof such as "X QR codes generated", tha
 
 ### Current deployment mode
 
-Use Docker Compose and expose the current devops/testing bench through public tunnels at `halfqr.computemore.com` and `halfqr-api-demo.computemore.com`.
+Use Docker Compose and expose the current devops/testing bench through public tunnels at `www.halfqr.com` and `api.halfqr.com`.
 
 Preferred routing layout:
 
-- `halfqr.computemore.com` -> webapp on `localhost:5173`
-- `halfqr-api-demo.computemore.com` -> public API on `localhost:8083`
-- `admin.halfqr.computemore.com` -> admin
-- `docs.halfqr.computemore.com` -> docs
-- `go.halfqr.computemore.com` or `/r/{slug}` -> redirector
+- `www.halfqr.com` -> webapp on `localhost:5173`
+- `api.halfqr.com` -> public API on `localhost:8083`
+- `admin.www.halfqr.com` -> admin
+- `docs.www.halfqr.com` -> docs
+- `go.www.halfqr.com` or `/r/{slug}` -> redirector
 
 If subdomains are not yet practical, use path-based routing temporarily.
 

@@ -27,7 +27,7 @@
     <div className="site-header-actions relative">
       <a
         className="site-header-status hidden md:inline-flex"
-        href="https://halfqr-api-demo.computemore.com/healthz"
+        href="https://api.halfqr.com/healthz"
         target="_blank"
         rel="noreferrer"
       >

@@ -42,7 +42,7 @@ export default function ProductPage() {
 
           <div className="cta-row">
             <Link className="route-primary-link" href="/">
-              Open generator
+              Open QR Generator
             </Link>
             <Link className="route-secondary-link" href="/api-documentation">
               Read the API docs
@@ -50,7 +50,7 @@ export default function ProductPage() {
           </div>
         </div>
 
-        <div className="route-side-card">
+        {/* <div className="route-side-card">
           <div className="route-side-item">
             <ViewInArRounded fontSize="small" />
             <span>No sign-in dependency for first-time QR creation</span>
@@ -59,7 +59,7 @@ export default function ProductPage() {
             <DashboardRounded fontSize="small" />
             <span>Dashboard routes can stay feature-flagged until subscriptions are ready</span>
           </div>
-        </div>
+        </div> */}
       </section>
 
       <section className="route-card-grid">

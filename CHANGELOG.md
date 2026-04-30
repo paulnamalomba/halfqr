@@ -7,70 +7,97 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HalfQR](#halfqr)
   - [Contents](#contents)
-  - [\[0.2.9.0\] - 2026-04-22](#0290---2026-04-22)
+  - [\[0.3.0.0\] - 2026-04-30](#0300---2026-04-30)
     - [Added](#added)
     - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.8.0\] - 2026-04-22](#0280---2026-04-22)
+  - [\[0.2.9.0\] - 2026-04-22](#0290---2026-04-22)
     - [Added](#added-1)
     - [Changed](#changed-1)
     - [Validation](#validation-1)
-  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+  - [\[0.2.8.0\] - 2026-04-22](#0280---2026-04-22)
     - [Added](#added-2)
-    - [Fixed](#fixed)
     - [Changed](#changed-2)
     - [Validation](#validation-2)
-  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
-    - [Fixed](#fixed-1)
+  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+    - [Added](#added-3)
+    - [Fixed](#fixed)
     - [Changed](#changed-3)
     - [Validation](#validation-3)
-  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+  - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
+    - [Fixed](#fixed-1)
     - [Changed](#changed-4)
-  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
-    - [Changed](#changed-5)
-    - [Fixed](#fixed-2)
     - [Validation](#validation-4)
+  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+    - [Changed](#changed-5)
+  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
+    - [Changed](#changed-6)
+    - [Fixed](#fixed-2)
+    - [Validation](#validation-5)
   - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
-    - [Added](#added-3)
-  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
     - [Added](#added-4)
+  - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
+    - [Added](#added-5)
   - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
     - [Fixed](#fixed-3)
     - [Why](#why)
     - [Problem Solved](#problem-solved)
-    - [Validation](#validation-5)
-  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed-6)
     - [Validation](#validation-6)
-  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
-    - [Added](#added-5)
-  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
-    - [Added](#added-6)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
     - [Changed](#changed-7)
     - [Validation](#validation-7)
-  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
+    - [Added](#added-6)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-7)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
-    - [Added](#added-8)
     - [Changed](#changed-8)
     - [Validation](#validation-8)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+    - [Added](#added-8)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-9)
     - [Changed](#changed-9)
     - [Validation](#validation-9)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
     - [Added](#added-10)
     - [Changed](#changed-10)
     - [Validation](#validation-10)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
     - [Added](#added-11)
     - [Changed](#changed-11)
     - [Validation](#validation-11)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-12)
+    - [Changed](#changed-12)
+    - [Validation](#validation-12)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-12)
+  - [Validation:](#validation-13)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.3.0.0] - 2026-04-30
+
+### Added
+
+- Continued Fast versioning
+- Added a shared webapp icon barrel and `SiteTitleIcon` wrapper so the public header can render the refreshed HalfQR logo set without depending on the legacy `havqr_*` image references.
+
+### Changed
+
+- Changed the public deployment surface from the temporary `computemore.com` bench hosts to the production `www.halfqr.com` and `api.halfqr.com` domains across the README, Docker Compose defaults, API documentation, and Public API CORS allowlist.
+- Changed the public webapp shell to use the refreshed HalfQR branding layer, including the new logo assets, updated typography, revised header treatment, landing-page hero copy, and refreshed marketing copy on the `Why HalfQR` and API documentation pages.
+- Changed top-level documentation and asset naming to better match the public-release surface, including normalizing guide filenames and replacing the older `havqr_*` logos with `halfqr_*` equivalents.
+- Changed the webapp delivery stack for the public release by updating the Next.js and TypeScript toolchain versions and renaming backend service containers to the `halfqr-backend-*` convention.
+
+### Validation
+
+- git diff --stat
+- git diff -- README.md docker-compose.yml microservices/HalfQR.PublicApi/Program.cs webapp/src/app/layout.tsx webapp/src/app/page.tsx webapp/src/app/why-halfqr/page.tsx webapp/src/app/api-documentation/page.tsx webapp/src/components/site-header.tsx
+- npm run build from webapp
+- dotnet build HalfQR.sln currently fails locally with `NETSDK1045` because the installed SDK is `9.0.313` while the solution targets `.NET 10.0`
 
 ---
 
@@ -298,7 +325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The webapp now uses the HalfQR favicon, ships a real landing page plus rebuilt builder UI, exposes the new styling controls, and swaps to worker artifacts instead of a fake preview once a job completes.
 - Added a same-origin proxy in the webapp so local use no longer fails on browser CORS when talking to the hosted API.
 - Completely implemeneted the `webapp` and it's components and pages, written in TypeScript with React and Next.js, and styled with Material UI and Emotion, copying over some boilerplate and patterns from afriflex.
-  - The webapp as externally tunneled to `halfqr.computemore.com` is now the primary demo and test interface for the project, replacing the previous Postman collection and direct API calls.
+  - The webapp as externally tunneled to `www.halfqr.com` is now the primary demo and test interface for the project, replacing the previous Postman collection and direct API calls.
 - Completely overhauled the api as well
 
 ---
@@ -316,7 +343,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added configurable CORS and JSON string-enum serialization in `HalfQR.PublicApi`, and aligned persisted render-job JSON with the string-based request and response contract used by the webapp.
 - Wired canonical R2 artifact settings through Docker Compose so the API and worker can switch from filesystem artifacts to Cloudflare R2 through environment configuration.
 - Disabled AWS streaming payload signing and default checksum validation on R2 uploads so Cloudflare R2 accepts the .NET S3 `PutObject` flow.
-- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `halfqr.computemore.com` and `halfqr-api-demo.computemore.com`.
+- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `www.halfqr.com` and `api.halfqr.com`.
 
 ### Validation
 

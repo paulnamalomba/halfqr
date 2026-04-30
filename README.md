@@ -1,6 +1,6 @@
 # HalfQR
 
-[![Version](https://img.shields.io/badge/version-0.2.9.0-blue)](https://github.com/paulnamalomba/halfqr/releases/tag/0.2.9.0)
+[![Version](https://img.shields.io/badge/version-0.3.0.0-blue)](https://github.com/paulnamalomba/halfqr/releases/tag/0.3.0.0)
 [![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -96,8 +96,8 @@ docker compose logs -f webapp public-api worker rabbitmq
 
 Current bench routing:
 
-- `http://127.0.0.1:5173` -> webapp -> `https://halfqr.computemore.com`
-- `http://127.0.0.1:8083` -> public API -> `https://halfqr-api-demo.computemore.com`
+- `http://127.0.0.1:5173` -> webapp -> `https://www.halfqr.com`
+- `http://127.0.0.1:8083` -> public API -> `https://api.halfqr.com`
 - The browser-facing webapp bundle is built to call the public API hostname directly through `NEXT_PUBLIC_HALFQR_API_BASE_URL`.
 
 See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configuration keys.
@@ -112,7 +112,7 @@ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configurat
 - Finder styles: custom composition layer for `square`, `rounded`, and `circle` finder markers.
 - Data layer: PostgreSQL for metadata, Redis for rate limiting and short-lived cache, Cloudflare R2 for assets.
 - Messaging: RabbitMQ for async jobs and batch workflow fanout.
-- Deployment: Docker Compose behind public tunnels at `halfqr.computemore.com` and `halfqr-api-demo.computemore.com`.
+- Deployment: Docker Compose behind public tunnels at `www.halfqr.com` and `api.halfqr.com`.
 
 ### Why SVG-first matters
 
@@ -141,7 +141,7 @@ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configurat
 | Cache | Redis | Rate limiting, short-lived preview and token state |
 | Object Storage | Cloudflare R2 | Generated PNG and optional canonical SVG assets |
 | Messaging | RabbitMQ | Batch jobs, async processing, domain events |
-| Deployment | Docker Compose | Current devops bench at `halfqr.computemore.com` and `halfqr-api-demo.computemore.com` |
+| Deployment | Docker Compose | Current devops bench at `www.halfqr.com` and `api.halfqr.com` |
 
 ## Monorepo Layout
 

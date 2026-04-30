@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-const upstreamBaseUrl = (process.env.HALFQR_API_BASE_URL ?? process.env.NEXT_PUBLIC_HALFQR_API_BASE_URL ?? "https://halfqr-api-demo.computemore.com")
+const upstreamBaseUrl = (process.env.HALFQR_API_BASE_URL ?? process.env.NEXT_PUBLIC_HALFQR_API_BASE_URL ?? "https://api.halfqr.com")
   .trim()
   .replace(/\/$/, "");
 

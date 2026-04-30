@@ -4,13 +4,13 @@ services:
       context: .
       dockerfile: webapp/Dockerfile
       args:
-        NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://halfqr-api-demo.computemore.com}
+        NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://api.halfqr.com}
     container_name: halfqr-webapp
     environment:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://halfqr-api-demo.computemore.com}
+      NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://api.halfqr.com}
     ports:
       - "5173:3000"
     depends_on:
@@ -37,7 +37,7 @@ services:
       R2Storage__AccessKeyId: ${R2_ACCESS_KEY_ID:-}
       R2Storage__SecretAccessKey: ${R2_SECRET_ACCESS_KEY:-}
       R2Storage__KeyPrefix: ${R2_KEY_PREFIX:-render-jobs}
-      Cors__AllowedOrigins__0: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-https://halfqr.computemore.com}
+      Cors__AllowedOrigins__0: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-https://www.halfqr.com}
       Cors__AllowedOrigins__1: ${HALFQR_WEBAPP_LOCAL_ORIGIN:-http://localhost:5173}
     ports:
       - "8083:8080"
@@ -52,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: microservices/HalfQR.Worker/Dockerfile
-    container_name: halfqr-worker
+    container_name: halfqr-backend-worker
     environment:
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: 5672
@@ -75,7 +75,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: halfqr-postgres
+    container_name: halfqr-backend-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-halfqr}
       POSTGRES_USER: ${POSTGRES_USER:-halfqr}
@@ -93,7 +93,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: halfqr-redis
+    container_name: halfqr-backend-redis
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6380:6379"
@@ -108,7 +108,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: halfqr-rabbitmq
+    container_name: halfqr-backend-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-halfqr}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}

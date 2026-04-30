@@ -1,28 +1,28 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk, Poppins } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
-const headingFont = Space_Grotesk({
+const headingFont = Poppins({
   subsets: ["latin"],
   variable: "--font-heading",
-  weight: ["500", "700"],
+  weight: ["500", "600"],
 });
 
-const bodyFont = IBM_Plex_Sans({
+const bodyFont = Poppins({
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-poppins",
   weight: ["400", "500", "600"],
 });
 
-const monoFont = IBM_Plex_Mono({
+const monoFont = Poppins({
   subsets: ["latin"],
   variable: "--font-mono",
   weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://halfqr.computemore.com"),
+  metadataBase: new URL("https://www.halfqr.com"),
   title: {
     default: "HalfQR | Styled QR Builder",
     template: "%s | HalfQR",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HalfQR | Styled QR Builder",
     description: "Queue branded QR renders with live async worker output, finder styling, dotted data modules, and centered logo uploads.",
-    url: "https://halfqr.computemore.com",
+    url: "https://www.halfqr.com",
     siteName: "HalfQR",
     images: [{ url: "/logos/havqr_main_6000x3306.png", width: 1200, height: 661, alt: "HalfQR" }],
   },

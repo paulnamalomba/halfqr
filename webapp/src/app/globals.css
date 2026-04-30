@@ -40,7 +40,7 @@ body.site-body {
   background: linear-gradient(180deg, var(--navy) 0 120px, var(--bg) 800px 100%);
   background-repeat: no-repeat;
   color: var(--text);
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-poppins), sans-serif;
 }
 
 /* Layer subtle background accents. */
@@ -113,10 +113,10 @@ p {
 .site-header-shell {
   top: 0;
   z-index: 40;
-  padding-left: 12px;
-  padding-right: 12px;
-  padding-top: 16px;
-  padding-bottom: 24px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 /* Build the main header grid. */
@@ -127,11 +127,10 @@ p {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 24px;
-  padding: 16px 20px;
-  border-radius: 28px;
+  padding: 0px 12px;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(16px);
+  border: none;
   box-shadow: 0 22px 50px rgba(5, 18, 41, 0.18);
 }
 
@@ -139,11 +138,20 @@ p {
 .site-brand-mark {
   display: inline-flex;
   align-items: center;
+  border-radius: 999px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-brand-mark:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(209, 228, 255, 0.9);
 }
 
 /* Size the brand artwork. */
 .site-brand-mark img {
   width: 120px;
+  border-radius: 999px;
   max-width: none;
   height: auto;
 }
@@ -244,8 +252,8 @@ p {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border: 0;
   border-radius: 999px;
   background: var(--bg-buttons);
@@ -271,11 +279,10 @@ p {
   justify-content: flex-start;
   gap: 8px;
   padding: 12px;
-  border-radius: 20px;
+  border-radius: 30px;
   background: var(--bg-dark);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 22px 50px rgba(5, 18, 41, 0.28);
-  backdrop-filter: blur(16px);
 }
 
 /* Style stacked mobile links. */
@@ -286,7 +293,7 @@ p {
   min-height: 46px;
   width: 100%;
   padding: 0 14px;
-  border-radius: 14px;
+  border-radius: 30px;
   color: rgba(247, 250, 255, 0.92);
 }
 
@@ -315,9 +322,14 @@ p {
   padding-top: 30px;
 }
 
+/* Keep the builder constrained after the hero bleeds wide. */
+.page-shell-home-builder {
+  padding-top: 0;
+}
+
 /* Style the small overline label. */
 .page-kicker {
-  margin: 0 0 12px;
+  margin: 0 0 0px;
   color: #dfe9f8;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -333,7 +345,8 @@ p {
 
 /* Keep titles compact on desktop. */
 .page-title {
-  max-width: 12ch;
+  max-width: none;
+  padding-bottom: 0px;
 }
 
 /* Share muted secondary text. */
@@ -359,26 +372,35 @@ p {
   line-height: 1.7;
 }
 
-/* Content layout arranges heroes, cards, and builder panes. */
-/* Stack sections with measured gaps. */
-/* Share grid section scaffolds. */
+/* content layout arranges heroes, cards, and builder panes. */
+/* stack sections with measured gaps. */
+/* share grid section scaffolds. */
 .generator-hero,
 .route-hero-card,
 .route-split-grid,
 .generator-layout {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 /* Split the home hero. */
 .generator-hero {
-  grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
   margin-bottom: 22px;
   align-items: stretch;
 }
 
+/* Let the home hero span the full page width. */
+.generator-hero-bleed {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
 /* Pad hero copy slightly. */
 .generator-hero-copy {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr);
+  gap: 16px;
+  align-content: stretch;
   padding: 14px 6px 0;
 }
 
@@ -402,7 +424,6 @@ p {
 /* Paint shared card surfaces. */
 .generator-fact-card,
 .route-card,
-.route-hero-card,
 .route-side-card,
 .generator-step-card,
 .generator-preview-card,
@@ -459,17 +480,28 @@ p {
   gap: 18px;
 }
 
-/* Split route hero content. */
+/* split route hero content. */
+/* also redefine the children */
 .route-hero-card {
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  padding: 22px;
+  grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+  margin-bottom: 22px;
+  align-items: stretch;
+}
+
+.route-hero-card h1 {
+  color: var(--cobalt-light);
+}
+
+.route-hero-card p {
+  color: var(--cobalt-light-white);
 }
 
 /* Space route hero copy. */
 .route-hero-copy {
   display: grid;
   gap: 16px;
-  align-content: start;
+  align-content: stretch;
+  padding: 14px 6px 0;
 }
 
 /* Wrap route action rows. */
@@ -713,7 +745,7 @@ p {
 
 /* Space inline guidance. */
 .generator-inline-note {
-  margin: 0 0 18px;
+  margin: 0 0 0px;
   font-size: 0.92rem;
   line-height: 1.65;
 }
@@ -841,10 +873,10 @@ p {
 .generator-design-panel {
   display: grid;
   gap: 16px;
-  padding: 16px;
+  padding: 0px;
   border-radius: 22px;
-  background: var(--panel-muted);
-  border: 1px solid var(--line);
+  /* background: var(--panel-muted); */
+  border: none;
 }
 
 /* Logo upload controls manage assets and presets. */
@@ -1436,16 +1468,16 @@ p {
   }
 }
 
-/* Tablet widths swap desktop navigation for toggle. */
+/* tablet widths swap desktop navigation for toggle. */
 @media (max-width: 960px) {
-  /* Hide desktop navigation. */
+  /* hide desktop navigation. */
   .site-header-nav,
   .site-header-status,
   .site-header-cta {
     display: none;
   }
 
-  /* Restore compact header grid. */
+  /* restore compact header grid. */
   .site-header-inner {
     grid-template-columns: auto 1fr auto;
     align-items: center;
@@ -1453,12 +1485,12 @@ p {
     gap: 12px;
   }
 
-  /* Keep actions aligned right. */
+  /* keep actions aligned right. */
   .site-header-actions {
     justify-content: flex-end;
   }
 
-  /* Show the mobile toggle. */
+  /* show the mobile toggle. */
   .site-mobile-toggle {
     display: inline-flex;
   }
@@ -1505,60 +1537,71 @@ p {
   }
 }
 
-/* Small phones tighten spacing and single-column grids. */
+/* small phones tighten spacing and single-column grids. */
 @media (max-width: 640px) {
-  /* Tighten shell spacing. */
+  /* tighten shell spacing. */
   .site-header-shell {
     padding: 12px 12px 0;
   }
 
-  /* Tighten page padding. */
-  .site-page {
-    padding: 18px 12px 52px;
+  /* harden header corners. */
+  .site-header-inner {
+    padding: 0px;
+    padding-left: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-radius: 999px;
   }
 
-  /* Soften card corners. */
-  .site-header-inner,
+  /* tighten page padding. */
+  .site-page {
+    padding: 16px 12px 52px;
+  }
+
+  .route-hero-card {
+    padding: 0px;
+  }
+
+  /* soften card corners. */
   .generator-fact-card,
-  .route-hero-card,
   .route-card,
   .route-side-card,
   .generator-step-card,
   .generator-preview-card,
   .docs-code-card {
     border-radius: 22px;
-    padding: 18px;
+    padding: 16px;
   }
 
-  /* Shrink the brand art. */
+  /* shrink the brand art. */
   .site-brand-mark img {
-    width: 122px;
+    width: 120px;
   }
 
-  /* Free title wrapping. */
+  /* free title wrapping. */
   .page-title {
     max-width: none;
   }
 
-  /* Keep the menu inside view. */
+  /* keep the menu inside view. */
   .site-mobile-menu {
     right: 0;
     left: auto;
     width: min(320px, calc(100vw - 32px));
   }
 
-  /* Wrap toggle copy cleanly. */
+  /* wrap toggle copy cleanly. */
   .toggle-row {
     align-items: flex-start;
   }
 
-  /* Shrink the mobile toggle. */
+  /* shrink the mobile toggle. */
   .site-mobile-toggle {
-    width: 42px;
-    height: 42px;
+    width: 56px;
+    height: 56px;
   }
 
-  /* Stack all small grids. */
+  /* stack all small grids. */
   .generator-fact-grid,
   .route-card-grid,
   .route-card-grid-wide,

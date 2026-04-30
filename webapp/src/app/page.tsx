@@ -29,13 +29,14 @@ const generatorFacts: Array<{
 
 export default function HomePage() {
   return (
-    <main className="site-page page-shell-home">
-      <section className="generator-hero">
+    <main className="page-shell-home">
+      {/* main content leader */}
+      <section className="generator-hero generator-hero-bleed">
         <div className="generator-hero-copy">
-          <p className="page-kicker" style={{ color: "var(--text-white)" }}>HalfQR: Easy, Anonymous QR Code Generation</p>
-          <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Have a production-ready QR code that you can share with others</h1>
+          <p className="page-kicker" style={{ color: "var(--text-white)" }}>HalfQR: Half the Effort</p>
+          <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Quickly generate a branding-aware QR code for your business webpages</h1>
           <p className="page-summary" style={{ color: "var(--cobalt-light-white)" }}>
-            We provide advanced features such as marker-shape definition, we also provide data-shape definitions, custom logo-definitions for the generated code and completely synchronous processing - so what you see is what you get!
+            We provide branding logo-definitions, marker-shape definition, and data-shape definition - explore below...
           </p>
         </div>
 
@@ -57,7 +58,10 @@ export default function HomePage() {
         </div> */}
       </section>
 
-      <QrBuilder />
+      {/* QR Builder Section */}
+      <div className="site-page page-shell-home-builder">
+        <QrBuilder />
+      </div>
     </main>
   );
 }

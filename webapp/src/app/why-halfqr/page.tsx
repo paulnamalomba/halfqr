@@ -12,17 +12,17 @@ const valueCards: Array<{
 }> = [
   {
     title: "Render truth first",
-    body: "The page exposes only the styling controls the worker can actually render, so the preview and the final artifact stay aligned.",
+    body: "You always see the outcome even before it is finalised",
     Icon: VerifiedRounded,
   },
+  // {
+  //   title: "AfriFlex visual energy",
+  //   body: "HalfQR borrows qr.io's speed-to-creation but keeps its own cobalt, glass, and rounded-card visual identity.",
+  //   Icon: BlurOnRounded,
+  // },
   {
-    title: "AfriFlex visual energy",
-    body: "HalfQR borrows qr.io's speed-to-creation but keeps its own cobalt, glass, and rounded-card visual identity.",
-    Icon: BlurOnRounded,
-  },
-  {
-    title: "Fast first interaction",
-    body: "A visitor lands directly on the generator, not on a sign-in wall or a marketing funnel that delays QR creation.",
+    title: "Fast interaction and response times",
+    body: "We want your work to be quick, in and out",
     Icon: AutoAwesomeRounded,
   },
 ];
@@ -32,11 +32,10 @@ export default function WhyHalfQrPage() {
     <main className="site-page route-shell">
       <section className="route-hero-card">
         <div className="route-hero-copy">
-          <p className="page-kicker">Why HalfQR</p>
-          <h1 className="page-title">Get to QR creation quickly without flattening the brand.</h1>
+          <p className="page-kicker" style={{ color: "var(--text-white)" }}>Why HalfQR</p>
+          <h1 className="page-title">Half the effort, same digital impact</h1>
           <p className="page-summary">
-            The public webapp takes the best part of the qr.io pattern, immediate creation, and combines it with a cobalt-heavy visual
-            system, glass navigation, rounded cards, and a stronger sense of product identity.
+            QR codes elevate a business digital footprint, save the paper and generate a code your customers can scan and access all your important information
           </p>
 
           <div className="cta-row">
@@ -44,16 +43,16 @@ export default function WhyHalfQrPage() {
               Start with the generator
             </Link>
             <Link className="route-secondary-link" href="/product">
-              View product surfaces
+              View the product details
             </Link>
           </div>
         </div>
 
-        <div className="route-side-card">
+        {/* <div className="route-side-card">
           <p className="route-side-note">
             Public UX policy: first-time QR creation must not depend on visible sign-in, while dashboard capabilities can remain behind a feature flag.
           </p>
-        </div>
+        </div> */}
       </section>
 
       <section className="route-card-grid">

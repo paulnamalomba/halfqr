@@ -18,7 +18,8 @@ var allowedOrigins = builder.Configuration
 	.ToArray()
 	??
 	[
-		"https://halfqr.computemore.com",
+		"https://www.halfqr.com",
+		"https://halfqr.com",
 		"http://localhost:5173",
 		"http://127.0.0.1:5173",
 		"http://localhost:3000",
@@ -78,7 +79,7 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HalfQR.PublicApi",
 	status = "ok",
-	version = "0.2.9.0",
+	version = "0.3.0.0",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));
