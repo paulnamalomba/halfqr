@@ -58,33 +58,32 @@ export default function QrCodesPage() {
     <main className="site-page route-shell">
       <section className="route-hero-card">
         <div className="route-hero-copy">
-          <p className="page-kicker">QR content routes</p>
-          <h1 className="page-title">Start with the destination type, then style the code around it.</h1>
+          <p className="page-kicker" style={{ color: "var(--text-white)" }}>QR content routes</p>
+          <h1 className="page-title">Go paperless.</h1>
           <p className="page-summary">
-            The public builder keeps the first decision simple: choose a supported destination class, complete the payload, then move
-            straight into the visual design step.
+            Your links, your content, and quick, paperless routing
           </p>
 
           <div className="cta-row">
             <Link className="route-primary-link" href="/">
-              Open generator
+              QR generator
             </Link>
             <Link className="route-secondary-link" href="/api-documentation">
-              See the request model
+              API usage guides
             </Link>
           </div>
         </div>
 
-        <div className="route-side-card">
-          <div className="route-side-item">
-            <LinkRounded fontSize="small" />
-            <span>Supported content types stay aligned with the live API contract</span>
-          </div>
-          <div className="route-side-item">
-            <ShareRounded fontSize="small" />
-            <span>The landing page stays focused on getting the visitor to QR creation quickly</span>
-          </div>
-        </div>
+        {/* <div className="route-side-card"> */}
+          {/* <div className="route-side-item"> */}
+            {/* <LinkRounded fontSize="small" /> */}
+            {/* <span>Supported content types stay aligned with the live API contract</span> */}
+          {/* </div> */}
+          {/* <div className="route-side-item"> */}
+            {/* <ShareRounded fontSize="small" /> */}
+            {/* <span>The landing page stays focused on getting the visitor to QR creation quickly</span> */}
+          {/* </div> */}
+        {/* </div> */}
       </section>
 
       <section className="route-card-grid">
@@ -93,9 +92,9 @@ export default function QrCodesPage() {
 
           return (
             <article key={item.title} className="route-card">
-              <div className="route-card-icon">
-                <Icon fontSize="small" />
-              </div>
+              {/* <div className="route-card-icon"> */}
+                <Icon fontSize="large" />
+              {/* </div> */}
               <h2>{item.title}</h2>
               <p>{item.description}</p>
             </article>

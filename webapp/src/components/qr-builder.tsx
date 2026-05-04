@@ -178,6 +178,7 @@ const previewDottedRadius = 0.38;
 const defaultDarkColor = "#000000";
 const defaultLightColor = "#FFFFFF";
 const defaultGradientEnd = "#1F61C0";
+const pngSizeOptions = [1024, 768, 512, 256, 128] as const;
 
 // Hard-coded array that speicfies each builder type as selcted by the user, this is fired to our render job
 const builderTypes: BuilderType[] = [
@@ -224,7 +225,7 @@ const builderTypes: BuilderType[] = [
   {
     id: "video",
     label: "Video",
-    eyebrow: "Map to a Video Link (YouTube, Dailymotion)",
+    eyebrow: "Map to a Video Link",
     placeholder: "https://www.youtube.com/watch?v=<etc>",
     summary: "Launch product demos, promo clips, or embedded training content.",
     Icon: SmartDisplayRounded,
@@ -345,7 +346,7 @@ export function QrBuilder() {
   const parsedGradientRotation = Number.parseInt(gradientRotation, 10);
   const parsedLogoSizePercent = Number.parseInt(logoSizePercent, 10);
   const parsedLogoBackdropPadding = Number.parseInt(logoBackdropPadding, 10);
-  const hasValidSize = Number.isFinite(parsedSizePx) && parsedSizePx >= 256 && parsedSizePx <= 4096;
+  const hasValidSize = Number.isFinite(parsedSizePx) && pngSizeOptions.includes(parsedSizePx as (typeof pngSizeOptions)[number]);
   const hasValidGradientRotation = Number.isFinite(parsedGradientRotation) && parsedGradientRotation >= 0 && parsedGradientRotation <= 360;
   const hasValidLogoSize = Number.isFinite(parsedLogoSizePercent) && parsedLogoSizePercent >= 12 && parsedLogoSizePercent <= 24;
   const hasValidBackdropPadding = Number.isFinite(parsedLogoBackdropPadding) && parsedLogoBackdropPadding >= 10 && parsedLogoBackdropPadding <= 80;
@@ -673,7 +674,7 @@ export function QrBuilder() {
             <span className="generator-step-badge">1</span>
             <div className="generator-step-copy">
               <h2>Choose your QR type</h2>
-              <p>Select one of the currently supported routes, then move straight into the content fields.</p>
+              {/* <p>Select one of the currently supported routes, then move straight into the content fields.</p> */}
             </div>
           </div>
 
@@ -694,13 +695,13 @@ export function QrBuilder() {
                     });
                   }}
                 >
-                  <span className="generator-type-icon">
-                    <TypeIcon fontSize="small" />
-                  </span>
+                  {/* <span className="generator-type-icon"> */}
+                    <TypeIcon fontSize="medium" />
+                  {/* </span> */}
 
                   <span className="generator-type-label">
                     <strong>{builderType.label}</strong>
-                    <span>{builderType.eyebrow}</span>
+                    {/* <span>{builderType.eyebrow}</span> */}
                   </span>
                 </button>
               );
@@ -712,10 +713,10 @@ export function QrBuilder() {
           <div className="generator-step-head">
             <span className="generator-step-badge">2</span>
             <div className="generator-step-copy">
-              <h2>Complete the content</h2>
-              <p>{selectedType.summary}</p>
+              <h2>Your content routes...</h2>
             </div>
           </div>
+          {/* <p>{selectedType.summary}</p> */}
 
           <label className="field field-wide">
             <span>{selectedType.id === "whatsapp" ? "Target URL or leave blank for fallback generation" : "Enter your destination"}</span>
@@ -745,7 +746,7 @@ export function QrBuilder() {
             <span className="generator-step-badge">3</span>
             <div className="generator-step-copy">
               <h2>Design your QR code</h2>
-              <p>Adjust the frame, colour system, and centred logo before you queue the worker render.</p>
+              <p>Adjust the frame, colour system, and centred logo/brand imagery</p>
             </div>
           </div>
 
@@ -801,7 +802,7 @@ export function QrBuilder() {
                   </label>
                 </div>
 
-                <p className="field-hint">Finder markers remain structurally separate from the optional data gradient layer.</p>
+                {/* <p className="field-hint">Finder markers remain structurally separate from the optional data gradient layer.</p> */}
               </>
             ) : null}
 
@@ -938,17 +939,23 @@ export function QrBuilder() {
             <div className="field-grid field-grid-two">
               <label className="field">
                 <span>PNG size</span>
-                <input type="number" min="256" max="4096" value={sizePx} onChange={(event) => setSizePx(event.target.value)} />
-                {!hasValidSize ? <small className="field-hint field-hint-error">Use a value from 256 to 4096.</small> : null}
+                <select value={sizePx} onChange={(event) => setSizePx(event.target.value)}>
+                  {pngSizeOptions.map((option) => (
+                    <option key={option} value={option.toString()}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {!hasValidSize ? <small className="field-hint field-hint-error">Use one of: 1024, 768, 512, 256, or 128.</small> : null}
               </label>
 
               <label className="field">
-                <span>ECC</span>
+                <span>Render quality</span>
                 <select value={eccLevel} onChange={(event) => setEccLevel(event.target.value as ErrorCorrectionLevel)}>
-                  <option>L</option>
-                  <option>M</option>
-                  <option>Q</option>
-                  <option>H</option>
+                  <option value="L">Low</option>
+                  <option value="M">Medium</option>
+                  <option value="Q">Quartile</option>
+                  <option value="H">High</option>
                 </select>
               </label>
             </div>
@@ -966,16 +973,16 @@ export function QrBuilder() {
           <span className="generator-step-badge">4</span>
           <div className="generator-step-copy">
             <h2>Preview and download</h2>
-            <p>Preview your generated QR code.</p>
           </div>
         </div>
+        <p>Preview your generated QR code.</p>
 
-        <div className="generator-preview-meta">
+        {/* <div className="generator-preview-meta">
           <span className={previewBadge.className}>{previewBadge.label}</span>
           <span className="generator-api-chip">{previewSourceLabel}</span>
-        </div>
+        </div> */}
 
-        <div className="preview-stage">
+        {/* <div className="preview-stage"> */}
           {previewImageSrc ? (
             <img className="preview-artifact" src={previewImageSrc} alt={previewImageAlt} />
           ) : (
@@ -984,7 +991,7 @@ export function QrBuilder() {
               <span>The builder switches from local SVG preview to server draft sync automatically once the request validates.</span>
             </div>
           )}
-        </div>
+        {/* </div> */}
 
         <div className="generator-preview-actions">
           <button className="preview-primary-action" form={formId} type="submit" disabled={isSubmitting}>
@@ -1004,8 +1011,8 @@ export function QrBuilder() {
           {errorMessage ? <p className="feedback-text feedback-text-error">{errorMessage}</p> : null}
         </div>
 
-        <div className="preview-summary-grid">
-          <article className="preview-summary-card">
+        {/* <div className="preview-summary-grid"> */}
+          {/* <article className="preview-summary-card">
             <p className="preview-label">Resolved target</p>
             <p className="preview-value">{resolvedPreviewTarget}</p>
           </article>
@@ -1023,13 +1030,13 @@ export function QrBuilder() {
           <article className="preview-summary-card">
             <p className="preview-label">Timeline</p>
             <p className="preview-value">{timelineText}</p>
-          </article>
+          </article> */}
 
           {/* <article className="preview-summary-card">
             <p className="preview-label">API target</p>
             <p className="preview-value">{configuredApiTarget}</p>
           </article> */}
-        </div>
+        {/* </div> */}
 
         {activeLatestJob?.artifacts.length ? (
           <div className="artifact-row">
@@ -1200,7 +1207,7 @@ function validateRequest(input: {
   hasValidBackdropPadding: boolean;
 }) {
   if (!input.hasValidSize) {
-    return "PNG size must be between 256 and 4096 pixels.";
+    return "PNG size must be one of: 1024, 768, 512, 256, or 128 pixels.";
   }
 
   if (!input.hasValidGradientRotation) {

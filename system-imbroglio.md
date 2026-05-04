@@ -2,7 +2,7 @@
 
 > **A truthful, code-verified record of how the current HalfQR backend is actually wired, which parts are real runtime services versus naming boundaries, what data each layer moves, and where the implemented system still diverges from the plan in `SYSTEM_ARCHITECTURE.md`.**
 
-**Version**: 0.3.0.0
+**Version**: 0.3.0.1
 **Verified against**: `microservices/`, `webapp/src/components/qr-builder.tsx`, `docker-compose.yml` (April 2026)  
 **Primary implemented entry points**: `microservices/HalfQR.PublicApi/Program.cs`, `microservices/HalfQR.Worker/Program.cs`  
 **Planning baseline**: `SYSTEM_ARCHITECTURE.md`

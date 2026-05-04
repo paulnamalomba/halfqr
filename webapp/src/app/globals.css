@@ -77,6 +77,11 @@ button {
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
+/* Scale enabled buttons on hover. */
+button:not(:disabled):hover {
+  transform: scale(1.06);
+}
+
 /* Share heading rhythm and type. */
 h1,
 h2,
@@ -664,7 +669,7 @@ p {
 /* Align step heading pieces. */
 .generator-step-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -699,7 +704,7 @@ p {
 .generator-type-button {
   display: grid;
   gap: 12px;
-  min-height: 132px;
+  min-height: 72px;
   padding: 16px;
   text-align: left;
   border: 1px solid var(--line);
@@ -716,7 +721,7 @@ p {
 .artifact-link:hover,
 .site-header-cta:hover,
 .site-header-status:hover {
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.06);
 }
 
 /* Highlight active type buttons. */
@@ -795,7 +800,23 @@ p {
 /* Size color pickers. */
 .field input[type="color"] {
   min-height: 56px;
-  padding: 4px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.field input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.field input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: inherit;
+}
+
+.field input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: inherit;
 }
 
 /* Strip range chrome. */
@@ -1169,8 +1190,11 @@ p {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 340px;
-  padding: 20px;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 420px;
+  min-width: 0;
+  padding: 0;
   border-radius: 26px;
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(232, 238, 248, 0.88), rgba(248, 250, 253, 0.96));
@@ -1180,18 +1204,18 @@ p {
 /* Size preview media. */
 .preview-artifact,
 .preview-mock {
-  width: min(100%, 300px);
+  width: 100%;
+  height: 100%;
   aspect-ratio: 1;
-  border-radius: 24px;
-  box-shadow: 0 22px 42px rgba(16, 36, 60, 0.18);
+  border-radius: inherit;
+  box-shadow: none;
 }
 
 /* Frame final preview images. */
 .preview-artifact {
-  padding: 12px;
   object-fit: contain;
   background: #ffffff;
-  border: 1px solid rgba(16, 36, 60, 0.12);
+  border: none;
 }
 
 /* Center placeholder copy. */
@@ -1580,7 +1604,7 @@ p {
 
   /* free title wrapping. */
   .page-title {
-    max-width: none;
+    max-width: 1320px;
   }
 
   /* keep the menu inside view. */
@@ -1661,6 +1685,6 @@ p {
   /* Shrink preview artwork. */
   .preview-artifact,
   .preview-mock {
-    width: min(100%, 280px);
+    width: 100%;
   }
 }

@@ -2,7 +2,7 @@
 
 > Architecture and product-technical direction for HalfQR, the QR generation platform built in this `halfqr` repository.
 
-**App Version**: 0.3.0.0  
+**App Version**: 0.3.0.1  
 **Date**: 2026-04-09  
 **Repository**: `halfqr`
 

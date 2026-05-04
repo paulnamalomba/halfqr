@@ -29,14 +29,14 @@ const generatorFacts: Array<{
 
 export default function HomePage() {
   return (
-    <main className="page-shell-home">
+    <main className="site-page page-shell-home">
       {/* main content leader */}
-      <section className="generator-hero generator-hero-bleed">
+      <section className="generator-hero">
         <div className="generator-hero-copy">
           <p className="page-kicker" style={{ color: "var(--text-white)" }}>HalfQR: Half the Effort</p>
-          <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Quickly generate a branding-aware QR code for your business webpages</h1>
+          <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Quickly generate a branding-aware QR code for your content.</h1>
           <p className="page-summary" style={{ color: "var(--cobalt-light-white)" }}>
-            We provide branding logo-definitions, marker-shape definition, and data-shape definition - explore below...
+            We provide branding logo-definitions, marker-shape definition, and data-shape definition - explore more below...
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default function HomePage() {
       </section>
 
       {/* QR Builder Section */}
-      <div className="site-page page-shell-home-builder">
+      <div className="page-shell-home-builder">
         <QrBuilder />
       </div>
     </main>

@@ -13,17 +13,17 @@ const productSurfaces: Array<{
 }> = [
   {
     title: "Public generator",
-    body: "The landing page now starts with QR creation itself so a first-time visitor can style and queue a real render immediately.",
+    body: "Our landing page is the QR builder, where users can easily and quickly generate QR codes with a front-facing interface",
     Icon: QrCode2Rounded,
   },
   {
     title: "Public API",
-    body: "The webapp and external consumers share the same render endpoints, async job flow, and artifact downloads.",
+    body: "The API is strictly response-focused yet rate-limited. It can be used for free with a generous quota, and is ideal for devs",
     Icon: ApiRounded,
   },
   {
     title: "Dashboard-ready backend",
-    body: "Customer dashboard routes can stay feature-flagged while subscriptions mature, without blocking public QR creation.",
+    body: "Coming soon",
     Icon: DashboardRounded,
   },
 ];
@@ -33,11 +33,10 @@ export default function ProductPage() {
     <main className="site-page route-shell">
       <section className="route-hero-card">
         <div className="route-hero-copy">
-          <p className="page-kicker">Product overview</p>
-          <h1 className="page-title">One product surface, three delivery layers.</h1>
+          <p className="page-kicker" style={{ color: "var(--text-white)" }}>Product overview</p>
+          <h1 className="page-title">Interact with our product in three different ways.</h1>
           <p className="page-summary">
-            HalfQR keeps the public builder, render API, and future customer workspace in the same visual and technical system so the
-            experience can scale without changing the underlying model.
+            HalfQR abstracts the entire QR code generation processs for any user, be it a simple business owner, an individual looking to share their linkedin page, graphiscs designers - the lot
           </p>
 
           <div className="cta-row">
@@ -68,9 +67,9 @@ export default function ProductPage() {
 
           return (
             <article key={surface.title} className="route-card">
-              <div className="route-card-icon">
-                <Icon fontSize="small" />
-              </div>
+              {/* <div className="route-card-icon"> */}
+                <Icon fontSize="large" />
+              {/* </div> */}
               <h2>{surface.title}</h2>
               <p>{surface.body}</p>
             </article>

@@ -11,7 +11,7 @@ const valueCards: Array<{
   Icon: IconComponent;
 }> = [
   {
-    title: "Render truth first",
+    title: "Preview-first, outcome-focused service",
     body: "You always see the outcome even before it is finalised",
     Icon: VerifiedRounded,
   },
@@ -21,7 +21,7 @@ const valueCards: Array<{
   //   Icon: BlurOnRounded,
   // },
   {
-    title: "Fast interaction and response times",
+    title: "Fast interaction, and superior response times",
     body: "We want your work to be quick, in and out",
     Icon: AutoAwesomeRounded,
   },
@@ -33,17 +33,17 @@ export default function WhyHalfQrPage() {
       <section className="route-hero-card">
         <div className="route-hero-copy">
           <p className="page-kicker" style={{ color: "var(--text-white)" }}>Why HalfQR</p>
-          <h1 className="page-title">Half the effort, same digital impact</h1>
+          <h1 className="page-title">Half the effort, same digital impact.</h1>
           <p className="page-summary">
             QR codes elevate a business digital footprint, save the paper and generate a code your customers can scan and access all your important information
           </p>
 
           <div className="cta-row">
             <Link className="route-primary-link" href="/">
-              Start with the generator
+              Try it out now
             </Link>
             <Link className="route-secondary-link" href="/product">
-              View the product details
+              View product details
             </Link>
           </div>
         </div>
@@ -61,9 +61,9 @@ export default function WhyHalfQrPage() {
 
           return (
             <article key={card.title} className="route-card">
-              <div className="route-card-icon">
-                <Icon fontSize="small" />
-              </div>
+              {/* <div className="route-card-icon"> */}
+                <Icon fontSize="large" />
+              {/* </div> */}
               <h2>{card.title}</h2>
               <p>{card.body}</p>
             </article>
