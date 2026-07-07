@@ -96,7 +96,7 @@ services:
     container_name: halfqr-backend-redis
     command: ["redis-server", "--appendonly", "yes"]
     ports:
-      - "6380:6379"
+      - "6386:6379"
     volumes:
       - redis-data:/data
     healthcheck:
