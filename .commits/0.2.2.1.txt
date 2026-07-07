@@ -1,4 +1,4 @@
-HaveQR v0.2.2.1 Release Notes
+HalfQR v0.2.2.1 Release Notes
 Release Date: 10 April, 2026
 ===================================
 
@@ -6,16 +6,16 @@ Release Date: 10 April, 2026
 
 ### Added
 
-- Added first-party Docker build assets for `webapp`, `HaveQR.PublicApi`, and `HaveQR.Worker`, plus a root `.dockerignore` for the monorepo bench.
+- Added first-party Docker build assets for `webapp`, `HalfQR.PublicApi`, and `HalfQR.Worker`, plus a root `.dockerignore` for the monorepo bench.
 - Added Compose-managed `webapp`, `public-api`, and `worker` services with host ports `5173` and `8083` and a shared render-job volume for the file-backed async pipeline.
 
 ### Changed
 
-- Switched the webapp from same-origin rewrite calls to direct public API calls using `NEXT_PUBLIC_HAVEQR_API_BASE_URL`, while normalizing relative job and artifact URLs against the public API origin.
-- Added configurable CORS and JSON string-enum serialization in `HaveQR.PublicApi`, and aligned persisted render-job JSON with the string-based request and response contract used by the webapp.
+- Switched the webapp from same-origin rewrite calls to direct public API calls using `NEXT_PUBLIC_HALFQR_API_BASE_URL`, while normalizing relative job and artifact URLs against the public API origin.
+- Added configurable CORS and JSON string-enum serialization in `HalfQR.PublicApi`, and aligned persisted render-job JSON with the string-based request and response contract used by the webapp.
 - Wired canonical R2 artifact settings through Docker Compose so the API and worker can switch from filesystem artifacts to Cloudflare R2 through environment configuration.
 - Disabled AWS streaming payload signing and default checksum validation on R2 uploads so Cloudflare R2 accepts the .NET S3 `PutObject` flow.
-- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
+- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `halfqr.computemore.com` and `halfqr-api-demo.computemore.com`.
 
 ### Validation
 
@@ -26,4 +26,4 @@ Release Date: 10 April, 2026
 - Verified `http://127.0.0.1:8083/healthz` and `http://127.0.0.1:5173`
 - Verified a live render job queue, completion, and PNG artifact download through the Docker bench
 - Verified the Cloudflare R2 upload-format fix; the currently provided bucket credentials still return `Access Denied` on write, so the local `.env` keeps `RENDER_ARTIFACT_PROVIDER=FileSystem` until bucket permissions are corrected
-- `dotnet build HaveQR.sln` is still blocked on this machine because the installed SDK is `9.0.312` while the solution targets `.NET 10.0`
+- `dotnet build HalfQR.sln` is still blocked on this machine because the installed SDK is `9.0.312` while the solution targets `.NET 10.0`

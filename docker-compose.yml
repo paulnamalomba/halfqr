@@ -4,13 +4,13 @@ services:
       context: .
       dockerfile: webapp/Dockerfile
       args:
-        NEXT_PUBLIC_HAVEQR_API_BASE_URL: ${NEXT_PUBLIC_HAVEQR_API_BASE_URL:-https://haveqr-api-demo.computemore.com}
-    container_name: haveqr-webapp
+        NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://api.halfqr.com}
+    container_name: halfqr-webapp
     environment:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      NEXT_PUBLIC_HAVEQR_API_BASE_URL: ${NEXT_PUBLIC_HAVEQR_API_BASE_URL:-https://haveqr-api-demo.computemore.com}
+      NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://api.halfqr.com}
     ports:
       - "5173:3000"
     depends_on:
@@ -21,28 +21,28 @@ services:
   public-api:
     build:
       context: .
-      dockerfile: microservices/HaveQR.PublicApi/Dockerfile
-    container_name: haveqr-public-api
+      dockerfile: microservices/HalfQR.PublicApi/Dockerfile
+    container_name: halfqr-public-api
     environment:
       ASPNETCORE_URLS: http://0.0.0.0:8080
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: 5672
-      RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-haveqr}
-      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-haveqr_dev_password}
+      RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-halfqr}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}
       RenderStorage__ArtifactProvider: ${RENDER_ARTIFACT_PROVIDER:-FileSystem}
-      RenderStorage__RootPath: /var/lib/haveqr/render-jobs
+      RenderStorage__RootPath: /var/lib/halfqr/render-jobs
       R2Storage__BucketName: ${R2_BUCKET:-}
       R2Storage__AccountId: ${R2_ACCOUNT_ID:-}
       R2Storage__Endpoint: ${R2_ENDPOINT:-}
       R2Storage__AccessKeyId: ${R2_ACCESS_KEY_ID:-}
       R2Storage__SecretAccessKey: ${R2_SECRET_ACCESS_KEY:-}
       R2Storage__KeyPrefix: ${R2_KEY_PREFIX:-render-jobs}
-      Cors__AllowedOrigins__0: ${HAVEQR_WEBAPP_PUBLIC_ORIGIN:-https://haveqr.computemore.com}
-      Cors__AllowedOrigins__1: ${HAVEQR_WEBAPP_LOCAL_ORIGIN:-http://localhost:5173}
+      Cors__AllowedOrigins__0: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-https://www.halfqr.com}
+      Cors__AllowedOrigins__1: ${HALFQR_WEBAPP_LOCAL_ORIGIN:-http://localhost:5173}
     ports:
       - "8083:8080"
     volumes:
-      - render-jobs-data:/var/lib/haveqr/render-jobs
+      - render-jobs-data:/var/lib/halfqr/render-jobs
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -51,15 +51,15 @@ services:
   worker:
     build:
       context: .
-      dockerfile: microservices/HaveQR.Worker/Dockerfile
-    container_name: haveqr-worker
+      dockerfile: microservices/HalfQR.Worker/Dockerfile
+    container_name: halfqr-backend-worker
     environment:
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: 5672
-      RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-haveqr}
-      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-haveqr_dev_password}
+      RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-halfqr}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}
       RenderStorage__ArtifactProvider: ${RENDER_ARTIFACT_PROVIDER:-FileSystem}
-      RenderStorage__RootPath: /var/lib/haveqr/render-jobs
+      RenderStorage__RootPath: /var/lib/halfqr/render-jobs
       R2Storage__BucketName: ${R2_BUCKET:-}
       R2Storage__AccountId: ${R2_ACCOUNT_ID:-}
       R2Storage__Endpoint: ${R2_ENDPOINT:-}
@@ -67,7 +67,7 @@ services:
       R2Storage__SecretAccessKey: ${R2_SECRET_ACCESS_KEY:-}
       R2Storage__KeyPrefix: ${R2_KEY_PREFIX:-render-jobs}
     volumes:
-      - render-jobs-data:/var/lib/haveqr/render-jobs
+      - render-jobs-data:/var/lib/halfqr/render-jobs
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -75,17 +75,17 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: haveqr-postgres
+    container_name: halfqr-backend-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-haveqr}
-      POSTGRES_USER: ${POSTGRES_USER:-haveqr}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-haveqr_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-halfqr}
+      POSTGRES_USER: ${POSTGRES_USER:-halfqr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-halfqr_dev_password}
     ports:
       - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-haveqr} -d ${POSTGRES_DB:-haveqr}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-halfqr} -d ${POSTGRES_DB:-halfqr}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -93,7 +93,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: haveqr-redis
+    container_name: halfqr-backend-redis
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6380:6379"
@@ -108,10 +108,10 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: haveqr-rabbitmq
+    container_name: halfqr-backend-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-haveqr}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-haveqr_dev_password}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-halfqr}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}
     ports:
       - "5673:5672"
       - "15673:15672"

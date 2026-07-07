@@ -1,4 +1,4 @@
-HaveQR v0.2.6.0 Release Notes
+HalfQR v0.2.6.0 Release Notes
 Release Date: 10 April, 2026
 ===================================
 
@@ -18,6 +18,6 @@ Release Date: 10 April, 2026
 ### Validation
 
 - npm run build from webapp
-- dotnet build HaveQR.sln
+- dotnet build HalfQR.sln
 - Verified the local preview SVG now emits a QR-wide gradient definition with `gradientUnits="userSpaceOnUse"`
 - Verified the local backend render path now produces SVG and PNG artifacts with a visible gradient and a cleared centered logo window

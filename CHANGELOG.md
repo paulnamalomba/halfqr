@@ -1,72 +1,138 @@
-# HaveQR
+# HalfQR
 
-All notable changes to the **HaveQR** project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+All notable changes to the **HalfQR** project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Contents
 
-- [HaveQR](#haveqr)
+- [HalfQR](#halfqr)
   - [Contents](#contents)
-  - [\[0.2.8.0\] - 2026-04-22](#0280---2026-04-22)
+  - [\[0.3.0.1\] - 2026-04-30](#0301---2026-04-30)
     - [Added](#added)
-    - [Changed](#changed)
     - [Validation](#validation)
-  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+  - [\[0.3.0.0\] - 2026-04-30](#0300---2026-04-30)
     - [Added](#added-1)
-    - [Fixed](#fixed)
-    - [Changed](#changed-1)
+    - [Changed](#changed)
     - [Validation](#validation-1)
+  - [\[0.2.9.0\] - 2026-04-22](#0290---2026-04-22)
+    - [Added](#added-2)
+    - [Changed](#changed-1)
+    - [Validation](#validation-2)
+  - [\[0.2.8.0\] - 2026-04-22](#0280---2026-04-22)
+    - [Added](#added-3)
+    - [Changed](#changed-2)
+    - [Validation](#validation-3)
+  - [\[0.2.7.0\] - 2026-04-10](#0270---2026-04-10)
+    - [Added](#added-4)
+    - [Fixed](#fixed)
+    - [Changed](#changed-3)
+    - [Validation](#validation-4)
   - [\[0.2.6.0\] - 2026-04-10](#0260---2026-04-10)
     - [Fixed](#fixed-1)
-    - [Changed](#changed-2)
-    - [Validation](#validation-2)
-  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
-    - [Changed](#changed-3)
-  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
     - [Changed](#changed-4)
+    - [Validation](#validation-5)
+  - [\[0.2.5.0\] - 2026-04-10](#0250---2026-04-10)
+    - [Changed](#changed-5)
+  - [\[0.2.4.0\] - 2026-04-10](#0240---2026-04-10)
+    - [Changed](#changed-6)
     - [Fixed](#fixed-2)
-    - [Validation](#validation-3)
+    - [Validation](#validation-6)
   - [\[0.2.3.5\] - 2026-04-10](#0235---2026-04-10)
-    - [Added](#added-2)
+    - [Added](#added-5)
   - [\[0.2.3.4\] - 2026-04-10](#0234---2026-04-10)
-    - [Added](#added-3)
+    - [Added](#added-6)
   - [\[0.2.3.3\] - 2026-04-10](#0233---2026-04-10)
     - [Fixed](#fixed-3)
     - [Why](#why)
     - [Problem Solved](#problem-solved)
-    - [Validation](#validation-4)
-  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
-    - [Changed](#changed-5)
-    - [Validation](#validation-5)
-  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
-    - [Added](#added-4)
-  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
-    - [Added](#added-5)
-    - [Changed](#changed-6)
-    - [Validation](#validation-6)
-  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
-    - [Added](#added-6)
-  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
-    - [Added](#added-7)
-    - [Changed](#changed-7)
     - [Validation](#validation-7)
-  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+  - [\[0.2.3.2\] - 2026-04-10](#0232---2026-04-10)
+    - [Changed](#changed-7)
+    - [Validation](#validation-8)
+  - [\[0.2.3.1\] - 2026-04-10](#0231---2026-04-10)
+    - [Added](#added-7)
+  - [\[0.2.3.0\] - 2026-04-10](#0230---2026-04-10)
     - [Added](#added-8)
     - [Changed](#changed-8)
-    - [Validation](#validation-8)
-  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
-    - [Added](#added-9)
-    - [Changed](#changed-9)
     - [Validation](#validation-9)
-  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+  - [\[0.2.2.2\] - 2026-04-10](#0222---2026-04-10)
+    - [Added](#added-9)
+  - [\[0.2.2.1\] - 2026-04-10](#0221---2026-04-10)
     - [Added](#added-10)
-    - [Changed](#changed-10)
+    - [Changed](#changed-9)
     - [Validation](#validation-10)
+  - [\[0.2.2.0\] - 2026-04-09](#0220---2026-04-09)
+    - [Added](#added-11)
+    - [Changed](#changed-10)
+    - [Validation](#validation-11)
+  - [\[0.2.1.0\] - 2026-04-09](#0210---2026-04-09)
+    - [Added](#added-12)
+    - [Changed](#changed-11)
+    - [Validation](#validation-12)
+  - [\[0.2.0.0\] - 2026-04-09](#0200---2026-04-09)
+    - [Added](#added-13)
+    - [Changed](#changed-12)
+    - [Validation](#validation-13)
   - [\[0.1.1.0\] - 2026-04-09](#0110---2026-04-09)
     - [Changes](#changes)
-  - [Validation:](#validation-11)
+  - [Validation](#validation-14)
   - [\[0.1.0.0\] - 2026-04-09](#0100---2026-04-09)
     - [Changes](#changes-1)
+
+---
+
+## [0.3.0.1] - 2026-04-30
+
+### Added
+
+- Many many UX changes and fixes including content-level augmentations to core functional components
+
+### Validation
+
+- npm run dev
+
+---
+
+## [0.3.0.0] - 2026-04-30
+
+### Added
+
+- Continued Fast versioning
+- Added a shared webapp icon barrel and `SiteTitleIcon` wrapper so the public header can render the refreshed HalfQR logo set without depending on the legacy `havqr_*` image references.
+
+### Changed
+
+- Changed the public deployment surface from the temporary `computemore.com` bench hosts to the production `www.halfqr.com` and `api.halfqr.com` domains across the README, Docker Compose defaults, API documentation, and Public API CORS allowlist.
+- Changed the public webapp shell to use the refreshed HalfQR branding layer, including the new logo assets, updated typography, revised header treatment, landing-page hero copy, and refreshed marketing copy on the `Why HalfQR` and API documentation pages.
+- Changed top-level documentation and asset naming to better match the public-release surface, including normalizing guide filenames and replacing the older `havqr_*` logos with `halfqr_*` equivalents.
+- Changed the webapp delivery stack for the public release by updating the Next.js and TypeScript toolchain versions and renaming backend service containers to the `halfqr-backend-*` convention.
+
+### Validation
+
+- git diff --stat
+- git diff -- README.md docker-compose.yml microservices/HalfQR.PublicApi/Program.cs webapp/src/app/layout.tsx webapp/src/app/page.tsx webapp/src/app/why-halfqr/page.tsx webapp/src/app/api-documentation/page.tsx webapp/src/components/site-header.tsx
+- npm run build from webapp
+- dotnet build HalfQR.sln currently fails locally with `NETSDK1045` because the installed SDK is `9.0.313` while the solution targets `.NET 10.0`
+
+---
+
+## [0.2.9.0] - 2026-04-22
+
+### Added
+
+- Continued Fast versioning
+
+### Changed
+
+- Completely ovarhauled file names, envs and all other related issues to be hooked to HalfQR not HaveQR, as well as updating all the docs and guides to reflect this change. This is in preparation for the upcoming public release, where we want to have a more unique and memorable name that is still closely related to QR codes.
+- Preparing for domain deployment and public release by updating all references to the project name and ensuring consistency across all documentation and codebase. This includes changing the website title, updating the README, and modifying any internal references to the project name in the code and documentation.
+
+### Validation
+
+- dotnet build HalfQR.sln
+- npm run build from webapp
+- Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
+- Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied
 
 ---
 
@@ -93,9 +159,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added a `verify-render` command to `HaveQR.Cli` so draft SVG and final PNG artifacts can be rendered, decoded, and written to disk from the same backend pipeline used by the product.
+- Added a `verify-render` command to `HalfQR.Cli` so draft SVG and final PNG artifacts can be rendered, decoded, and written to disk from the same backend pipeline used by the product.
 - Added curated transparent SVG preset watermark assets for `Scan Me`, `Link`, `Menu`, and `WhatsApp` so preset logos no longer depend on brittle raster background removal.
-- Added a shared `QrArtifactRasterizer` helper in `HaveQR.QrEngine` so SVG-to-PNG conversion is reusable across render validation and production rendering flows.
+- Added a shared `QrArtifactRasterizer` helper in `HalfQR.QrEngine` so SVG-to-PNG conversion is reusable across render validation and production rendering flows.
 
 ### Fixed
 
@@ -110,7 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Validation
 
-- dotnet build HaveQR.sln
+- dotnet build HalfQR.sln
 - npm run build from webapp
 - Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
 - Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied
@@ -133,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Validation
 
 - npm run build from webapp
-- dotnet build HaveQR.sln
+- dotnet build HalfQR.sln
 - Verified the local preview SVG now emits a QR-wide gradient definition with `gradientUnits="userSpaceOnUse"`
 - Verified the local backend render path now produces SVG and PNG artifacts with a visible gradient and a cleared centered logo window
 
@@ -258,7 +324,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Validation
 
-- `dotnet build HaveQR.sln`
+- `dotnet build HalfQR.sln`
 - `npm run build` from `webapp`
 - Verified `POST /api/v1/qr/render/draft` returns `200` for a styled link render request against the local PublicApi
 - Verified the builder transitions from local SVG preview to server draft preview
@@ -270,11 +336,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Implemented the styled QR slice end to end. The backend now accepts data styling and richer logo inputs, renders square or dotted data modules with linear gradients limited to the main QR body, and supports centered SVG, PNG, and JPEG logos with backdrop handling and raster background removal.
+- Implemented the styled QR slice end to end. The backend now accepts data styling and richer logo inputs, renders square or dotted data modules with linear gradients limited to the main QR body, and supports centered SVG, PNG, and JPEG logos with backdrop handling and raster background removal. 
 - The webapp now uses the HaveQR favicon, ships a real landing page plus rebuilt builder UI, exposes the new styling controls, and swaps to worker artifacts instead of a fake preview once a job completes.
 - Added a same-origin proxy in the webapp so local use no longer fails on browser CORS when talking to the hosted API.
 - Completely implemeneted the `webapp` and it's components and pages, written in TypeScript with React and Next.js, and styled with Material UI and Emotion, copying over some boilerplate and patterns from afriflex.
-  - The webapp as externally tunneled to `haveqr.computemore.com` is now the primary demo and test interface for the project, replacing the previous Postman collection and direct API calls.
+  - The webapp as externally tunneled to `www.halfqr.com` is now the primary demo and test interface for the project, replacing the previous Postman collection and direct API calls.
 - Completely overhauled the api as well
 
 ---
@@ -283,16 +349,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added first-party Docker build assets for `webapp`, `HaveQR.PublicApi`, and `HaveQR.Worker`, plus a root `.dockerignore` for the monorepo bench.
+- Added first-party Docker build assets for `webapp`, `HalfQR.PublicApi`, and `HalfQR.Worker`, plus a root `.dockerignore` for the monorepo bench.
 - Added Compose-managed `webapp`, `public-api`, and `worker` services with host ports `5173` and `8083` and a shared render-job volume for the file-backed async pipeline.
 
 ### Changed
 
-- Switched the webapp from same-origin rewrite calls to direct public API calls using `NEXT_PUBLIC_HAVEQR_API_BASE_URL`, while normalizing relative job and artifact URLs against the public API origin.
-- Added configurable CORS and JSON string-enum serialization in `HaveQR.PublicApi`, and aligned persisted render-job JSON with the string-based request and response contract used by the webapp.
+- Switched the webapp from same-origin rewrite calls to direct public API calls using `NEXT_PUBLIC_HALFQR_API_BASE_URL`, while normalizing relative job and artifact URLs against the public API origin.
+- Added configurable CORS and JSON string-enum serialization in `HalfQR.PublicApi`, and aligned persisted render-job JSON with the string-based request and response contract used by the webapp.
 - Wired canonical R2 artifact settings through Docker Compose so the API and worker can switch from filesystem artifacts to Cloudflare R2 through environment configuration.
 - Disabled AWS streaming payload signing and default checksum validation on R2 uploads so Cloudflare R2 accepts the .NET S3 `PutObject` flow.
-- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
+- Updated operator docs and release-facing metadata for the current Dockerized devops/testing bench at `www.halfqr.com` and `api.halfqr.com`.
 
 ### Validation
 
@@ -303,7 +369,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Verified `http://127.0.0.1:8083/healthz` and `http://127.0.0.1:5173`
 - Verified a live render job queue, completion, and PNG artifact download through the Docker bench
 - Verified the Cloudflare R2 upload-format fix; the currently provided bucket credentials still return `Access Denied` on write, so the local `.env` keeps `RENDER_ARTIFACT_PROVIDER=FileSystem` until bucket permissions are corrected
-- `dotnet build HaveQR.sln` is still blocked on this machine because the installed SDK is `9.0.312` while the solution targets `.NET 10.0`
+- `dotnet build HalfQR.sln` is still blocked on this machine because the installed SDK is `9.0.312` while the solution targets `.NET 10.0`
 
 ---
 
@@ -313,7 +379,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added a same-origin Next.js rewrite so the webapp can call the render API through `/api/v1/qr/*` without browser-side CORS workarounds.
 - Added webapp job polling and artifact download actions for generated SVG and PNG outputs.
-- Added a finder-pattern SVG compositor in `HaveQR.QrEngine` so `square`, `rounded`, and `circle` now affect the three finder markers without changing normal data modules.
+- Added a finder-pattern SVG compositor in `HalfQR.QrEngine` so `square`, `rounded`, and `circle` now affect the three finder markers without changing normal data modules.
 - Added provider-backed render storage seams with PostgreSQL job-state and Cloudflare R2 artifact implementations behind `IRenderJobStore`.
 - Added runtime configuration and operator notes for split dev-machine and power-machine workflows in `QUICK_REFERENCE.md`.
 
@@ -327,7 +393,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Validation
 
 - `npm run build --prefix webapp`
-- `dotnet build HaveQR.sln`
+- `dotnet build HalfQR.sln`
 - End-to-end queue smoke test is still blocked on this dev machine because RabbitMQ and PostgreSQL are not reachable locally; use the documented tunnel and power-machine commands to run it against live infra.
 
 ---
@@ -354,8 +420,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added QRCoder-backed SVG rendering and Docker-safe PNG rasterization in `HaveQR.QrEngine`.
-- Added RabbitMQ-backed job dispatch in `HaveQR.PublicApi` and worker-side queue consumption in `HaveQR.Worker`.
+- Added QRCoder-backed SVG rendering and Docker-safe PNG rasterization in `HalfQR.QrEngine`.
+- Added RabbitMQ-backed job dispatch in `HalfQR.PublicApi` and worker-side queue consumption in `HalfQR.Worker`.
 - Added file-backed render job state and artifact storage for generated SVG and PNG outputs.
 - Added `QUICK_REFERENCE.md` with build, run, infrastructure, and request examples.
 
@@ -366,7 +432,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Validation
 
-- `dotnet build HaveQR.sln`
+- `dotnet build HalfQR.sln`
 
 ---
 
@@ -374,8 +440,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-- Created the solution and backend project structure in `HaveQR.sln` and `HaveQR.slnx`, with service projects under microservices.
-- Added the first shared QR contracts in `HaveQR.Contracts`, including content types, finder shapes, render modes, output options, and async render job request and response models.
+- Created the solution and backend project structure in `HalfQR.sln` and `HalfQR.slnx`, with service projects under microservices.
+- Added the first shared QR contracts in `HalfQR.Contracts`, including content types, finder shapes, render modes, output options, and async render job request and response models.
 - Added real payload encoding logic in `QrPayloadEncoder.cs` and hashing in `Sha256HashService.cs`. This now canonicalizes link, text, email, call, SMS, WhatsApp, Wi-Fi, vCard, event, app, social, PDF, image, and video payloads.
 - Replaced the template API with an initial async in-memory render flow in `Program.cs` and `InMemoryRenderJobService.cs`. The API now exposes health, content-type discovery, render job submission, and job status endpoints.
 - Added infrastructure scaffolding in `docker-compose.yml` and `.env.example` for PostgreSQL, Redis, and RabbitMQ.
@@ -383,7 +449,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Validation
 
-- The full solution builds successfully through both `HaveQR.sln` and `HaveQR.slnx`.
+- The full solution builds successfully through both `HalfQR.sln` and `HalfQR.slnx`.
 - Target is .NET 10
 
 ---

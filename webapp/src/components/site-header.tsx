@@ -1,9 +1,6 @@
 "use client";
 
-import DescriptionRounded from "@mui/icons-material/DescriptionRounded";
-import OpenInNewRounded from "@mui/icons-material/OpenInNewRounded";
-import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import { CloseRoundedIcon, MenuRoundedIcon, OpenInNewRounded, QrCodeIcon, SiteTitleIcon } from "@/assets/icons";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,7 +10,7 @@ import { useEffect, useState } from "react";
 // Can add more here where necessary but the main point is to have a single source of truth for the primary navigation structure and active path logic so it doesn't diverge across components or get lost in individual route files.
 const navigationItems = [
   { href: "/qr-codes", label: "QR Codes" },
-  { href: "/why-haveqr", label: "Why HaveQR" },
+  { href: "/why-halfqr", label: "Why HalfQR" },
   { href: "/product", label: "Product" },
   { href: "/api-documentation", label: "API docs" },
 ];
@@ -46,8 +43,9 @@ export function SiteHeader() {
   return (
     <header className="site-header-shell">
       <div className="site-header-inner">
-        <Link className="site-brand-mark" href="/" aria-label="HaveQR generator home">
-          <Image src="/logos/havqr_main_6000x3306.svg" alt="HaveQR" width={81} height={44} />
+        {/* persistent site branding */}
+        <Link className="site-brand-mark" href="/" aria-label="HalfQR generator home">
+          <SiteTitleIcon />
         </Link>
 
         <nav className="site-header-nav" aria-label="Primary navigation">
@@ -63,21 +61,23 @@ export function SiteHeader() {
         </nav>
 
         <div className="site-header-actions">
-          <a
+          {/* <a
             className="site-header-status"
-            href="https://haveqr-api-demo.computemore.com/healthz"
+            href="https://api.halfqr.com/healthz"
             target="_blank"
             rel="noreferrer"    
           >
             <span>API status</span>
             <OpenInNewRounded fontSize="inherit" />
-          </a>
+          </a> */}
 
+          {/* primary call-to-action */}
           <Link className={pathname === "/" ? "site-header-cta site-header-cta-active" : "site-header-cta"} href="/">
-            <DescriptionRounded fontSize="small" />
+            <QrCodeIcon fontSize="small" />
             <span>Generate QR</span>
           </Link>
 
+          {/* mobile menu toggle */}
           <button
             type="button"
             className="site-mobile-toggle"
@@ -89,6 +89,7 @@ export function SiteHeader() {
             {menuOpen ? <CloseRoundedIcon /> : <MenuRoundedIcon />}
           </button>
 
+          {/* toggled state for mobile menu */}
           {menuOpen ? (
             <nav id="site-mobile-menu" className="site-mobile-menu" aria-label="Mobile navigation">
               <Link

@@ -1,4 +1,4 @@
-HaveQR v0.2.3.0 Release Notes
+HalfQR v0.2.3.0 Release Notes
 Release Date: 10 April, 2026
 ===================================
 
@@ -19,7 +19,7 @@ Release Date: 10 April, 2026
 
 ### Validation
 
-- `dotnet build HaveQR.sln`
+- `dotnet build HalfQR.sln`
 - `npm run build` from `webapp`
 - Verified `POST /api/v1/qr/render/draft` returns `200` for a styled link render request against the local PublicApi
 - Verified the builder transitions from local SVG preview to server draft preview

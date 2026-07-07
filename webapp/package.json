@@ -1,6 +1,6 @@
 {
-  "name": "haveqr-webapp",
-  "version": "0.2.7.0",
+  "name": "halfqr-webapp",
+  "version": "0.3.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,6 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
-    "next": "^15.5.15",
     "qrcode-generator": "^2.0.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -21,6 +20,9 @@
     "@types/node": "24.0.1",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.5",
-    "typescript": "5.8.3"
+    "lint": "^1.1.2",
+    "next": "^16.2.4",
+    "tailwind-merge": "^3.5.0",
+    "typescript": "^6.0.3"
   }
 }

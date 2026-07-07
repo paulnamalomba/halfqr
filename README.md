@@ -1,6 +1,6 @@
-# HaveQR
+# HalfQR
 
-[![Version](https://img.shields.io/badge/version-0.2.7.0-blue)](https://github.com/paulnamalomba/haveqr/releases/tag/0.2.7.0)
+[![Version](https://img.shields.io/badge/version-0.3.0.1-blue)](https://github.com/paulnamalomba/halfqr/releases/tag/0.3.0.1)
 [![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -9,7 +9,7 @@
 
 ## Contents
 
-- [HaveQR](#haveqr)
+- [HalfQR](#halfqr)
   - [Contents](#contents)
   - [Overview](#overview)
   - [Product Direction](#product-direction)
@@ -37,7 +37,7 @@
 
 ## Overview
 
-HaveQR started from the idea of a simple SVG-to-QR generator, but the product direction is broader: a monorepo-based platform for generating branded QR codes across link-backed categories such as links, apps, social destinations, PDFs, images, videos, and landing pages, with WhatsApp kept as the first special-case native flow. The current backend now generates canonical SVG, rasterizes PNG, queues work through RabbitMQ, and exposes artifact downloads through the public API.
+HalfQR started from the idea of a simple SVG-to-QR generator, but the product direction is broader: a monorepo-based platform for generating branded QR codes across link-backed categories such as links, apps, social destinations, PDFs, images, videos, and landing pages, with WhatsApp kept as the first special-case native flow. The current backend now generates canonical SVG, rasterizes PNG, queues work through RabbitMQ, and exposes artifact downloads through the public API.
 
 The core user flow is still simple:
 
@@ -86,7 +86,7 @@ Current scaffold prerequisites:
 Core commands:
 
 ```bash
-dotnet build HaveQR.sln
+dotnet build HalfQR.sln
 npm install --prefix webapp
 npm run build --prefix webapp
 docker compose build webapp public-api worker
@@ -96,9 +96,9 @@ docker compose logs -f webapp public-api worker rabbitmq
 
 Current bench routing:
 
-- `http://127.0.0.1:5173` -> webapp -> `https://haveqr.computemore.com`
-- `http://127.0.0.1:8083` -> public API -> `https://haveqr-api-demo.computemore.com`
-- The browser-facing webapp bundle is built to call the public API hostname directly through `NEXT_PUBLIC_HAVEQR_API_BASE_URL`.
+- `http://127.0.0.1:5173` -> webapp -> `https://www.halfqr.com`
+- `http://127.0.0.1:8083` -> public API -> `https://api.halfqr.com`
+- The browser-facing webapp bundle is built to call the public API hostname directly through `NEXT_PUBLIC_HALFQR_API_BASE_URL`.
 
 See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configuration keys.
 
@@ -112,7 +112,7 @@ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configurat
 - Finder styles: custom composition layer for `square`, `rounded`, and `circle` finder markers.
 - Data layer: PostgreSQL for metadata, Redis for rate limiting and short-lived cache, Cloudflare R2 for assets.
 - Messaging: RabbitMQ for async jobs and batch workflow fanout.
-- Deployment: Docker Compose behind public tunnels at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com`.
+- Deployment: Docker Compose behind public tunnels at `www.halfqr.com` and `api.halfqr.com`.
 
 ### Why SVG-first matters
 
@@ -141,41 +141,41 @@ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for request examples and configurat
 | Cache | Redis | Rate limiting, short-lived preview and token state |
 | Object Storage | Cloudflare R2 | Generated PNG and optional canonical SVG assets |
 | Messaging | RabbitMQ | Batch jobs, async processing, domain events |
-| Deployment | Docker Compose | Current devops bench at `haveqr.computemore.com` and `haveqr-api-demo.computemore.com` |
+| Deployment | Docker Compose | Current devops bench at `www.halfqr.com` and `api.halfqr.com` |
 
 ## Monorepo Layout
 
 The target repository structure is:
 
 ```text
-haveqr/
+halfqr/
 ├── webapp/
 ├── admin/
 ├── docs/
 ├── microservices/
-│   ├── HaveQR.PublicApi/
-│   ├── HaveQR.QrEngine/
-│   ├── HaveQR.Identity/
-│   ├── HaveQR.Redirector/
-│   ├── HaveQR.Billing/
-│   ├── HaveQR.Worker/
-│   ├── HaveQR.Contracts/
-│   └── HaveQR.Cli/
+│   ├── HalfQR.PublicApi/
+│   ├── HalfQR.QrEngine/
+│   ├── HalfQR.Identity/
+│   ├── HalfQR.Redirector/
+│   ├── HalfQR.Billing/
+│   ├── HalfQR.Worker/
+│   ├── HalfQR.Contracts/
+│   └── HalfQR.Cli/
 ├── inspiration/
 ├── docker-compose.yml
-├── HaveQR.sln
+├── HalfQR.sln
 └── SYSTEM_ARCHITECTURE.md
 ```
 
 ### Service intent
 
-- `HaveQR.PublicApi`: public REST surface for the webapp, admin, and CLI
-- `HaveQR.QrEngine`: QR generation, SVG sanitization, finder customization, PNG export
-- `HaveQR.Identity`: auth, refresh tokens, OAuth2, roles
-- `HaveQR.Redirector`: dynamic route resolution and scan tracking
-- `HaveQR.Billing`: plans, subscriptions, checkout, entitlement logic
-- `HaveQR.Worker`: batch processing, storage uploads, rollups, async jobs
-- `HaveQR.Cli`: command-line entry point for rendering and batch automation
+- `HalfQR.PublicApi`: public REST surface for the webapp, admin, and CLI
+- `HalfQR.QrEngine`: QR generation, SVG sanitization, finder customization, PNG export
+- `HalfQR.Identity`: auth, refresh tokens, OAuth2, roles
+- `HalfQR.Redirector`: dynamic route resolution and scan tracking
+- `HalfQR.Billing`: plans, subscriptions, checkout, entitlement logic
+- `HalfQR.Worker`: batch processing, storage uploads, rollups, async jobs
+- `HalfQR.Cli`: command-line entry point for rendering and batch automation
 
 ## Rendering and Storage Strategy
 
@@ -269,10 +269,10 @@ The goal is to take strategic inspiration, not to reproduce markup, assets, or c
 
 This repository currently contains:
 
-- a buildable `.NET` solution under `HaveQR.sln`
+- a buildable `.NET` solution under `HalfQR.sln`
 - QR contracts, hashing, URL-backed payload normalization, finder-pattern SVG composition, and QRCoder-based SVG/PNG rendering
 - provider-backed render storage with filesystem defaults plus PostgreSQL and Cloudflare R2 implementations behind the same runtime facade
-- a RabbitMQ-backed job dispatch path between `HaveQR.PublicApi` and `HaveQR.Worker`
+- a RabbitMQ-backed job dispatch path between `HalfQR.PublicApi` and `HalfQR.Worker`
 - root quick-start documentation and a real `webapp` builder that can submit jobs, poll status, and download artifacts
 
 The next implementation step is to replace placeholder dynamic redirect persistence with PostgreSQL and Redis, then widen the content model beyond the first URL-backed and WhatsApp flows.

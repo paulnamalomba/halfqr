@@ -42,10 +42,10 @@ const requestNotes = [
   "Content types currently supported by the public generator: Link, App, Social, Pdf, Image, Video, and WhatsApp.",
   "Data styling supports square or dotted modules plus an optional two-colour linear gradient on the main QR body.",
   "Logo uploads accept Svg, Png, and Jpeg sources with centered placement and backdrop padding.",
-  "In local webapp development, browser requests are routed through /api/haveqr/... to avoid CORS preflight failures.",
+  // "In local webapp development, browser requests are routed through /api/halfqr/... to avoid CORS preflight failures.",
 ];
 
-const sampleRequest = `const response = await fetch("https://haveqr-api-demo.computemore.com/api/v1/qr/render", {
+const sampleRequest = `const response = await fetch("https://api.halfqr.com/api/v1/qr/render", {
   method: "POST",
   headers: {
     "Accept": "application/json",
@@ -53,7 +53,7 @@ const sampleRequest = `const response = await fetch("https://haveqr-api-demo.com
   },
   body: JSON.stringify({
     contentType: "Link",
-    targetUrl: "https://computemore.com/demo-launch",
+    targetUrl: "https://computemore.com",
     payload: {},
     errorCorrectionLevel: "H",
     output: { sizePx: 1024 },
@@ -74,8 +74,8 @@ export default function ApiDocumentationPage() {
     <main className="site-page route-shell">
       <section className="route-hero-card">
         <div className="route-hero-copy">
-          <p className="page-kicker">Public API documentation</p>
-          <h1 className="page-title">Queue, poll, and download the same QR artifacts the webapp uses.</h1>
+          <p className="page-kicker" style={{ color: "var(--text-white)" }}>Public API documentation</p>
+          <h1 className="page-title">Built for devs, queue, poll and generate on-demand.</h1>
           <p className="page-summary">
             The public generator and the backend stay aligned on the same request model. Start with render submission, poll the job,
             then retrieve the final SVG or PNG from the artifact endpoints.
@@ -85,13 +85,13 @@ export default function ApiDocumentationPage() {
             <Link className="route-primary-link" href="/">
               Open generator
             </Link>
-            <a className="route-secondary-link" href="https://haveqr-api-demo.computemore.com/healthz" target="_blank" rel="noreferrer">
+            <a className="route-secondary-link" href="https://api.halfqr.com/healthz" target="_blank" rel="noreferrer">
               Check live API status
             </a>
           </div>
         </div>
 
-        <div className="route-side-card">
+        {/* <div className="route-side-card">
           <div className="route-side-item">
             <SyncRounded fontSize="small" />
             <span>Async render lifecycle</span>
@@ -104,7 +104,7 @@ export default function ApiDocumentationPage() {
             <CloudDownloadRounded fontSize="small" />
             <span>Canonical SVG plus derived PNG downloads</span>
           </div>
-        </div>
+        </div> */}
       </section>
 
       <section className="route-card-grid route-card-grid-wide">
@@ -113,9 +113,9 @@ export default function ApiDocumentationPage() {
 
           return (
             <article key={endpoint.route} className="route-card endpoint-card">
-              <div className="route-card-icon">
+              {/* <div className="route-card-icon">
                 <Icon fontSize="small" />
-              </div>
+              </div> */}
               <div className="endpoint-method">{endpoint.method}</div>
               <h2>{endpoint.title}</h2>
               <p className="endpoint-route">{endpoint.route}</p>
@@ -125,7 +125,7 @@ export default function ApiDocumentationPage() {
         })}
       </section>
 
-      <section className="route-split-grid">
+      {/* <section className="route-card"> */}
         <article className="route-card docs-code-card">
           <div className="route-card-icon">
             <CodeRounded fontSize="small" />
@@ -135,7 +135,7 @@ export default function ApiDocumentationPage() {
           <pre>{sampleRequest}</pre>
         </article>
 
-        <article className="route-card">
+        {/* <article className="route-card">
           <div className="route-card-icon">
             <TuneRounded fontSize="small" />
           </div>
@@ -145,8 +145,8 @@ export default function ApiDocumentationPage() {
               <li key={note}>{note}</li>
             ))}
           </ul>
-        </article>
-      </section>
+        </article> */}
+      {/* </section> */}
     </main>
   );
 }

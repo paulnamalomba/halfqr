@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/microservices/">
+    <Project Path="microservices/HalfQR.Billing/HalfQR.Billing.csproj" />
+    <Project Path="microservices/HalfQR.Cli/HalfQR.Cli.csproj" />
+    <Project Path="microservices/HalfQR.Contracts/HalfQR.Contracts.csproj" />
+    <Project Path="microservices/HalfQR.Identity/HalfQR.Identity.csproj" />
+    <Project Path="microservices/HalfQR.PublicApi/HalfQR.PublicApi.csproj" />
+    <Project Path="microservices/HalfQR.QrEngine/HalfQR.QrEngine.csproj" />
+    <Project Path="microservices/HalfQR.Redirector/HalfQR.Redirector.csproj" />
+    <Project Path="microservices/HalfQR.Worker/HalfQR.Worker.csproj" />
+  </Folder>
+</Solution>

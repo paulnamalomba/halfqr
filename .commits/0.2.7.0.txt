@@ -1,4 +1,4 @@
-HaveQR v0.2.7.0 Release Notes
+HalfQR v0.2.7.0 Release Notes
 Release Date: 10 April, 2026
 ===================================
 
@@ -6,9 +6,9 @@ Release Date: 10 April, 2026
 
 ### Added
 
-- Added a `verify-render` command to `HaveQR.Cli` so draft SVG and final PNG artifacts can be rendered, decoded, and written to disk from the same backend pipeline used by the product.
+- Added a `verify-render` command to `HalfQR.Cli` so draft SVG and final PNG artifacts can be rendered, decoded, and written to disk from the same backend pipeline used by the product.
 - Added curated transparent SVG preset watermark assets for `Scan Me`, `Link`, `Menu`, and `WhatsApp` so preset logos no longer depend on brittle raster background removal.
-- Added a shared `QrArtifactRasterizer` helper in `HaveQR.QrEngine` so SVG-to-PNG conversion is reusable across render validation and production rendering flows.
+- Added a shared `QrArtifactRasterizer` helper in `HalfQR.QrEngine` so SVG-to-PNG conversion is reusable across render validation and production rendering flows.
 
 ### Fixed
 
@@ -23,7 +23,7 @@ Release Date: 10 April, 2026
 
 ### Validation
 
-- dotnet build HaveQR.sln
+- dotnet build HalfQR.sln
 - npm run build from webapp
 - Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
 - Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied

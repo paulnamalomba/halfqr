@@ -1,0 +1,21 @@
+HalfQR v0.2.9.0 Release Notes
+Release Date: 22 April, 2026
+===================================
+
+## [0.2.9.0] - 2026-04-22
+
+### Added
+
+- Continued Fast versioning
+
+### Changed
+
+- Completely ovarhauled file names, envs and all other related issues to be hooked to HalfQR not HaveQR, as well as updating all the docs and guides to reflect this change. This is in preparation for the upcoming public release, where we want to have a more unique and memorable name that is still closely related to QR codes.
+- Preparing for domain deployment and public release by updating all references to the project name and ensuring consistency across all documentation and codebase. This includes changing the website title, updating the README, and modifying any internal references to the project name in the code and documentation.
+
+### Validation
+
+- dotnet build HalfQR.sln
+- npm run build from webapp
+- Verified the reported R2 PDF URL decodes successfully through the new CLI for `Pdf` and `Link` renders without a logo
+- Verified the same URL decodes successfully through the new CLI with the curated `menu` and `scan-me` preset logos applied

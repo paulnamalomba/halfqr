@@ -158,11 +158,11 @@ type LogoPreset = {
 };
 
 // Here we introduce some const values for the builder, such as the available content types, design sections, logo presets, and various configuration values for polling intervals, size limits, etc.
-const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HAVEQR_API_BASE_URL ?? "https://haveqr-api-demo.computemore.com")
+const publicApiBaseUrl = (process.env.NEXT_PUBLIC_HALFQR_API_BASE_URL ?? "https://api.halfqr.com")
   .trim()
   .replace(/\/$/, "");
 const publicApiOrigin = new URL(publicApiBaseUrl).origin;
-const apiProxyPrefix = "/api/haveqr";
+const apiProxyPrefix = "/api/halfqr";
 
 // A few more varibles regarding byte-parsing and render timing, these are used in the builder logic for validating uploads and managing the polling lifecycle
 const maxLogoBytes = 512 * 1024;
@@ -178,6 +178,7 @@ const previewDottedRadius = 0.38;
 const defaultDarkColor = "#000000";
 const defaultLightColor = "#FFFFFF";
 const defaultGradientEnd = "#1F61C0";
+const pngSizeOptions = [1024, 768, 512, 256, 128] as const;
 
 // Hard-coded array that speicfies each builder type as selcted by the user, this is fired to our render job
 const builderTypes: BuilderType[] = [
@@ -209,7 +210,7 @@ const builderTypes: BuilderType[] = [
     id: "pdf",
     label: "PDF",
     eyebrow: "Link to a PDF",
-    placeholder: "https://cdn.haveqr.dev/brochures/launch-pack.pdf",
+    placeholder: "https://cdn.halfqr.com/brochures/launch-pack.pdf",
     summary: "Send scans into brochures, menus, decks, or printable collateral.",
     Icon: PictureAsPdfRounded,
   },
@@ -217,14 +218,14 @@ const builderTypes: BuilderType[] = [
     id: "image",
     label: "Image",
     eyebrow: "Link to an Image",
-    placeholder: "https://cdn.haveqr.dev/posters/flyer-front.jpg",
+    placeholder: "https://cdn.halfqr.com/posters/flyer-front.jpg",
     summary: "Point straight into poster art, packaging, menus, or image galleries.",
     Icon: ImageRounded,
   },
   {
     id: "video",
     label: "Video",
-    eyebrow: "Map to a Video Link (YouTube, Dailymotion)",
+    eyebrow: "Map to a Video Link",
     placeholder: "https://www.youtube.com/watch?v=<etc>",
     summary: "Launch product demos, promo clips, or embedded training content.",
     Icon: SmartDisplayRounded,
@@ -233,7 +234,7 @@ const builderTypes: BuilderType[] = [
     id: "whatsapp",
     label: "WhatsApp",
     eyebrow: "WhatsApp Contact Link",
-    placeholder: "https://wa.me/260977000000?text=Hello%20from%20HaveQR",
+    placeholder: "https://wa.me/260977000000?text=Hello%20from%20HalfQR",
     summary: "Use a direct URL or generate a wa.me route from phone and message fields.",
     Icon: WhatsApp,
   },
@@ -303,9 +304,9 @@ export function QrBuilder() {
   // Arrays using prescribed data structures and api shapes for the builder state, these are used to manage the user input and the API interactions in a strongly typed way
   const [selectedType, setSelectedType] = useState<BuilderType>(builderTypes[0]);
   const [designSection, setDesignSection] = useState<DesignSectionId>("frame");
-  const [targetUrl, setTargetUrl] = useState("https://computemore.com/campaign/spring-launch");
+  const [targetUrl, setTargetUrl] = useState("https://computemore.com");
   const [phone, setPhone] = useState("+260977000000");
-  const [message, setMessage] = useState("Hello from HaveQR");
+  const [message, setMessage] = useState("Hello from HalfQR");
   const [finderBorder, setFinderBorder] = useState<FinderShape>("Rounded");
   const [finderCenter, setFinderCenter] = useState<FinderShape>("Circle");
   const [dataPattern, setDataPattern] = useState<QrDataPattern>("Square");
@@ -345,7 +346,7 @@ export function QrBuilder() {
   const parsedGradientRotation = Number.parseInt(gradientRotation, 10);
   const parsedLogoSizePercent = Number.parseInt(logoSizePercent, 10);
   const parsedLogoBackdropPadding = Number.parseInt(logoBackdropPadding, 10);
-  const hasValidSize = Number.isFinite(parsedSizePx) && parsedSizePx >= 256 && parsedSizePx <= 4096;
+  const hasValidSize = Number.isFinite(parsedSizePx) && pngSizeOptions.includes(parsedSizePx as (typeof pngSizeOptions)[number]);
   const hasValidGradientRotation = Number.isFinite(parsedGradientRotation) && parsedGradientRotation >= 0 && parsedGradientRotation <= 360;
   const hasValidLogoSize = Number.isFinite(parsedLogoSizePercent) && parsedLogoSizePercent >= 12 && parsedLogoSizePercent <= 24;
   const hasValidBackdropPadding = Number.isFinite(parsedLogoBackdropPadding) && parsedLogoBackdropPadding >= 10 && parsedLogoBackdropPadding <= 80;
@@ -672,8 +673,8 @@ export function QrBuilder() {
           <div className="generator-step-head">
             <span className="generator-step-badge">1</span>
             <div className="generator-step-copy">
-              <h2>Choose your QR type</h2>
-              <p>Select one of the currently supported routes, then move straight into the content fields.</p>
+              <h2>Choose your QR Content type</h2>
+              {/* <p>Select one of the currently supported routes, then move straight into the content fields.</p> */}
             </div>
           </div>
 
@@ -694,13 +695,13 @@ export function QrBuilder() {
                     });
                   }}
                 >
-                  <span className="generator-type-icon">
-                    <TypeIcon fontSize="small" />
-                  </span>
+                  {/* <span className="generator-type-icon"> */}
+                    <TypeIcon fontSize="medium" />
+                  {/* </span> */}
 
                   <span className="generator-type-label">
                     <strong>{builderType.label}</strong>
-                    <span>{builderType.eyebrow}</span>
+                    {/* <span>{builderType.eyebrow}</span> */}
                   </span>
                 </button>
               );
@@ -712,14 +713,14 @@ export function QrBuilder() {
           <div className="generator-step-head">
             <span className="generator-step-badge">2</span>
             <div className="generator-step-copy">
-              <h2>Complete the content</h2>
-              <p>{selectedType.summary}</p>
+              <h2>Your content routes...</h2>
             </div>
           </div>
+          <span>{selectedType.summary}</span>
 
           <label className="field field-wide">
             <span>{selectedType.id === "whatsapp" ? "Target URL or leave blank for fallback generation" : "Enter your destination"}</span>
-            <input value={targetUrl} onChange={(event) => setTargetUrl(event.target.value)} placeholder={selectedType.placeholder} />
+            <input value={targetUrl} onChange={(event) => setTargetUrl(event.target.value)} placeholder="" />
             {selectedType.id === "whatsapp" ? (
               <small className="field-hint">Leave this blank to synthesise a wa.me route from the phone and message fields.</small>
             ) : null}
@@ -745,7 +746,7 @@ export function QrBuilder() {
             <span className="generator-step-badge">3</span>
             <div className="generator-step-copy">
               <h2>Design your QR code</h2>
-              <p>Adjust the frame, colour system, and centred logo before you queue the worker render.</p>
+              <p>Adjust the frame, colour system, and centred logo/brand imagery</p>
             </div>
           </div>
 
@@ -801,7 +802,7 @@ export function QrBuilder() {
                   </label>
                 </div>
 
-                <p className="field-hint">Finder markers remain structurally separate from the optional data gradient layer.</p>
+                {/* <p className="field-hint">Finder markers remain structurally separate from the optional data gradient layer.</p> */}
               </>
             ) : null}
 
@@ -852,8 +853,8 @@ export function QrBuilder() {
 
             {designSection === "logo" ? (
               <>
-                <label className="upload-dropzone" htmlFor="haveqr-logo-upload">
-                  <input id="haveqr-logo-upload" type="file" accept="image/svg+xml,image/png,image/jpeg" onChange={handleLogoChange} />
+                <label className="upload-dropzone" htmlFor="halfqr-logo-upload">
+                  <input id="halfqr-logo-upload" type="file" accept="image/svg+xml,image/png,image/jpeg" onChange={handleLogoChange} />
                   <span className="upload-dropzone-icon">
                     <AddPhotoAlternateRounded fontSize="small" />
                   </span>
@@ -938,17 +939,23 @@ export function QrBuilder() {
             <div className="field-grid field-grid-two">
               <label className="field">
                 <span>PNG size</span>
-                <input type="number" min="256" max="4096" value={sizePx} onChange={(event) => setSizePx(event.target.value)} />
-                {!hasValidSize ? <small className="field-hint field-hint-error">Use a value from 256 to 4096.</small> : null}
+                <select value={sizePx} onChange={(event) => setSizePx(event.target.value)}>
+                  {pngSizeOptions.map((option) => (
+                    <option key={option} value={option.toString()}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {!hasValidSize ? <small className="field-hint field-hint-error">Use one of: 1024, 768, 512, 256, or 128.</small> : null}
               </label>
 
               <label className="field">
-                <span>ECC</span>
+                <span>Render quality</span>
                 <select value={eccLevel} onChange={(event) => setEccLevel(event.target.value as ErrorCorrectionLevel)}>
-                  <option>L</option>
-                  <option>M</option>
-                  <option>Q</option>
-                  <option>H</option>
+                  <option value="L">Low</option>
+                  <option value="M">Medium</option>
+                  <option value="Q">Quartile</option>
+                  <option value="H">High</option>
                 </select>
               </label>
             </div>
@@ -966,16 +973,16 @@ export function QrBuilder() {
           <span className="generator-step-badge">4</span>
           <div className="generator-step-copy">
             <h2>Preview and download</h2>
-            <p>Preview your generated QR code.</p>
           </div>
         </div>
+        <p>Preview your generated QR code.</p>
 
-        <div className="generator-preview-meta">
+        {/* <div className="generator-preview-meta">
           <span className={previewBadge.className}>{previewBadge.label}</span>
           <span className="generator-api-chip">{previewSourceLabel}</span>
-        </div>
+        </div> */}
 
-        <div className="preview-stage">
+        {/* <div className="preview-stage"> */}
           {previewImageSrc ? (
             <img className="preview-artifact" src={previewImageSrc} alt={previewImageAlt} />
           ) : (
@@ -984,7 +991,7 @@ export function QrBuilder() {
               <span>The builder switches from local SVG preview to server draft sync automatically once the request validates.</span>
             </div>
           )}
-        </div>
+        {/* </div> */}
 
         <div className="generator-preview-actions">
           <button className="preview-primary-action" form={formId} type="submit" disabled={isSubmitting}>
@@ -1004,8 +1011,8 @@ export function QrBuilder() {
           {errorMessage ? <p className="feedback-text feedback-text-error">{errorMessage}</p> : null}
         </div>
 
-        <div className="preview-summary-grid">
-          <article className="preview-summary-card">
+        {/* <div className="preview-summary-grid"> */}
+          {/* <article className="preview-summary-card">
             <p className="preview-label">Resolved target</p>
             <p className="preview-value">{resolvedPreviewTarget}</p>
           </article>
@@ -1023,13 +1030,13 @@ export function QrBuilder() {
           <article className="preview-summary-card">
             <p className="preview-label">Timeline</p>
             <p className="preview-value">{timelineText}</p>
-          </article>
+          </article> */}
 
           {/* <article className="preview-summary-card">
             <p className="preview-label">API target</p>
             <p className="preview-value">{configuredApiTarget}</p>
           </article> */}
-        </div>
+        {/* </div> */}
 
         {activeLatestJob?.artifacts.length ? (
           <div className="artifact-row">
@@ -1200,7 +1207,7 @@ function validateRequest(input: {
   hasValidBackdropPadding: boolean;
 }) {
   if (!input.hasValidSize) {
-    return "PNG size must be between 256 and 4096 pixels.";
+    return "PNG size must be one of: 1024, 768, 512, 256, or 128 pixels.";
   }
 
   if (!input.hasValidGradientRotation) {
@@ -1491,12 +1498,12 @@ function buildLocalPreviewSvgMarkup(encodedPayload: string, request: SubmitRende
     ? resolvePreviewLogoLayout(logoAsset.aspectRatio, request.logo.sizePercent, request.logo.backdropPaddingPercent, moduleCount)
     : null;
   const parts: string[] = [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" role="img" aria-label="HaveQR code">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" role="img" aria-label="HalfQR code">`,
   ];
 
   appendLocalPreviewDefs(parts, request, moduleCount);
   parts.push(`<rect x="0" y="0" width="${moduleCount}" height="${moduleCount}" fill="${request.colors.light}"/>`);
-  parts.push(`<g id="haveqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
+  parts.push(`<g id="halfqr-data-modules" fill="${resolveLocalPreviewDataFill(request)}" shape-rendering="geometricPrecision">`);
 
   for (let row = 0; row < sourceModuleCount; row += 1) {
     for (let column = 0; column < sourceModuleCount; column += 1) {
@@ -1542,7 +1549,7 @@ function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest
 
   parts.push("<defs>");
   parts.push(
-    `<linearGradient id="haveqr-data-gradient" gradientUnits="userSpaceOnUse" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
+    `<linearGradient id="halfqr-data-gradient" gradientUnits="userSpaceOnUse" x1="${formatPreviewNumber(x1)}" y1="${formatPreviewNumber(y1)}" x2="${formatPreviewNumber(x2)}" y2="${formatPreviewNumber(y2)}">`,
   );
   parts.push(`<stop offset="0%" stop-color="${request.data.gradientStart}"/>`);
   parts.push(`<stop offset="100%" stop-color="${request.data.gradientEnd}"/>`);
@@ -1551,7 +1558,7 @@ function appendLocalPreviewDefs(parts: string[], request: SubmitRenderJobRequest
 }
 
 function resolveLocalPreviewDataFill(request: SubmitRenderJobRequest) {
-  return request.data.gradientMode === "Linear" ? "url(#haveqr-data-gradient)" : request.colors.dark;
+  return request.data.gradientMode === "Linear" ? "url(#halfqr-data-gradient)" : request.colors.dark;
 }
 
 function buildLocalPreviewFinderOverlay(
@@ -1566,7 +1573,7 @@ function buildLocalPreviewFinderOverlay(
     [moduleCount - previewQuietZoneModules - previewFinderSizeModules, previewQuietZoneModules],
     [previewQuietZoneModules, moduleCount - previewQuietZoneModules - previewFinderSizeModules],
   ];
-  const parts = ["<g id=\"haveqr-finder-compositor\" shape-rendering=\"geometricPrecision\">"];
+  const parts = ["<g id=\"halfqr-finder-compositor\" shape-rendering=\"geometricPrecision\">"];
 
   for (const [originX, originY] of origins) {
     appendLocalPreviewRect(parts, originX, originY, previewFinderSizeModules, previewFinderSizeModules, lightColor, 0);
@@ -1613,7 +1620,7 @@ function appendLocalPreviewLogo(
   backdropFill: string,
   layout: PreviewLogoLayout,
 ) {
-  parts.push(`<g id="haveqr-logo"><rect x="${formatPreviewNumber(layout.backdropX)}" y="${formatPreviewNumber(layout.backdropY)}" width="${formatPreviewNumber(layout.backdropWidth)}" height="${formatPreviewNumber(layout.backdropHeight)}" rx="${formatPreviewNumber(layout.cornerRadius)}" ry="${formatPreviewNumber(layout.cornerRadius)}" fill="${backdropFill}"/>`);
+  parts.push(`<g id="halfqr-logo"><rect x="${formatPreviewNumber(layout.backdropX)}" y="${formatPreviewNumber(layout.backdropY)}" width="${formatPreviewNumber(layout.backdropWidth)}" height="${formatPreviewNumber(layout.backdropHeight)}" rx="${formatPreviewNumber(layout.cornerRadius)}" ry="${formatPreviewNumber(layout.cornerRadius)}" fill="${backdropFill}"/>`);
   parts.push(
     `<image x="${formatPreviewNumber(layout.x)}" y="${formatPreviewNumber(layout.y)}" width="${formatPreviewNumber(layout.width)}" height="${formatPreviewNumber(layout.height)}" href="${escapeSvgAttribute(logoAsset.previewUrl)}" preserveAspectRatio="xMidYMid meet"/>`,
   );
