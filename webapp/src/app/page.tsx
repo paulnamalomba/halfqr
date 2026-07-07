@@ -34,10 +34,10 @@ export default function HomePage() {
       <section className="generator-hero">
         <div className="generator-hero-copy">
           <p className="page-kicker" style={{ color: "var(--text-white)" }}>HalfQR: Half the Effort</p>
-          <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Quickly generate a branding-aware QR code for your content.</h1>
+          {/* <h1 className="page-title" style={{ color: "var(--cobalt-light)" }}>Quickly generate a branding-aware QR code for your content.</h1>
           <p className="page-summary" style={{ color: "var(--cobalt-light-white)" }}>
-            We provide branding logo-definitions, marker-shape definition, and data-shape definition - explore more below...
-          </p>
+            We provide branding logo-definitions, marker-shape definition, and data-shape definition - explore more below... */}
+          {/* </p> */}
         </div>
 
         {/* Will wire properly later */}
