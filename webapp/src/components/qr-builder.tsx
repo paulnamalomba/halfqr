@@ -673,7 +673,7 @@ export function QrBuilder() {
           <div className="generator-step-head">
             <span className="generator-step-badge">1</span>
             <div className="generator-step-copy">
-              <h2>Choose your QR type</h2>
+              <h2>Choose your QR Content type</h2>
               {/* <p>Select one of the currently supported routes, then move straight into the content fields.</p> */}
             </div>
           </div>
@@ -716,11 +716,11 @@ export function QrBuilder() {
               <h2>Your content routes...</h2>
             </div>
           </div>
-          {/* <p>{selectedType.summary}</p> */}
+          <span>{selectedType.summary}</span>
 
           <label className="field field-wide">
             <span>{selectedType.id === "whatsapp" ? "Target URL or leave blank for fallback generation" : "Enter your destination"}</span>
-            <input value={targetUrl} onChange={(event) => setTargetUrl(event.target.value)} placeholder={selectedType.placeholder} />
+            <input value={targetUrl} onChange={(event) => setTargetUrl(event.target.value)} placeholder="" />
             {selectedType.id === "whatsapp" ? (
               <small className="field-hint">Leave this blank to synthesise a wa.me route from the phone and message fields.</small>
             ) : null}
