@@ -1,6 +1,6 @@
 # Improvements to SiteHeader component
 
-- `webapp/src/components/site-header.tsx` - The site header component, which includes the navigation and mobile menu logic. 
+- `webapp/src/components/site-header.tsx` - The site header component, which includes the navigation and mobile menu logic.
 - The main improvements here are:
 
 1) To anchor the mobile menu to the hamburger button area, hide the desktop nav on small screens, and give the mobile items their own full-width styles. In practice that means making the action area relative, rendering the open menu as an absolute panel, and switching the mobile links to block or flex w-full justify-start so they read like a dropdown list rather than nav pills.
@@ -77,6 +77,6 @@
 </header>
 ```
 
-2) If you want to keep the styling in CSS instead of utility classes, create a separate mobile class such as .site-mobile-menu and .site-mobile-menu-link with position: absolute, display: flex, flex-direction: column, width, and justify-content: flex-start.
+1) If you want to keep the styling in CSS instead of utility classes, create a separate mobile class such as .site-mobile-menu and .site-mobile-menu-link with position: absolute, display: flex, flex-direction: column, width, and justify-content: flex-start.
 
-3) The links created by navigationItems.map(...) should also call setMenuOpen(false), otherwise the dropdown stays open after navigation
+2) The links created by navigationItems.map(...) should also call setMenuOpen(false), otherwise the dropdown stays open after navigation
