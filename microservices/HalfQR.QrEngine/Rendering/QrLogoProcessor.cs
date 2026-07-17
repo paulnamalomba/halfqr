@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using HalfQR.Contracts.Enums;
 using HalfQR.Contracts.Models;
@@ -30,7 +31,13 @@ internal static class QrLogoProcessor
         "stop",
         "title",
         "desc",
+        "metadata",
+        "style",
+        "symbol",
+        "text",
+        "tspan",
         "use",
+        "image",
     };
 
     public static QrPreparedLogo? Prepare(QrLogoOptions? logoOptions)
@@ -164,19 +171,59 @@ internal static class QrLogoProcessor
 
                 if (attributeName is "href" or "xlink:href")
                 {
-                    if (!string.Equals(element.Name.LocalName, "use", StringComparison.OrdinalIgnoreCase) || !value.StartsWith('#'))
+                    var isLocalReference = value.StartsWith('#');
+                    var isEmbeddedRaster = string.Equals(element.Name.LocalName, "image", StringComparison.OrdinalIgnoreCase)
+                        && IsSafeEmbeddedRaster(value);
+
+                    if (!isLocalReference && !isEmbeddedRaster)
                     {
                         throw new InvalidOperationException("Uploaded SVG logos cannot reference external resources.");
                     }
                 }
 
                 if (string.Equals(attributeName, "style", StringComparison.OrdinalIgnoreCase)
-                    && value.Contains("url(", StringComparison.OrdinalIgnoreCase))
+                    && ContainsUnsafeCssUrl(value))
                 {
                     throw new InvalidOperationException("Uploaded SVG logos cannot use external url() style references.");
                 }
             }
+
+            if (string.Equals(element.Name.LocalName, "style", StringComparison.OrdinalIgnoreCase))
+            {
+                ValidateSvgStylesheet(element.Value);
+            }
         }
+    }
+
+    private static bool IsSafeEmbeddedRaster(string value)
+        => value.StartsWith("data:image/png;base64,", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("data:image/jpeg;base64,", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("data:image/webp;base64,", StringComparison.OrdinalIgnoreCase);
+
+    private static void ValidateSvgStylesheet(string stylesheet)
+    {
+        if (stylesheet.Contains("@import", StringComparison.OrdinalIgnoreCase)
+            || stylesheet.Contains("expression(", StringComparison.OrdinalIgnoreCase)
+            || stylesheet.Contains("javascript:", StringComparison.OrdinalIgnoreCase)
+            || ContainsUnsafeCssUrl(stylesheet))
+        {
+            throw new InvalidOperationException("Uploaded SVG logo styles cannot reference external or executable resources.");
+        }
+    }
+
+    private static bool ContainsUnsafeCssUrl(string css)
+    {
+        foreach (Match match in Regex.Matches(css, @"url\((?<value>[^)]*)\)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            var reference = match.Groups["value"].Value.Trim().Trim('\'', '"');
+
+            if (!reference.StartsWith('#'))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static (string ViewBox, double Width, double Height) ResolveViewBox(XElement root)

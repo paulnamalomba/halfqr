@@ -1732,8 +1732,13 @@ async function loadPresetLogo(preset: LogoPreset) {
 }
 
 async function toUploadedLogo(file: File): Promise<UploadedLogo> {
-  if (file.type === "image/svg+xml") {
+  const normalizedFileType = file.type.toLowerCase();
+  const normalizedFileName = file.name.toLowerCase();
+  const isSvgFile = normalizedFileType === "image/svg+xml" || normalizedFileName.endsWith(".svg");
+
+  if (isSvgFile) {
     const svg = await readFileAsText(file);
+    assertValidSvgUpload(svg);
     const previewUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
     const aspectRatio = await readImageAspectRatio(previewUrl);
 
@@ -1748,7 +1753,7 @@ async function toUploadedLogo(file: File): Promise<UploadedLogo> {
     };
   }
 
-  if (file.type === "image/png" || file.type === "image/jpeg") {
+  if (normalizedFileType === "image/png" || normalizedFileType === "image/jpeg") {
     const normalizedRaster = await normalizeRasterLogo(file);
 
     return {
@@ -1757,13 +1762,21 @@ async function toUploadedLogo(file: File): Promise<UploadedLogo> {
       sizeBytes: normalizedRaster.sizeBytes,
       aspectRatio: normalizedRaster.aspectRatio,
       wasOptimized: normalizedRaster.wasOptimized,
-      sourceType: file.type === "image/png" ? "Png" : "Jpeg",
+      sourceType: normalizedFileType === "image/png" ? "Png" : "Jpeg",
       contentBase64: normalizedRaster.contentBase64,
       contentType: file.type,
     };
   }
 
   throw new Error("Upload an SVG, PNG, or JPEG logo.");
+}
+
+function assertValidSvgUpload(svg: string) {
+  const document = new DOMParser().parseFromString(svg, "image/svg+xml");
+
+  if (document.querySelector("parsererror") || document.documentElement.localName.toLowerCase() !== "svg") {
+    throw new Error("The selected SVG logo is not valid SVG markup.");
+  }
 }
 
 async function normalizeRasterLogo(file: File) {
