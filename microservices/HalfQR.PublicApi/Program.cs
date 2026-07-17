@@ -79,7 +79,7 @@ app.MapGet("/", () => Results.Ok(new
 {
 	service = "HalfQR.PublicApi",
 	status = "ok",
-	version = "0.3.0.1",
+	version = "0.4.0.0",
 }));
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "healthy" }));

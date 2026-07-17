@@ -1,0 +1,30 @@
+HalfQR v0.4.0.0 Release Notes
+Release Date: 17 July, 2026
+===================================
+
+## [0.4.0.0] - 2026-07-17
+
+### QR rendering reliability
+
+- Diagnosed `/api/halfqr/api/v1/qr/render` HTTP 500 responses as RabbitMQ broker failures after the Docker daemon restarted.
+- Added `unless-stopped` restart policies to RabbitMQ, PostgreSQL, and Redis.
+- Restored RabbitMQ and confirmed the public render API accepts jobs again.
+
+### SVG logo uploads
+
+- Accept SVG files by MIME type or `.svg` filename so generic browser/file-server MIME values do not block valid logos.
+- Parse SVG markup in the browser and return a clear validation message for malformed files.
+- Support common safe SVG metadata, stylesheet, symbol, text, local fragment, and embedded raster content.
+- Preserve sanitizer rejection of event handlers, scripts, executable values, external references, and unsafe CSS URLs.
+
+### Typography
+
+- Replaced the site's primary typography with Google Inter through Next.js font optimization.
+- Reduced QR builder font sizes by 15% across headings, labels, hints, statuses, preview copy, and download controls.
+
+### Validation
+
+- Frontend: `npm run build`
+- Backend and deployment: `docker compose build` and `docker compose up -d`
+- API: live render queue, completion, and SVG/PNG artifact smoke tests
+- Logo: live SVG draft and queued-render smoke tests

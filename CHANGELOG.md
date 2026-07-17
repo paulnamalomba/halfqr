@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [HalfQR](#halfqr)
   - [Contents](#contents)
+  - [\[0.4.0.0\] - 2026-07-17](#0400---2026-07-17)
+    - [Added in 0.4.0.0](#added-in-0400)
+    - [Changed in 0.4.0.0](#changed-in-0400)
+    - [Fixed in 0.4.0.0](#fixed-in-0400)
+    - [Validation for 0.4.0.0](#validation-for-0400)
   - [\[0.3.0.1\] - 2026-04-30](#0301---2026-04-30)
     - [Added](#added)
     - [Validation](#validation)
@@ -80,6 +85,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - [Changes](#changes-1)
 
 ---
+
+## [0.4.0.0] - 2026-07-17
+
+### Added in 0.4.0.0
+
+- Restart policies for RabbitMQ, PostgreSQL, and Redis so Docker daemon restarts restore the full render stack.
+- Explicit client-side SVG parsing feedback before logo assets are attached to a render request.
+
+### Changed in 0.4.0.0
+
+- Replaced the site's Poppins-based typography with Google Inter across body, headings, controls, code surfaces, and builder UI.
+- Reduced QR builder typography by 15%, including its explicit heading, label, helper, status, preview, and artifact sizes.
+- Expanded safe SVG logo compatibility to common metadata, stylesheet, symbol, text, local-reference, and embedded-raster constructs.
+
+### Fixed in 0.4.0.0
+
+- SVG files are recognized by both MIME type and `.svg` extension, covering browsers and file servers that report a generic MIME type.
+- QR render submissions no longer remain broken after a Docker daemon restart because RabbitMQ now returns automatically.
+- SVG sanitizer continues to reject scripts, event handlers, external references, executable values, and unsafe CSS URLs.
+
+### Validation for 0.4.0.0
+
+- `npm run build`
+- `docker compose build`
+- Live render submission returned `202 Accepted`, completed in the worker, and exposed SVG and PNG artifacts.
+- SVG logo draft and queued-render smoke tests completed through the deployed API.
 
 ## [0.3.0.1] - 2026-04-30
 

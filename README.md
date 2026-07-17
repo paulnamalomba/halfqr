@@ -1,6 +1,6 @@
 # HalfQR
 
-[![Version](https://img.shields.io/badge/version-0.3.0.1-blue)](https://github.com/paulnamalomba/halfqr/releases/tag/0.3.0.1)
+[![Version](https://img.shields.io/badge/version-0.4.0.0-blue)](https://github.com/paulnamalomba/halfqr/releases/tag/0.4.0.0)
 [![Backend](https://img.shields.io/badge/backend-.NET%2010-512BD4)](#technology-stack)
 [![Frontend](https://img.shields.io/badge/frontend-Next.js-black)](#technology-stack)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
