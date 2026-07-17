@@ -40,7 +40,7 @@ body.site-body {
   background: linear-gradient(180deg, var(--navy) 0 120px, var(--bg) 800px 100%);
   background-repeat: no-repeat;
   color: var(--text);
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }
 
 /* Layer subtle background accents. */
@@ -88,7 +88,7 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-family: var(--font-heading), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   line-height: 1.05;
   letter-spacing: -0.04em;
 }
@@ -582,7 +582,7 @@ p {
   color: #eef5ff;
   border-radius: 22px;
   padding: 18px;
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-inter), sans-serif;
   font-size: 0.81rem;
   line-height: 1.72;
   overflow: auto;
@@ -601,14 +601,14 @@ p {
   border-radius: 999px;
   background: rgba(31, 97, 192, 0.1);
   color: var(--cobalt);
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-inter), sans-serif;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
 }
 
 /* Wrap endpoint routes safely. */
 .endpoint-route {
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-inter), sans-serif;
   font-size: 0.84rem;
   line-height: 1.6;
   word-break: break-word;
@@ -624,6 +624,20 @@ p {
 .generator-layout {
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.92fr);
   align-items: start;
+  font-size: 85%;
+}
+
+/* Keep the builder's explicit heading and code sizes at the same 15% reduction. */
+.generator-layout h2 {
+  font-size: clamp(0.9775rem, 1.785vw, 1.36rem);
+}
+
+.generator-layout h3 {
+  font-size: clamp(1.105rem, 1.53vw, 1.105rem);
+}
+
+.generator-layout .builder-json {
+  font-size: 0.6885rem;
 }
 
 /* Flexible children prevent horizontal bleed across grids. */
@@ -684,8 +698,8 @@ p {
   place-items: center;
   background: var(--navy);
   color: #ffffff;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.95rem;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 0.8075rem;
   box-shadow: 0 10px 22px rgba(16, 36, 60, 0.16);
 }
 
@@ -739,19 +753,19 @@ p {
 
 /* Size type label titles. */
 .generator-type-label strong {
-  font-size: 0.96rem;
+  font-size: 0.816rem;
 }
 
 /* Tone type label metadata. */
 .generator-type-label span {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.68rem;
 }
 
 /* Space inline guidance. */
 .generator-inline-note {
   margin: 0 0 0px;
-  font-size: 0.92rem;
+  font-size: 0.782rem;
   line-height: 1.65;
 }
 
@@ -768,7 +782,7 @@ p {
 
 /* Style field labels. */
 .field span {
-  font-size: 0.92rem;
+  font-size: 0.782rem;
   font-weight: 600;
   color: var(--text);
 }
@@ -845,7 +859,7 @@ p {
 
 /* Style helper text. */
 .field-hint {
-  font-size: 0.81rem;
+  font-size: 0.6885rem;
   line-height: 1.55;
 }
 
@@ -919,13 +933,13 @@ p {
 
 /* Size dropzone titles. */
 .upload-dropzone strong {
-  font-size: 0.95rem;
+  font-size: 0.8075rem;
 }
 
 /* Tone dropzone metadata. */
 .upload-dropzone span {
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.731rem;
 }
 
 /* Stack preset shell content. */
@@ -996,13 +1010,13 @@ p {
 
 /* Size preset titles. */
 .logo-preset-copy strong {
-  font-size: 0.92rem;
+  font-size: 0.782rem;
 }
 
 /* Tone preset metadata. */
 .logo-preset-copy span {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.68rem;
 }
 
 /* Style the toggle row. */
@@ -1028,7 +1042,7 @@ p {
 .toggle-row span {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: 0.92rem;
+  font-size: 0.782rem;
   line-height: 1.55;
   color: var(--text);
 }
@@ -1071,7 +1085,7 @@ p {
   align-items: center;
   gap: 8px;
   color: var(--navy);
-  font-size: 0.92rem;
+  font-size: 0.782rem;
   font-weight: 600;
 }
 
@@ -1126,7 +1140,7 @@ p {
   min-height: 34px;
   padding: 0 12px;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.663rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1231,13 +1245,13 @@ p {
 /* Emphasize placeholder titles. */
 .preview-placeholder strong {
   color: var(--navy);
-  font-size: 1rem;
+  font-size: 0.85rem;
   line-height: 1.4;
 }
 
 /* Tone placeholder body copy. */
 .preview-placeholder span {
-  font-size: 0.88rem;
+  font-size: 0.748rem;
   line-height: 1.6;
 }
 
@@ -1411,7 +1425,7 @@ p {
 
 /* Style feedback copy. */
 .feedback-text {
-  font-size: 0.9rem;
+  font-size: 0.765rem;
   line-height: 1.6;
 }
 
@@ -1432,7 +1446,7 @@ p {
 
 /* Style summary labels. */
 .preview-label {
-  font-size: 0.73rem;
+  font-size: 0.6205rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
@@ -1440,7 +1454,7 @@ p {
 
 /* Style summary values. */
 .preview-value {
-  font-size: 0.9rem;
+  font-size: 0.765rem;
   line-height: 1.6;
   word-break: break-word;
 }
@@ -1461,7 +1475,7 @@ p {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--line);
   color: var(--navy);
-  font-size: 0.87rem;
+  font-size: 0.7395rem;
 }
 
 /* Strengthen hovered artifacts. */
@@ -1662,7 +1676,7 @@ p {
   /* Reduce primary selector text. */
   .generator-type-label strong,
   .logo-preset-copy strong {
-    font-size: 0.9rem;
+    font-size: 0.765rem;
   }
 
   /* Compact preset cards further. */

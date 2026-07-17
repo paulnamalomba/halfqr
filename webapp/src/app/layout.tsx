@@ -1,24 +1,12 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk, Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
-const headingFont = Poppins({
+const interFont = Inter({
   subsets: ["latin"],
-  variable: "--font-heading",
-  weight: ["500", "600"],
-});
-
-const bodyFont = Poppins({
-  subsets: ["latin"],
-  variable: "--font-poppins",
-  weight: ["400", "500", "600"],
-});
-
-const monoFont = Poppins({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  weight: ["400", "500"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -55,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`site-body ${headingFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>
+      <body className={`site-body ${interFont.variable}`}>
         <div className="app-frame">
           <SiteHeader />
           {children}
