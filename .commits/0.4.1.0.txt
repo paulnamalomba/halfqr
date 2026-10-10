@@ -1,0 +1,189 @@
+HalfQR v0.4.1.0 Release Notes
+Release Date: 10 October, 2026
+===================================
+
+MAJOR CHANGES
+=============
+
+## [0.4.1.0] - 2026-10-10
+
+### Diff Baseline
+
+- Previous documented version and release tag: 0.4.0.0 (commit aa749dd).
+- Release scope commands: git diff 0.4.0.0 -- . ':(exclude).commits/**' and git status --short.
+- Effective runtime scope: 42 modified and deleted tracked source files, 51 untracked new feature files (+3,552 tracked line insertions, -1,334 tracked line deletions, and over 12,400 lines across newly created services, contracts, and frontend modules).
+- Version progression: 0.4.0.0 -> 0.4.1.0 under HalfQR fast sequence versioning.
+
+### API Authentication, Authorization & Rate Limiting
+
+- Added ApiCallerMiddleware in microservices/HalfQR.PublicApi/Security/ApiCallerMiddleware.cs supporting Authorization: Bearer <token> (for hqr_sk_ API keys and hqr_pat_ access tokens) and X-Api-Key headers.
+- Integrated CredentialVerifier to validate incoming credentials against HalfQR.Identity via HTTP POST /internal/v1/credentials/verify with internal secret authentication.
+- Implemented RequireApiScope endpoint route filter in PublicApi enforcing granular scopes ApiScopes.QrRender (qr:render) on render and draft endpoints and ApiScopes.QrRead (qr:read) on job status and artifact downloads.
+- Added partitioned rate limiting via builder.Services.AddRateLimiter(...) in PublicApi with dedicated policies: 'render' (anonymous quota vs. subscriber plan limit), 'draft' (anonymous draft quota), and 'read' (read operations).
+- Implemented secure caller IP partitioning in ApiCallerMiddleware: extracts client addresses from X-Forwarded-For only when validated against a shared HALFQR_PROXY_SECRET header, preventing address spoofing.
+- Bound render jobs to creator credentials via RenderJobState.OwnerCredentialId; enforced private job isolation in RenderJobService.GetStatusAsync and GetArtifactAsync, returning HTTP 404 to unauthorized callers to prevent job GUID enumeration.
+- Sanitized queue failure responses in RenderJobService: replaced exposed internal exception messages with generic user messages ('The render queue is unavailable. Please retry shortly.') while logging detailed exceptions on the server.
+- Added strict security headers on all PublicApi responses (X-Content-Type-Options: nosniff, Referrer-Policy: no-referrer, HSTS on HTTPS) and applied sandbox Content-Security-Policy ('default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox') to SVG artifact downloads.
+
+### QrEngine Sanitization, Hardening & Validation
+
+- Hardened SVG logo XML parsing in microservices/HalfQR.QrEngine/Rendering/QrLogoProcessor.cs: replaced plain XDocument.Parse with ParseSvgDocument using XmlReaderSettings with DtdProcessing.Prohibit and null XmlResolver to eliminate XML External Entity (XXE) vectors.
+- Enforced strict SVG complexity caps: limited total SVG element count to 4,000 and <use> elements to 64; implemented ValidateUseReferences to detect and reject nested <use> reference chains that could trigger quadratic amplification in SkiaSharp rasterization.
+- Expanded CSS URL sanitization: updated ContainsUnsafeCssUrl validation across all element attribute values, blocking url() injections through SVG presentation attributes (fill, stroke, mask, clip-path, filter).
+- Prevented raster logo decompression bombs in QrLogoProcessor.EnsureDecodableRasterSize: inspects dimensions via SKCodec.Create prior to decoding full pixel buffers, capping decoded size at 4096 x 4096 pixels (16 megapixels) and 512 KB payload size.
+- Hardened QrRenderRequestValidator.cs: added ValidateEnums using Enum.IsDefined across ContentType, Mode, ErrorCorrectionLevel, Finder.BorderShape, Finder.CenterShape, Data.Pattern, Data.GradientMode, and Logo.SourceType to reject raw integer bypasses.
+- Added ValidatePayloadShape in QrRenderRequestValidator: capped TargetUrl to 2,048 characters, payload dictionary entries to 16, key lengths to 64 characters, and value lengths to 2,048 characters.
+- Added validation rejection for QrRenderMode.Managed, returning an explicit HTTP 400 validation error informing clients that dynamic managed QR codes are not yet available.
+- Refactored SVG composer modules (QrSvgComposer.cs and QrFinderSvgComposer.cs): centralized QuietZoneModules (4) and FinderSizeModules (7) constants, introduced IsInFinderSpan helper, and extracted shared SvgNumberFormat.Format(double) to eliminate duplicate invariant floating-point formatting.
+
+### HalfQR.Identity Service (Auth, Sessions & Credentials)
+
+- Implemented microservice in microservices/HalfQR.Identity targeting .NET 10 with pluggable FileSystemIdentityStore and PostgresIdentityStore storage backends.
+- Created PostgreSQL schema 'identity' with automatic startup initialization for users, sessions, api_credentials, and email_verifications tables with JSONB document records and indexed lookup columns.
+- Built passwordless magic-link authentication via EmailVerificationService and ResendEmailSender using Resend's REST API, with fallback LoggingEmailSender for local development.
+- Implemented EmailDomainPolicy: validates email format and blocks registrations from disposable email domains and known spam sources using bundled resources (disposable-email-domains.txt, spam-domains.txt, trusted-email-providers.txt); provided .helpers/update-email-blocklists.sh for automated blocklist updates.
+- Implemented Google OAuth 2.0 PKCE authentication flow in GoogleOAuthClient: handles code exchange, user profile extraction (email, display name, avatar), and account upsert in UserDirectory.
+- Implemented session engine via SessionService: issues cryptographically secure 40-character base62 tokens prefixed with 'hqr_sess_' (~238 bits of entropy), hashes tokens with SHA-256 for database lookup, and tracks user-agent, IP, and activity timestamps.
+- Built full API credential lifecycle in CredentialService: creates scoped API keys (hqr_sk_) with lifetimes of 30, 90, 180, 365 days, or never, and personal access tokens (hqr_pat_) with lifetimes of 1, 7, 30, or 90 days.
+- Added credential rotation, single-time plaintext secret reveal, credential revocation, and plan limit checks integrated with HalfQR.Billing.
+- Provided internal verification route POST /internal/v1/credentials/verify protected with X-HalfQR-Internal-Key and constant-time string comparison (SecretTokens.FixedTimeEquals).
+
+### HalfQR.Billing Service (PayChangu Mobile Money & Plans)
+
+- Implemented billing microservice in microservices/HalfQR.Billing targeting .NET 10 with FileSystemBillingStore and PostgresBillingStore backends managing subscriptions and payments tables.
+- Built native Malawi Mobile Money payment integration in PayChanguClient supporting Airtel Money and TNM Mpamba checkout flows with 9-digit telephone normalization and network prefix validation (Airtel '9', TNM '8').
+- Implemented webhook receiver POST /api/v1/billing/webhooks/paychangu with mandatory HMAC-SHA256 'Signature' header verification in Production environments, automatically re-verifying payments directly with PayChangu before subscription activation.
+- Added background service PaymentTimeoutWorker running every 30 seconds to query PayChangu for unconfirmed mobile charges and expire pending records older than 15 minutes.
+- Configured subscription tiers: 'Developer' plan (MWK 15,000 / month, 3 API keys, 5 access tokens, 300 RPM) and 'Business' plan (MWK 45,000 / month, 25 API keys, 25 access tokens, 1,200 RPM), with free tier entitlement fallback.
+- Added internal service endpoints GET /internal/v1/users/{userId}/entitlement and GET /internal/v1/users/{userId}/overview secured by InternalHeaders.InternalKey.
+
+### Developer Console & Webapp Interface Architecture
+
+- Built developer console frontend under webapp/src/app/dashboard with dedicated layout shell, responsive sidebar navigation, user session context, and optimistic authentication protection via webapp/src/proxy.ts matching /dashboard/:path*.
+- Created CredentialsManager, CredentialsPage, KeyMask, and CopyButton components under webapp/src/components/dashboard for issuing, viewing, copying, rotating, and revoking API keys and Personal Access Tokens.
+- Implemented BillingPanel component with real-time entitlement display, plan cards, mobile money checkout dialog with telephone formatting, payment transaction tables with status badges, and manual refresh controls.
+- Implemented SessionsPanel in webapp/src/app/dashboard/security/page.tsx displaying active sessions, current browser indicator, user-agent and IP details, and remote session termination.
+- Built dedicated authentication flows under webapp/src/app/sign-in and webapp/src/app/sign-up supporting passwordless email verification, Google OAuth 2.0 PKCE, and local development bypass.
+- Hardened webapp reverse proxy in webapp/src/app/api/halfqr/[...path]/route.ts: restricted forwarding strictly to /api/v1/qr/* routes, enforced a 1 MB body size cap, allowlisted request headers (accept, content-type) and response headers, and forwarded client IP with HALFQR_PROXY_SECRET.
+- Built interactive changelog platform under webapp/src/app/changelog backed by loadReleaseLines() in webapp/src/lib/changelog.ts, dynamically parsing .commits/*.txt files into structured release lines, patch details, and an RSS 2.0 feed at /changelog/rss.xml.
+
+### Design System, Typography & Frontend Simplification
+
+- Replaced Google Inter typography with Plus_Jakarta_Sans (--font-sans) via Next.js font optimization across the entire application for improved readability and typographic rhythm.
+- Introduced standardized webapp sizing design tokens in webapp/src/app/globals.css (--web-font-body: 0.75rem, --web-font-heading: 1rem, --web-control-height: 2.25rem, --web-control-radius: 12px, --web-surface-radius: 14px) and console tokens in webapp/src/app/console.css.
+- Removed disruptive hover transformations (transform: scale(1.06)) across interactive buttons in favor of subtle border-color, background, and filter transitions.
+- Standardized public marketing pages (Product, Why HalfQR, QR Codes, API Documentation) with reusable PageHero and InfoCardGrid components, removing unused MUI icon dependencies and commented layout code.
+- Expanded API documentation in webapp/src/app/api-documentation/page.tsx with comprehensive guidance on /render/draft, /content-types, Bearer authentication headers, scopes (qr:render, qr:read), and validation limits.
+- Applied code simplifications in webapp/src/components/qr-builder.tsx: removed redundant aliases, simplified target URL mapping, flattened payload resolution, unified SVG preview data URLs, and normalized phone digits.
+
+### Infrastructure, Docker Compose & Environment Hardening
+
+- Overhauled docker-compose.yml and .env.example: eliminated committed dev passwords (halfqr_dev_password), replacing them with mandatory environment variable checks (${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env} and ${RABBITMQ_DEFAULT_PASS:?Set RABBITMQ_DEFAULT_PASS in .env}).
+- Bound database and broker ports (PostgreSQL 5436, Redis 6386, RabbitMQ 5673 and 15673) strictly to localhost (127.0.0.1) to avoid unintended host network exposure.
+- Enforced Redis authentication with --requirepass ${REDIS_PASSWORD} and updated Redis container healthchecks.
+- Added Docker container definitions and compose services for halfqr-identity (microservices/HalfQR.Identity/Dockerfile) and halfqr-billing (microservices/HalfQR.Billing/Dockerfile), connecting them securely to Postgres and PublicApi.
+- Configured restart: unless-stopped policies across all application microservices and background dependencies.
+- Updated root .gitignore to match nested build directories (**/bin/, **/obj/, **/.data/, *.tsbuildinfo, and UI screenshots).
+
+### Code Files Touched
+
+- Root & Infrastructure:
+  - .env.example: Added required secret declarations, OAuth credentials, Resend options, and PayChangu configuration.
+  - .gitignore: Added recursive bin/obj, .data/, and tsbuildinfo ignore patterns.
+  - docker-compose.yml: Added identity and billing services, localhost port bindings, Redis authentication, and secret validation.
+  - .helpers/update-email-blocklists.sh: Shell script for updating disposable and spam email domain blocklists.
+  - docs/security/api-security-audit-2026-10-09.md: Security audit documentation.
+  - docs/code-improvements/code-simplification-and-review-2026-10-09.md: Code review and simplification findings.
+  - docs/features/feature-roadmap-2026-10-09.md: Architecture and feature roadmap.
+  - docs/features/frontend-route-coverage-2026-10-09.md: API contract coverage matrix.
+
+- Backend Services - HalfQR.PublicApi:
+  - microservices/HalfQR.PublicApi/Program.cs: Configured API caller middleware, rate limiters, security headers, and scope authorization.
+  - microservices/HalfQR.PublicApi/Services/RenderJobService.cs: Added job owner credential binding and sanitized error messages.
+  - microservices/HalfQR.PublicApi/Security/ApiAccessOptions.cs: Configuration options for API keys and rate limits.
+  - microservices/HalfQR.PublicApi/Security/ApiCaller.cs: Caller context model representing anonymous or authenticated callers.
+  - microservices/HalfQR.PublicApi/Security/ApiCallerMiddleware.cs: Authentication and client IP extraction middleware.
+  - microservices/HalfQR.PublicApi/Security/CredentialVerifier.cs: HTTP client verifier calling Identity.
+  - microservices/HalfQR.PublicApi/appsettings.json & appsettings.Development.json: Updated access options.
+
+- Backend Services - HalfQR.Identity:
+  - microservices/HalfQR.Identity/Dockerfile: Multi-stage container build definition.
+  - microservices/HalfQR.Identity/Program.cs: Identity service setup, routes for auth, sessions, credentials, and verification.
+  - microservices/HalfQR.Identity/IdentityOptions.cs: Identity configuration models and provider constants.
+  - microservices/HalfQR.Identity/Models/UserAccount.cs: User entity model.
+  - microservices/HalfQR.Identity/Models/SessionRecord.cs: Session entity model.
+  - microservices/HalfQR.Identity/Models/ApiCredential.cs: API key and access token entity model.
+  - microservices/HalfQR.Identity/Models/EmailVerification.cs: Email verification token entity model.
+  - microservices/HalfQR.Identity/Security/CredentialService.cs: Credential generation, validation, and lifecycle.
+  - microservices/HalfQR.Identity/Security/SessionService.cs: Session generation, revocation, and hashing.
+  - microservices/HalfQR.Identity/Security/UserDirectory.cs: User account provisioning and lookup.
+  - microservices/HalfQR.Identity/Security/EmailDomainPolicy.cs: Disposable and spam email domain filter.
+  - microservices/HalfQR.Identity/Security/EmailVerificationService.cs: Magic link verification workflow.
+  - microservices/HalfQR.Identity/Security/SecretTokens.cs: Cryptographic token generator and constant-time comparison.
+  - microservices/HalfQR.Identity/Security/BillingClient.cs: Internal HTTP client relay to Billing.
+  - microservices/HalfQR.Identity/Google/GoogleOAuthClient.cs: Google OAuth 2.0 PKCE client.
+  - microservices/HalfQR.Identity/Email/IEmailSender.cs: Email sender interface.
+  - microservices/HalfQR.Identity/Email/ResendEmailSender.cs: Resend API implementation.
+  - microservices/HalfQR.Identity/Email/VerificationEmailTemplate.cs: HTML/text verification email template.
+  - microservices/HalfQR.Identity/Storage/IIdentityStore.cs: Identity storage interface.
+  - microservices/HalfQR.Identity/Storage/PostgresIdentityStore.cs: PostgreSQL storage implementation.
+  - microservices/HalfQR.Identity/Storage/FileSystemIdentityStore.cs: File system storage implementation.
+  - microservices/HalfQR.Identity/Resources/*: Domain blocklists and trusted provider lists.
+
+- Backend Services - HalfQR.Billing:
+  - microservices/HalfQR.Billing/Dockerfile: Multi-stage container build definition.
+  - microservices/HalfQR.Billing/Program.cs: Billing service setup, PayChangu webhook, and internal user routes.
+  - microservices/HalfQR.Billing/BillingOptions.cs: Billing options and plan definitions.
+  - microservices/HalfQR.Billing/BillingContracts.cs: DTOs for checkout, overview, plans, and payments.
+  - microservices/HalfQR.Billing/Models/Subscription.cs: Subscription state model.
+  - microservices/HalfQR.Billing/Models/BillingPayment.cs: Payment transaction model.
+  - microservices/HalfQR.Billing/PayChangu/PayChanguClient.cs: PayChangu API client with mobile validation and HMAC verification.
+  - microservices/HalfQR.Billing/Payments/BillingService.cs: Plan entitlements, checkout flow, and webhook processing.
+  - microservices/HalfQR.Billing/Payments/PaymentTimeoutWorker.cs: Background sweep for timed-out payments.
+  - microservices/HalfQR.Billing/Storage/IBillingStore.cs: Billing storage interface.
+  - microservices/HalfQR.Billing/Storage/PostgresBillingStore.cs: PostgreSQL billing storage implementation.
+  - microservices/HalfQR.Billing/Storage/FileSystemBillingStore.cs: File system billing storage implementation.
+
+- Backend Shared Contracts & QrEngine:
+  - microservices/HalfQR.Contracts/Models/RenderJobState.cs: Added OwnerCredentialId property.
+  - microservices/HalfQR.Contracts/Security/*: ApiCredentialKind, ApiScopes, CredentialVerificationRequest/Response, InternalHeaders.
+  - microservices/HalfQR.Contracts/Billing/EntitlementResponse.cs: Entitlement DTO contract.
+  - microservices/HalfQR.QrEngine/Rendering/QrLogoProcessor.cs: XML parsing hardening, complexity caps, and decompression bomb protection.
+  - microservices/HalfQR.QrEngine/Rendering/QrRenderRequestValidator.cs: Enum validation, payload limits, and managed mode rejection.
+  - microservices/HalfQR.QrEngine/Rendering/QrSvgComposer.cs: Module geometry refactoring and IsInFinderSpan helper.
+  - microservices/HalfQR.QrEngine/Rendering/QrFinderSvgComposer.cs: Shared geometry constants.
+  - microservices/HalfQR.QrEngine/Rendering/SvgNumberFormat.cs: Shared floating-point string formatting helper.
+  - microservices/HalfQR.Cli/Program.cs: Cleaned up option parsing and shared logo option instantiation.
+
+- Frontend Webapp:
+  - webapp/src/proxy.ts: Middleware protecting dashboard routes.
+  - webapp/src/app/globals.css: Sizing tokens and typography overhaul.
+  - webapp/src/app/console.css: Complete console and dashboard stylesheet.
+  - webapp/src/app/layout.tsx: Migrated to Plus_Jakarta_Sans font.
+  - webapp/src/components/site-header.tsx: Added Changelog and Sign-in navigation links; concealed header on console routes.
+  - webapp/src/components/qr-builder.tsx: Code simplifications, dead code removal, and phone normalization.
+  - webapp/src/app/api/halfqr/[...path]/route.ts: Hardened proxy with header allowlists and body length enforcement.
+  - webapp/src/app/api/auth/*: Endpoints for email magic links, Google OAuth, dev sign-in, and sign-out.
+  - webapp/src/app/api/account/[...path]/route.ts: Proxy for credentials, sessions, and billing requests to Identity.
+  - webapp/src/app/sign-in/page.tsx & webapp/src/app/sign-up/page.tsx: Authentication pages.
+  - webapp/src/app/dashboard/*: Dashboard overview, api-keys, access-tokens, billing, and security pages.
+  - webapp/src/components/dashboard/*: Reusable credentials manager, billing panel, sessions panel, dialogs, and key masks.
+  - webapp/src/components/auth/*: Auth hero, auth panel, and Google logo mark.
+  - webapp/src/components/site/*: PageHero and InfoCardGrid reusable marketing layout components.
+  - webapp/src/app/changelog/*: Dynamic changelog pages and RSS feed.
+  - webapp/src/lib/*: Client API helpers, changelog loader, formatting utilities, and server config.
+
+### Compatibility and Deployment Notes
+
+- Database Migrations: PostgresIdentityStore and PostgresBillingStore automatically create their respective PostgreSQL schemas ('identity' and 'billing') along with tables and indexes on first startup; no manual migration scripts required.
+- Mandatory Environment Variables: Deployment requires setting POSTGRES_PASSWORD, RABBITMQ_DEFAULT_PASS, REDIS_PASSWORD, HALFQR_INTERNAL_API_KEY, and HALFQR_PROXY_SECRET in .env.
+- Identity Base URL & CORS: Webapp requires HALFQR_IDENTITY_BASE_URL (defaults to http://identity:8080 in Docker) to communicate with HalfQR.Identity; PublicApi requires ApiAccess__IdentityBaseUrl.
+- PayChangu Webhooks: Public webhook routing for PayChangu requires pointing reverse proxies or tunnels to the Billing service at /api/v1/billing/webhooks/paychangu with PAYCHANGU_WEBHOOK_SECRET configured.
+- Backward Compatibility: Anonymous render and draft requests remain functional when HALFQR_REQUIRE_API_KEY is set to false (default); existing static QR codes and rendering parameters remain fully compatible.
+
+### Validation Performed
+
+- .NET Solution Compilation: Executed dotnet build HalfQR.sln across all 8 microservices and library projects; build passed with 0 warnings and 0 errors.
+- Frontend Next.js Build: Executed npm --prefix webapp run build; Next.js 16.4.0 (Turbopack) successfully compiled all static routes (/changelog, /product, /qr-codes, /why-halfqr, /api-documentation) and dynamic API/dashboard routes with 0 errors.
+- CLI Render & Decode Verification: Executed dotnet run --project microservices/HalfQR.Cli -- verify-render --url https://example.com/test --preset link; verified draft SVG generation, final PNG rasterization, and ZXing payload decoding successfully passed.
+- Email Blocklist Verification: Verified disposable-email-domains.txt, spam-domains.txt, and trusted-email-providers.txt load into memory during Identity startup and reject invalid or disposable test addresses as expected.

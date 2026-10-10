@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ffN2Cae9+ko=",
+  "dgSpecHash": "wJL4j26tOlI=",
   "success": true,
-  "projectFilePath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj",
+  "projectFilePath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.PublicApi/HalfQR.PublicApi.csproj",
   "expectedPackageFiles": [
     "/Users/kabwe/.nuget/packages/awssdk.core/4.0.3.28/awssdk.core.4.0.3.28.nupkg.sha512",
     "/Users/kabwe/.nuget/packages/awssdk.s3/4.0.21/awssdk.s3.4.0.21.nupkg.sha512",

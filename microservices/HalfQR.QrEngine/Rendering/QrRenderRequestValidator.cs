@@ -14,6 +14,10 @@ public static partial class QrRenderRequestValidator
     public const int MaxLogoSizePercent = 24;
     public const int MinBackdropPaddingPercent = 10;
     public const int MaxBackdropPaddingPercent = 80;
+    public const int MaxTargetUrlCharacters = 2_048;
+    public const int MaxPayloadEntries = 16;
+    public const int MaxPayloadKeyCharacters = 64;
+    public const int MaxPayloadValueCharacters = 2_048;
 
     public static Dictionary<string, string[]> Validate(SubmitRenderJobRequest request)
     {
@@ -24,6 +28,8 @@ public static partial class QrRenderRequestValidator
             AddError(errors, "output.sizePx", $"PNG size must be between {MinOutputSizePx} and {MaxOutputSizePx} pixels.");
         }
 
+        ValidateEnums(request, errors);
+        ValidatePayloadShape(request, errors);
         ValidateTarget(request, errors);
 
         if (!IsValidHexColor(request.Colors.Dark))
@@ -53,6 +59,51 @@ public static partial class QrRenderRequestValidator
 
         var message = string.Join(" ", errors.SelectMany(static entry => entry.Value));
         throw new InvalidOperationException(message);
+    }
+
+    // Integer enum values bypass string parsing, so every enum is checked against its defined members.
+    private static void ValidateEnums(SubmitRenderJobRequest request, Dictionary<string, List<string>> errors)
+    {
+        AddErrorIfUndefined(errors, "contentType", request.ContentType);
+        AddErrorIfUndefined(errors, "mode", request.Mode);
+        AddErrorIfUndefined(errors, "errorCorrectionLevel", request.ErrorCorrectionLevel);
+        AddErrorIfUndefined(errors, "finder.borderShape", request.Finder.BorderShape);
+        AddErrorIfUndefined(errors, "finder.centerShape", request.Finder.CenterShape);
+        AddErrorIfUndefined(errors, "data.pattern", request.Data.Pattern);
+        AddErrorIfUndefined(errors, "data.gradientMode", request.Data.GradientMode);
+
+        if (request.Logo is not null)
+        {
+            AddErrorIfUndefined(errors, "logo.sourceType", request.Logo.SourceType);
+        }
+
+        if (request.Mode == QrRenderMode.Managed)
+        {
+            AddError(errors, "mode", "Managed (dynamic) QR codes are not available yet. Use Static.");
+        }
+    }
+
+    private static void ValidatePayloadShape(SubmitRenderJobRequest request, Dictionary<string, List<string>> errors)
+    {
+        if (request.TargetUrl is { Length: > MaxTargetUrlCharacters })
+        {
+            AddError(errors, "targetUrl", $"Target URL must be {MaxTargetUrlCharacters} characters or fewer.");
+        }
+
+        if (request.Payload.Count > MaxPayloadEntries)
+        {
+            AddError(errors, "payload", $"Payload must contain {MaxPayloadEntries} entries or fewer.");
+            return;
+        }
+
+        foreach (var (key, value) in request.Payload)
+        {
+            if (key.Length > MaxPayloadKeyCharacters || value is { Length: > MaxPayloadValueCharacters })
+            {
+                AddError(errors, "payload", $"Payload keys must be {MaxPayloadKeyCharacters} characters or fewer and values {MaxPayloadValueCharacters} or fewer.");
+                return;
+            }
+        }
     }
 
     private static void ValidateTarget(SubmitRenderJobRequest request, Dictionary<string, List<string>> errors)
@@ -174,6 +225,15 @@ public static partial class QrRenderRequestValidator
                     AddError(errors, "logo.contentType", $"Raster logo content type must be {expectedContentType}.");
                 }
                 break;
+        }
+    }
+
+    private static void AddErrorIfUndefined<TEnum>(Dictionary<string, List<string>> errors, string key, TEnum value)
+        where TEnum : struct, Enum
+    {
+        if (!Enum.IsDefined(value))
+        {
+            AddError(errors, key, $"'{value}' is not a supported value. Allowed: {string.Join(", ", Enum.GetNames<TEnum>())}.");
         }
     }
 

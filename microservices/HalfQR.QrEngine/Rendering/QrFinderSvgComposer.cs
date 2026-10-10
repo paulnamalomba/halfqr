@@ -1,40 +1,16 @@
-using System.Globalization;
 using System.Text;
 using HalfQR.Contracts.Enums;
 using HalfQR.Contracts.Models;
-using QRCoder;
+using static HalfQR.QrEngine.Rendering.SvgNumberFormat;
 
 namespace HalfQR.QrEngine.Rendering;
 
 internal static class QrFinderSvgComposer
 {
-    private const int QuietZoneModules = 4;
-    private const int FinderSizeModules = 7;
+    internal const int QuietZoneModules = 4;
+    internal const int FinderSizeModules = 7;
     private const int FinderInnerSizeModules = 5;
     private const int FinderCenterSizeModules = 3;
-
-    public static string Compose(string svgMarkup, QRCodeData qrCodeData, QrFinderOptions finderOptions, QrColorOptions colors)
-    {
-        if (finderOptions.BorderShape == QrFinderShape.Square && finderOptions.CenterShape == QrFinderShape.Square)
-        {
-            return svgMarkup;
-        }
-
-        if (!svgMarkup.Contains("</svg>", StringComparison.Ordinal))
-        {
-            return svgMarkup;
-        }
-
-        var moduleCount = qrCodeData.ModuleMatrix.Count;
-
-        if (moduleCount < (QuietZoneModules * 2) + FinderSizeModules)
-        {
-            return svgMarkup;
-        }
-
-        var overlayMarkup = BuildOverlay(moduleCount, finderOptions, colors);
-        return svgMarkup.Replace("</svg>", $"{overlayMarkup}{Environment.NewLine}</svg>", StringComparison.Ordinal);
-    }
 
     internal static string BuildOverlay(int moduleCount, QrFinderOptions finderOptions, QrColorOptions colors)
     {
@@ -130,7 +106,4 @@ internal static class QrFinderSvgComposer
             <= FinderInnerSizeModules => 1.25d,
             _ => 1.75d,
         };
-
-    private static string Format(double value)
-        => value.ToString("0.###", CultureInfo.InvariantCulture);
 }

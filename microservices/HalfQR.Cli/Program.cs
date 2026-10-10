@@ -92,12 +92,13 @@ static VerificationOptions ResolveVerificationOptions(IReadOnlyDictionary<string
 	var presetId = GetOption(options, "--preset");
 	var logoFilePath = GetOption(options, "--logo-file");
 
-	if (!string.IsNullOrWhiteSpace(presetId) && !string.Equals(presetId, "none", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(logoFilePath))
+	var hasPreset = !string.IsNullOrWhiteSpace(presetId) && !string.Equals(presetId, "none", StringComparison.OrdinalIgnoreCase);
+
+	if (hasPreset && !string.IsNullOrWhiteSpace(logoFilePath))
 	{
 		throw new InvalidOperationException("Use either --preset or --logo-file, not both.");
 	}
 
-	var hasPreset = !string.IsNullOrWhiteSpace(presetId) && !string.Equals(presetId, "none", StringComparison.OrdinalIgnoreCase);
 	var logoSizePercent = ParseIntOption(options, "--logo-size", hasPreset ? 12 : 18, 12, 24);
 	var backdropPaddingPercent = ParseIntOption(options, "--backdrop-padding", 40, 10, 80);
 
@@ -230,43 +231,36 @@ static async Task<LoadedLogo> LoadLogoFromFileAsync(string label, string path, i
 	}
 
 	var extension = Path.GetExtension(path).ToLowerInvariant();
-
-	return extension switch
+	var logoOptions = extension switch
 	{
-		".svg" => new LoadedLogo(
-			Label: label,
-			Options: new QrLogoOptions
-			{
-				SourceType = QrLogoSourceType.Svg,
-				Svg = await File.ReadAllTextAsync(path),
-				SizePercent = logoSizePercent,
-				RemoveBackground = false,
-				BackdropPaddingPercent = backdropPaddingPercent,
-			}),
-		".png" => new LoadedLogo(
-			Label: label,
-			Options: new QrLogoOptions
-			{
-				SourceType = QrLogoSourceType.Png,
-				ContentBase64 = Convert.ToBase64String(await File.ReadAllBytesAsync(path)),
-				ContentType = "image/png",
-				SizePercent = logoSizePercent,
-				RemoveBackground = false,
-				BackdropPaddingPercent = backdropPaddingPercent,
-			}),
-		".jpg" or ".jpeg" => new LoadedLogo(
-			Label: label,
-			Options: new QrLogoOptions
-			{
-				SourceType = QrLogoSourceType.Jpeg,
-				ContentBase64 = Convert.ToBase64String(await File.ReadAllBytesAsync(path)),
-				ContentType = "image/jpeg",
-				SizePercent = logoSizePercent,
-				RemoveBackground = false,
-				BackdropPaddingPercent = backdropPaddingPercent,
-			}),
+		".svg" => new QrLogoOptions
+		{
+			SourceType = QrLogoSourceType.Svg,
+			Svg = await File.ReadAllTextAsync(path),
+		},
+		".png" => new QrLogoOptions
+		{
+			SourceType = QrLogoSourceType.Png,
+			ContentBase64 = Convert.ToBase64String(await File.ReadAllBytesAsync(path)),
+			ContentType = "image/png",
+		},
+		".jpg" or ".jpeg" => new QrLogoOptions
+		{
+			SourceType = QrLogoSourceType.Jpeg,
+			ContentBase64 = Convert.ToBase64String(await File.ReadAllBytesAsync(path)),
+			ContentType = "image/jpeg",
+		},
 		_ => throw new InvalidOperationException("Logos must be SVG, PNG, or JPEG files."),
 	};
+
+	return new LoadedLogo(
+		Label: label,
+		Options: logoOptions with
+		{
+			SizePercent = logoSizePercent,
+			RemoveBackground = false,
+			BackdropPaddingPercent = backdropPaddingPercent,
+		});
 }
 
 static string? DecodeQrPayload(byte[] pngBytes)
@@ -330,14 +324,18 @@ static string SerializeIndented<T>(T value)
 	});
 
 static string ResolvePresetAssetPath(string repositoryRoot, string presetId)
-	=> presetId.Trim().ToLowerInvariant() switch
+{
+	var fileName = presetId.Trim().ToLowerInvariant() switch
 	{
-		"scan-me" => Path.Combine(repositoryRoot, "webapp", "public", "assets", "qr-watermarks", "scan-me-logo_in-qr-code.svg"),
-		"link" => Path.Combine(repositoryRoot, "webapp", "public", "assets", "qr-watermarks", "link-logo_in-qr-code.svg"),
-		"menu" => Path.Combine(repositoryRoot, "webapp", "public", "assets", "qr-watermarks", "menu-logo_in-qr-code.svg"),
-		"whatsapp" => Path.Combine(repositoryRoot, "webapp", "public", "assets", "qr-watermarks", "whatsapp-logo_in-qr-code.svg"),
+		"scan-me" => "scan-me-logo_in-qr-code.svg",
+		"link" => "link-logo_in-qr-code.svg",
+		"menu" => "menu-logo_in-qr-code.svg",
+		"whatsapp" => "whatsapp-logo_in-qr-code.svg",
 		_ => throw new InvalidOperationException($"Unknown preset '{presetId}'. Use scan-me, link, menu, or whatsapp."),
 	};
+
+	return Path.Combine(repositoryRoot, "webapp", "public", "assets", "qr-watermarks", fileName);
+}
 
 static string ResolveOutputDirectory(string repositoryRoot, string? configuredOutputDirectory)
 {

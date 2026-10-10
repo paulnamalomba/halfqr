@@ -8,7 +8,7 @@ public sealed class RabbitMqOptions
 
     public string UserName { get; set; } = "halfqr";
 
-    public string Password { get; set; } = "halfqr_dev_password";
+    public string Password { get; set; } = string.Empty;
 
     public string RenderQueueName { get; set; } = "halfqr.render.jobs";
 }

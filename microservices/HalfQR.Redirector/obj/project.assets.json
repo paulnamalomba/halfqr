@@ -1,29 +1,29 @@
 {
-  "version": 3,
+  "version": 4,
   "targets": {
     "net10.0": {
-      "HaveQR.Contracts/1.0.0": {
+      "HalfQR.Contracts/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "compile": {
-          "bin/placeholder/HaveQR.Contracts.dll": {}
+          "bin/placeholder/HalfQR.Contracts.dll": {}
         },
         "runtime": {
-          "bin/placeholder/HaveQR.Contracts.dll": {}
+          "bin/placeholder/HalfQR.Contracts.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "HaveQR.Contracts/1.0.0": {
+    "HalfQR.Contracts/1.0.0": {
       "type": "project",
-      "path": "../HaveQR.Contracts/HaveQR.Contracts.csproj",
-      "msbuildProject": "../HaveQR.Contracts/HaveQR.Contracts.csproj"
+      "path": "../HalfQR.Contracts/HalfQR.Contracts.csproj",
+      "msbuildProject": "../HalfQR.Contracts/HalfQR.Contracts.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "HaveQR.Contracts >= 1.0.0"
+      "HalfQR.Contracts >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -32,11 +32,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Redirector/HaveQR.Redirector.csproj",
-      "projectName": "HaveQR.Redirector",
-      "projectPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Redirector/HaveQR.Redirector.csproj",
+      "projectUniqueName": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Redirector/HalfQR.Redirector.csproj",
+      "projectName": "HalfQR.Redirector",
+      "projectPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Redirector/HalfQR.Redirector.csproj",
       "packagesPath": "/Users/kabwe/.nuget/packages/",
-      "outputPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Redirector/obj/",
+      "outputPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Redirector/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/kabwe/.nuget/NuGet/NuGet.Config"
@@ -45,15 +45,15 @@
         "net10.0"
       ],
       "sources": {
-        "/opt/homebrew/Cellar/dotnet/10.0.105/libexec/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "/Users/kabwe/Development/haveqr/microservices/HaveQR.Contracts/HaveQR.Contracts.csproj": {
-              "projectPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Contracts/HaveQR.Contracts.csproj"
+            "/Users/kabwe/Development/halfqr/microservices/HalfQR.Contracts/HalfQR.Contracts.csproj": {
+              "projectPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Contracts/HalfQR.Contracts.csproj"
             }
           }
         }
@@ -68,10 +68,11 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.400"
     },
     "frameworks": {
       "net10.0": {
+        "framework": "net10.0",
         "targetAlias": "net10.0",
         "imports": [
           "net461",
@@ -92,7 +93,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/10.0.105/libexec/sdk/10.0.105/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.400/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

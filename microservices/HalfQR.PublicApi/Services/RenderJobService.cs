@@ -9,15 +9,17 @@ namespace HalfQR.PublicApi.Services;
 
 internal sealed class RenderJobService(
     IRenderJobStore jobStore,
-    RabbitMqJobDispatcher dispatcher)
+    RabbitMqJobDispatcher dispatcher,
+    ILogger<RenderJobService> logger)
 {
-    public async Task<RenderJobAcceptedResponse> EnqueueAsync(SubmitRenderJobRequest request, CancellationToken cancellationToken)
+    public async Task<RenderJobAcceptedResponse> EnqueueAsync(SubmitRenderJobRequest request, Guid? ownerCredentialId, CancellationToken cancellationToken)
     {
         var jobId = Guid.NewGuid();
         var state = new RenderJobState
         {
             JobId = jobId,
             Request = request,
+            OwnerCredentialId = ownerCredentialId,
             Status = QrJobStatus.Queued,
             CreatedAt = DateTimeOffset.UtcNow,
         };
@@ -34,10 +36,11 @@ internal sealed class RenderJobService(
             {
                 Status = QrJobStatus.Failed,
                 CompletedAt = DateTimeOffset.UtcNow,
-                FailureReason = $"Queue dispatch failed: {exception.Message}",
+                FailureReason = "The render queue is unavailable. Please retry shortly.",
             };
 
             await jobStore.SaveAsync(state, CancellationToken.None);
+            logger.LogError(exception, "Queue dispatch failed for render job {JobId}.", jobId);
             throw;
         }
 
@@ -45,14 +48,24 @@ internal sealed class RenderJobService(
         return new RenderJobAcceptedResponse(jobId, QrJobStatus.Queued, statusUrl);
     }
 
-    public async Task<RenderJobStatusResponse?> GetStatusAsync(Guid jobId, CancellationToken cancellationToken)
+    public async Task<RenderJobStatusResponse?> GetStatusAsync(Guid jobId, Guid? callerCredentialId, CancellationToken cancellationToken)
     {
         var state = await jobStore.GetAsync(jobId, cancellationToken);
-        return state is null ? null : ToResponse(state, jobId);
+        return state is null || !IsVisibleTo(state, callerCredentialId) ? null : ToResponse(state, jobId);
     }
 
-    public Task<(byte[] Content, string ContentType)?> GetArtifactAsync(Guid jobId, string format, CancellationToken cancellationToken)
-        => jobStore.GetArtifactAsync(jobId, format, cancellationToken);
+    public async Task<(byte[] Content, string ContentType)?> GetArtifactAsync(Guid jobId, string format, Guid? callerCredentialId, CancellationToken cancellationToken)
+    {
+        var state = await jobStore.GetAsync(jobId, cancellationToken);
+
+        return state is null || !IsVisibleTo(state, callerCredentialId)
+            ? null
+            : await jobStore.GetArtifactAsync(jobId, format, cancellationToken);
+    }
+
+    // Jobs created with a credential are private to it and reported as not found to anyone else.
+    private static bool IsVisibleTo(RenderJobState state, Guid? callerCredentialId)
+        => state.OwnerCredentialId is null || state.OwnerCredentialId == callerCredentialId;
 
     private static RenderJobStatusResponse ToResponse(RenderJobState state, Guid jobId)
         => new()

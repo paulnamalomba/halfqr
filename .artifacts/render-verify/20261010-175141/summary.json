@@ -1,0 +1,20 @@
+{
+  "Passed": true,
+  "OutputDirectory": "/Users/kabwe/Development/halfqr/.artifacts/render-verify/20261010-175141",
+  "RequestedUrl": "https://example.com/test",
+  "EncodedPayload": "https://example.com/test",
+  "ResolvedTargetUrl": "https://example.com/test",
+  "ContentType": "Link",
+  "ModuleCount": 37,
+  "LogoLabel": "preset:link",
+  "Draft": {
+    "Label": "Draft SVG",
+    "DecodedPayload": "https://example.com/test",
+    "MatchesEncodedPayload": true
+  },
+  "Final": {
+    "Label": "Final PNG",
+    "DecodedPayload": "https://example.com/test",
+    "MatchesEncodedPayload": true
+  }
+}

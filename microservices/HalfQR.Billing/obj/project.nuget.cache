@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "95OSYdYUQqs=",
+  "dgSpecHash": "WAJM4wy5/ZM=",
   "success": true,
-  "projectFilePath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Billing/HaveQR.Billing.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Billing/HalfQR.Billing.csproj",
+  "expectedPackageFiles": [
+    "/Users/kabwe/.nuget/packages/npgsql/10.0.2/npgsql.10.0.2.nupkg.sha512"
+  ],
   "logs": []
 }

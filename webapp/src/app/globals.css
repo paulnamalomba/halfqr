@@ -20,6 +20,17 @@
   --line: rgba(20, 39, 67, 0.1);
   --line-strong: rgba(20, 39, 67, 0.16);
   --shadow: 0 24px 60px rgba(16, 36, 60, 0.12);
+
+  /* Webapp sizing tokens. The console has its own set in console.css so each can change independently. */
+  --web-font-body: 0.75rem; /* text-xs: body copy, labels, buttons, inputs */
+  --web-line-body: 1.6;
+  --web-font-heading: 1rem; /* text-base: the largest size anywhere, including heroes */
+  --web-line-heading: 1.3;
+  --web-control-height: 2.25rem; /* buttons, icon buttons, inputs, selects, tabs, selectors */
+  --web-control-radius: 12px; /* every interactive control */
+  --web-surface-radius: 14px; /* cards, panels, tables, parent containers */
+  --web-active-on-light: rgba(16, 36, 60, 0.1); /* selected state on light surfaces */
+  --web-active-on-dark: rgba(255, 255, 255, 0.14); /* selected state on dark surfaces */
 }
 
 /* Base rules normalize defaults before component styling. */
@@ -40,7 +51,9 @@ body.site-body {
   background: linear-gradient(180deg, var(--navy) 0 120px, var(--bg) 800px 100%);
   background-repeat: no-repeat;
   color: var(--text);
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  font-size: var(--web-font-body);
+  line-height: var(--web-line-body);
 }
 
 /* Layer subtle background accents. */
@@ -74,12 +87,7 @@ textarea {
 
 /* Animate interactive controls gently. */
 button {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
-}
-
-/* Scale enabled buttons on hover. */
-button:not(:disabled):hover {
-  transform: scale(1.06);
+  transition: border-color 160ms ease, background 160ms ease, filter 160ms ease;
 }
 
 /* Share heading rhythm and type. */
@@ -88,29 +96,103 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-family: var(--font-inter), sans-serif;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  font-family: var(--font-sans), sans-serif;
+  line-height: var(--web-line-heading);
+  letter-spacing: -0.01em;
 }
 
 /* Size the main display heading. */
 h1 {
-  font-size: clamp(2.25rem, 4.7vw, 4.5rem);
+  font-size: var(--web-font-heading);
 }
 
 /* Size secondary section headings. */
 h2 {
-  font-size: clamp(1.15rem, 2.1vw, 1.6rem);
+  font-size: var(--web-font-heading);
 }
 
 /* Size tertiary support headings. */
 h3 {
-  font-size: clamp(1.3rem, 1.8vw, 1.3rem);
+  font-size: var(--web-font-heading);
 }
 
 /* Reset paragraph margins. */
 p {
   margin: 0;
+}
+
+/* Shared control primitives: one height, radius and type size for every button, tab, selector and field. */
+.web-button,
+.site-header-link,
+.site-header-status,
+.site-header-cta,
+.site-mobile-toggle,
+.site-mobile-menu-link,
+.generator-type-button,
+.generator-design-tab,
+.logo-preset-button,
+.toggle-row,
+.preview-primary-action,
+.preview-secondary-action,
+.artifact-link,
+.field input,
+.field select {
+  min-height: var(--web-control-height);
+  border-radius: var(--web-control-radius);
+  font-size: var(--web-font-body);
+  line-height: 1.2;
+  box-shadow: none;
+}
+
+/* Fixed-height controls (buttons, selectors, fields). Multi-line rows such as .toggle-row may grow. */
+.web-button,
+.site-header-link,
+.site-header-status,
+.site-header-cta,
+.site-mobile-menu-link,
+.generator-type-button,
+.generator-design-tab,
+.logo-preset-button,
+.preview-primary-action,
+.preview-secondary-action,
+.artifact-link,
+.field input,
+.field select {
+  height: var(--web-control-height);
+}
+
+/* Square icon-only controls and step numbers share the control height. */
+.site-mobile-toggle,
+.generator-step-badge {
+  width: var(--web-control-height);
+  height: var(--web-control-height);
+  border-radius: var(--web-control-radius);
+  font-size: var(--web-font-body);
+  box-shadow: none;
+}
+
+/* Text buttons used by heroes and calls to action. */
+.web-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.web-button-primary {
+  color: #ffffff;
+  background: var(--cobalt);
+}
+
+.web-button-secondary {
+  color: var(--text);
+  background: var(--panel-muted);
+  border-color: var(--line);
 }
 
 /* Header shell controls navigation spacing and layering. */
@@ -132,8 +214,8 @@ p {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 24px;
-  padding: 0px 12px;
-  border-radius: 999px;
+  padding: 6px 8px 6px 12px;
+  border-radius: var(--web-surface-radius);
   background: rgba(255, 255, 255, 0.1);
   border: none;
   box-shadow: 0 22px 50px rgba(5, 18, 41, 0.18);
@@ -175,11 +257,8 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 999px;
+  padding: 0 14px;
   color: rgba(247, 250, 255, 0.92);
-  font-size: 0.94rem;
   font-weight: 500;
 }
 
@@ -190,9 +269,8 @@ p {
 
 /* Mark the active nav pill. */
 .site-header-link-active {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--web-active-on-dark);
   color: #ffffff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 /* Anchor action controls and dropdown. */
@@ -208,8 +286,6 @@ p {
 /* Share pointer cursor styling. */
 .site-header-status,
 .site-header-cta,
-.route-primary-link,
-.route-secondary-link,
 .artifact-link,
 .preview-primary-action,
 .preview-secondary-action,
@@ -225,9 +301,8 @@ p {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 999px;
+  padding: 0 14px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -242,7 +317,6 @@ p {
 .site-header-cta {
   color: var(--navy);
   background: #ffffff;
-  box-shadow: 0 14px 30px rgba(8, 24, 54, 0.16);
 }
 
 /* Highlight current page action. */
@@ -257,13 +331,9 @@ p {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 56px;
-  height: 56px;
   border: 0;
-  border-radius: 999px;
   background: var(--bg-buttons);
   color: #ffffff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 /* Strengthen hovered mobile toggle. */
@@ -284,7 +354,7 @@ p {
   justify-content: flex-start;
   gap: 8px;
   padding: 12px;
-  border-radius: 30px;
+  border-radius: var(--web-surface-radius);
   background: var(--bg-dark);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 22px 50px rgba(5, 18, 41, 0.28);
@@ -295,10 +365,8 @@ p {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-height: 46px;
   width: 100%;
   padding: 0 14px;
-  border-radius: 30px;
   color: rgba(247, 250, 255, 0.92);
 }
 
@@ -309,7 +377,7 @@ p {
 
 /* Mark the active mobile link. */
 .site-mobile-menu-link-active {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--web-active-on-dark);
   color: #ffffff;
   font-weight: 600;
 }
@@ -330,22 +398,6 @@ p {
 /* Keep the builder constrained after the hero bleeds wide. */
 .page-shell-home-builder {
   padding-top: 0;
-}
-
-/* Style the small overline label. */
-.page-kicker {
-  margin: 0 0 0px;
-  color: #dfe9f8;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 0.74rem;
-  font-weight: 700;
-}
-
-/* Recolour route-specific overlines. */
-.route-shell .page-kicker,
-.generator-hero .page-kicker {
-  color: var(--cobalt);
 }
 
 /* Keep titles compact on desktop. */
@@ -373,7 +425,7 @@ p {
 /* Tune readable summary measure. */
 .page-summary {
   max-width: 60ch;
-  font-size: 0.98rem;
+  font-size: var(--web-font-body);
   line-height: 1.7;
 }
 
@@ -434,7 +486,7 @@ p {
 .generator-preview-card,
 .docs-code-card {
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: var(--web-surface-radius);
   background: var(--panel);
   box-shadow: var(--shadow);
 }
@@ -463,20 +515,7 @@ p {
 .generator-fact-card h2,
 .route-card h2,
 .route-side-card h2 {
-  font-size: 1.16rem;
-}
-
-/* Style compact section icons. */
-.route-card-icon,
-.generator-type-icon,
-.upload-dropzone-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: rgba(31, 97, 192, 0.1);
-  color: var(--cobalt);
+  font-size: var(--web-font-heading);
 }
 
 /* Stack route page sections. */
@@ -493,11 +532,14 @@ p {
   align-items: stretch;
 }
 
-.route-hero-card h1 {
+/* Hero copy sits on the dark header band. */
+.route-hero-card h1,
+.generator-hero h1 {
   color: var(--cobalt-light);
 }
 
-.route-hero-card p {
+.route-hero-card p,
+.generator-hero p {
   color: var(--cobalt-light-white);
 }
 
@@ -516,31 +558,6 @@ p {
   gap: 12px;
 }
 
-/* Share route button frames. */
-.route-primary-link,
-.route-secondary-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 18px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-/* Theme primary route links. */
-.route-primary-link {
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--navy), var(--cobalt));
-}
-
-/* Theme secondary route links. */
-.route-secondary-link {
-  background: var(--panel-muted);
-  border: 1px solid var(--line);
-  color: var(--text);
-}
-
 /* Keep side cards top-aligned. */
 .route-side-card {
   align-content: start;
@@ -552,7 +569,7 @@ p {
   align-items: flex-start;
   gap: 10px;
   padding: 14px 16px;
-  border-radius: 18px;
+  border-radius: var(--web-surface-radius);
   background: var(--panel-muted);
   border: 1px solid var(--line);
   color: var(--navy);
@@ -580,10 +597,10 @@ p {
   margin: 0;
   background: #0c1d34;
   color: #eef5ff;
-  border-radius: 22px;
+  border-radius: var(--web-surface-radius);
   padding: 18px;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 0.81rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: var(--web-font-body);
   line-height: 1.72;
   overflow: auto;
 }
@@ -596,20 +613,20 @@ p {
   align-items: center;
   justify-content: center;
   width: max-content;
-  min-height: 30px;
-  padding: 0 10px;
-  border-radius: 999px;
+  min-height: 0;
+  padding: 2px 8px;
+  margin-right: 6px;
+  border-radius: var(--web-control-radius);
   background: rgba(31, 97, 192, 0.1);
   color: var(--cobalt);
-  font-family: var(--font-inter), sans-serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-sans), sans-serif;
+  font-size: var(--web-font-body);
 }
 
 /* Wrap endpoint routes safely. */
 .endpoint-route {
-  font-family: var(--font-inter), sans-serif;
-  font-size: 0.84rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: var(--web-font-body);
   line-height: 1.6;
   word-break: break-word;
 }
@@ -624,20 +641,19 @@ p {
 .generator-layout {
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.92fr);
   align-items: start;
-  font-size: 85%;
 }
 
 /* Keep the builder's explicit heading and code sizes at the same 15% reduction. */
 .generator-layout h2 {
-  font-size: clamp(0.9775rem, 1.785vw, 1.36rem);
+  font-size: var(--web-font-heading);
 }
 
 .generator-layout h3 {
-  font-size: clamp(1.105rem, 1.53vw, 1.105rem);
+  font-size: var(--web-font-heading);
 }
 
 .generator-layout .builder-json {
-  font-size: 0.6885rem;
+  font-size: var(--web-font-body);
 }
 
 /* Flexible children prevent horizontal bleed across grids. */
@@ -667,8 +683,6 @@ p {
 .feedback-text,
 .preview-value,
 .endpoint-route,
-.logo-preset-copy strong,
-.logo-preset-copy span,
 .toggle-row span {
   overflow-wrap: anywhere;
 }
@@ -692,15 +706,11 @@ p {
 .generator-step-badge {
   flex: none;
   width: 34px;
-  height: 34px;
-  border-radius: 12px;
   display: grid;
   place-items: center;
   background: var(--navy);
   color: #ffffff;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 0.8075rem;
-  box-shadow: 0 10px 22px rgba(16, 36, 60, 0.16);
+  font-family: var(--font-sans), sans-serif;
 }
 
 /* Stack step copy lines. */
@@ -711,61 +721,43 @@ p {
 
 /* Build the type grid. */
 .generator-type-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
 }
 
 /* Style QR type buttons. */
 .generator-type-button {
-  display: grid;
-  gap: 12px;
-  min-height: 72px;
-  padding: 16px;
-  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-weight: 600;
+  color: var(--text);
   border: 1px solid var(--line);
-  border-radius: 22px;
   background: var(--panel-muted);
 }
 
-/* Lift hoverable controls subtly. */
+/* Darken hoverable controls slightly; size never changes so heights stay aligned. */
 .generator-type-button:hover,
-.route-primary-link:hover,
+.web-button:hover,
 .preview-primary-action:hover,
-.route-secondary-link:hover,
 .preview-secondary-action:hover,
 .artifact-link:hover,
 .site-header-cta:hover,
 .site-header-status:hover {
-  transform: translateY(-1px) scale(1.06);
+  filter: brightness(0.96);
 }
 
 /* Highlight active type buttons. */
 .generator-type-button-active {
-  border-color: rgba(31, 97, 192, 0.34);
-  background: linear-gradient(180deg, rgba(31, 97, 192, 0.12), rgba(16, 36, 60, 0.05));
-  box-shadow: inset 0 0 0 1px rgba(31, 97, 192, 0.14);
-}
-
-/* Stack type label text. */
-.generator-type-label {
-  display: grid;
-  gap: 4px;
-}
-
-/* Size type label titles. */
-.generator-type-label strong {
-  font-size: 0.816rem;
-}
-
-/* Tone type label metadata. */
-.generator-type-label span {
-  color: var(--muted);
-  font-size: 0.68rem;
+  border-color: transparent;
+  background: var(--web-active-on-light);
+  color: var(--navy);
 }
 
 /* Space inline guidance. */
 .generator-inline-note {
   margin: 0 0 0px;
-  font-size: 0.782rem;
+  font-size: var(--web-font-body);
   line-height: 1.65;
 }
 
@@ -782,7 +774,7 @@ p {
 
 /* Style field labels. */
 .field span {
-  font-size: 0.782rem;
+  font-size: var(--web-font-body);
   font-weight: 600;
   color: var(--text);
 }
@@ -791,9 +783,7 @@ p {
 .field input,
 .field select {
   width: 100%;
-  min-height: 52px;
-  padding: 14px 16px;
-  border-radius: 16px;
+  padding: 0 12px;
   border: 1px solid var(--line-strong);
   background: #ffffff;
   color: var(--text);
@@ -813,7 +803,6 @@ p {
 
 /* Size color pickers. */
 .field input[type="color"] {
-  min-height: 56px;
   padding: 0;
   overflow: hidden;
   cursor: pointer;
@@ -825,12 +814,10 @@ p {
 
 .field input[type="color"]::-webkit-color-swatch {
   border: none;
-  border-radius: inherit;
 }
 
 .field input[type="color"]::-moz-color-swatch {
   border: none;
-  border-radius: inherit;
 }
 
 /* Strip range chrome. */
@@ -859,7 +846,7 @@ p {
 
 /* Style helper text. */
 .field-hint {
-  font-size: 0.6885rem;
+  font-size: var(--web-font-body);
   line-height: 1.55;
 }
 
@@ -884,12 +871,11 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 0 14px;
-  border-radius: 14px;
+  padding: 0 12px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
+  font-weight: 600;
 }
 
 /* Hover design tabs gently. */
@@ -899,9 +885,8 @@ p {
 
 /* Mark active design tabs. */
 .generator-design-tab-active {
-  color: var(--cobalt);
-  background: rgba(31, 97, 192, 0.1);
-  border-color: rgba(31, 97, 192, 0.18);
+  color: var(--navy);
+  background: var(--web-active-on-light);
 }
 
 /* Style the design panel. */
@@ -909,7 +894,7 @@ p {
   display: grid;
   gap: 16px;
   padding: 0px;
-  border-radius: 22px;
+  border-radius: var(--web-surface-radius);
   /* background: var(--panel-muted); */
   border: none;
 }
@@ -921,7 +906,7 @@ p {
   display: grid;
   gap: 8px;
   padding: 18px;
-  border-radius: 20px;
+  border-radius: var(--web-surface-radius);
   border: 1px dashed rgba(16, 36, 60, 0.24);
   background: rgba(255, 255, 255, 0.86);
 }
@@ -933,13 +918,13 @@ p {
 
 /* Size dropzone titles. */
 .upload-dropzone strong {
-  font-size: 0.8075rem;
+  font-size: var(--web-font-body);
 }
 
 /* Tone dropzone metadata. */
 .upload-dropzone span {
   color: var(--muted);
-  font-size: 0.731rem;
+  font-size: var(--web-font-body);
 }
 
 /* Stack preset shell content. */
@@ -959,10 +944,9 @@ p {
 .logo-preset-button {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
-  padding: 12px;
-  border-radius: 18px;
+  padding: 0 8px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.9);
   text-align: left;
@@ -976,22 +960,17 @@ p {
 
 /* Highlight active presets. */
 .logo-preset-button-active {
-  border-color: rgba(31, 97, 192, 0.34);
-  background: linear-gradient(180deg, rgba(31, 97, 192, 0.12), rgba(16, 36, 60, 0.05));
-  box-shadow: inset 0 0 0 1px rgba(31, 97, 192, 0.14);
+  border-color: transparent;
+  background: var(--web-active-on-light);
 }
 
 /* Frame preset thumbnails. */
 .logo-preset-thumb {
   flex: none;
-  width: 68px;
-  height: 68px;
-  padding: 8px;
-  border-radius: 16px;
+  width: calc(var(--web-control-height) - 12px);
+  height: calc(var(--web-control-height) - 12px);
   display: grid;
   place-items: center;
-  background: #ffffff;
-  border: 1px solid var(--line);
 }
 
 /* Fit preset images. */
@@ -1003,30 +982,19 @@ p {
 
 /* Stack preset copy. */
 .logo-preset-copy {
-  display: grid;
-  gap: 4px;
   min-width: 0;
-}
-
-/* Size preset titles. */
-.logo-preset-copy strong {
-  font-size: 0.782rem;
-}
-
-/* Tone preset metadata. */
-.logo-preset-copy span {
-  color: var(--muted);
-  font-size: 0.68rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
 }
 
 /* Style the toggle row. */
 .toggle-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 14px 16px;
-  border-radius: 16px;
+  gap: 10px;
+  padding: 8px 12px;
   background: #ffffff;
   border: 1px solid var(--line);
 }
@@ -1042,7 +1010,7 @@ p {
 .toggle-row span {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: 0.782rem;
+  font-size: var(--web-font-body);
   line-height: 1.55;
   color: var(--text);
 }
@@ -1085,14 +1053,14 @@ p {
   align-items: center;
   gap: 8px;
   color: var(--navy);
-  font-size: 0.782rem;
+  font-size: var(--web-font-body);
   font-weight: 600;
 }
 
 /* Style developer drawer shell. */
 .generator-developer-drawer {
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--web-surface-radius);
   background: rgba(255, 255, 255, 0.75);
 }
 
@@ -1100,7 +1068,10 @@ p {
 .generator-developer-drawer summary {
   cursor: pointer;
   list-style: none;
-  padding: 16px 18px;
+  padding: 0 14px;
+  min-height: var(--web-control-height);
+  display: flex;
+  align-items: center;
   font-weight: 600;
 }
 
@@ -1111,7 +1082,7 @@ p {
 
 /* Round drawer code corners. */
 .generator-developer-drawer .builder-json {
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 var(--web-surface-radius) var(--web-surface-radius);
 }
 
 /* Keep preview rail sticky. */
@@ -1137,12 +1108,10 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 0.663rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  min-height: 0;
+  padding: 2px 8px;
+  border-radius: var(--web-control-radius);
+  font-size: var(--web-font-body);
 }
 
 /* Theme the API chip. */
@@ -1209,7 +1178,7 @@ p {
   min-height: 420px;
   min-width: 0;
   padding: 0;
-  border-radius: 26px;
+  border-radius: var(--web-surface-radius);
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(232, 238, 248, 0.88), rgba(248, 250, 253, 0.96));
   overflow: hidden;
@@ -1245,13 +1214,13 @@ p {
 /* Emphasize placeholder titles. */
 .preview-placeholder strong {
   color: var(--navy);
-  font-size: 0.85rem;
+  font-size: var(--web-font-body);
   line-height: 1.4;
 }
 
 /* Tone placeholder body copy. */
 .preview-placeholder span {
-  font-size: 0.748rem;
+  font-size: var(--web-font-body);
   line-height: 1.6;
 }
 
@@ -1364,7 +1333,7 @@ p {
   height: 98px;
   padding: 12px;
   transform: translate(-50%, -50%);
-  border-radius: 24px;
+  border-radius: var(--web-surface-radius);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 18px 38px rgba(16, 36, 60, 0.16);
 }
@@ -1389,9 +1358,7 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 54px;
-  border-radius: 16px;
+  gap: 8px;
   font-weight: 600;
 }
 
@@ -1399,8 +1366,7 @@ p {
 .preview-primary-action {
   border: none;
   color: #ffffff;
-  background: linear-gradient(135deg, var(--navy), var(--cobalt));
-  box-shadow: 0 18px 32px rgba(31, 97, 192, 0.22);
+  background: var(--cobalt);
 }
 
 /* Theme secondary preview action. */
@@ -1415,7 +1381,6 @@ p {
 .preview-secondary-action:disabled {
   opacity: 0.58;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 /* Reserve feedback space. */
@@ -1425,7 +1390,7 @@ p {
 
 /* Style feedback copy. */
 .feedback-text {
-  font-size: 0.765rem;
+  font-size: var(--web-font-body);
   line-height: 1.6;
 }
 
@@ -1437,7 +1402,7 @@ p {
 /* Style summary cards. */
 .preview-summary-card {
   padding: 14px;
-  border-radius: 18px;
+  border-radius: var(--web-surface-radius);
   background: var(--panel-muted);
   border: 1px solid var(--line);
   display: grid;
@@ -1446,7 +1411,7 @@ p {
 
 /* Style summary labels. */
 .preview-label {
-  font-size: 0.6205rem;
+  font-size: var(--web-font-body);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
@@ -1454,7 +1419,7 @@ p {
 
 /* Style summary values. */
 .preview-value {
-  font-size: 0.765rem;
+  font-size: var(--web-font-body);
   line-height: 1.6;
   word-break: break-word;
 }
@@ -1469,13 +1434,10 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
   padding: 0 14px;
-  border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--line);
   color: var(--navy);
-  font-size: 0.7395rem;
 }
 
 /* Strengthen hovered artifacts. */
@@ -1528,6 +1490,11 @@ p {
     justify-content: flex-end;
   }
 
+  /* sign in moves into the mobile menu. */
+  .site-header-signin {
+    display: none;
+  }
+
   /* show the mobile toggle. */
   .site-mobile-toggle {
     display: inline-flex;
@@ -1535,37 +1502,12 @@ p {
 
   /* Wrap selector cards more naturally. */
   .generator-type-grid {
-    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   }
 
   /* Wrap preset cards naturally. */
   .logo-preset-grid {
-    grid-template-columns: repeat(auto-fit, minmax(188px, 1fr));
-  }
-
-  /* Tighten type buttons slightly. */
-  .generator-type-button {
-    min-height: 118px;
-    padding: 14px;
-  }
-
-  /* Hide secondary selector copy. */
-  .generator-type-label span,
-  .logo-preset-copy span {
-    display: none;
-  }
-
-  /* Tighten preset cards slightly. */
-  .logo-preset-button {
-    gap: 10px;
-    padding: 10px 12px;
-  }
-
-  /* Shrink preset thumbnails. */
-  .logo-preset-thumb {
-    width: 56px;
-    height: 56px;
-    padding: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 
   /* Reduce summary grid density. */
@@ -1588,7 +1530,7 @@ p {
     padding-left: 12px;
     padding-top: 6px;
     padding-bottom: 6px;
-    border-radius: 999px;
+    border-radius: var(--web-surface-radius);
   }
 
   /* tighten page padding. */
@@ -1607,7 +1549,7 @@ p {
   .generator-step-card,
   .generator-preview-card,
   .docs-code-card {
-    border-radius: 22px;
+    border-radius: var(--web-surface-radius);
     padding: 16px;
   }
 
@@ -1633,12 +1575,6 @@ p {
     align-items: flex-start;
   }
 
-  /* shrink the mobile toggle. */
-  .site-mobile-toggle {
-    width: 56px;
-    height: 56px;
-  }
-
   /* stack all small grids. */
   .generator-fact-grid,
   .route-card-grid,
@@ -1649,46 +1585,14 @@ p {
     grid-template-columns: 1fr;
   }
 
-  /* Keep type cards in two columns. */
+  /* Keep type selectors in three columns. */
   .generator-type-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   /* Keep preset cards in two columns. */
   .logo-preset-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* Compact the type cards further. */
-  .generator-type-button {
-    min-height: 104px;
-    padding: 12px;
-  }
-
-  /* Shrink selector icons slightly. */
-  .generator-type-icon,
-  .upload-dropzone-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-  }
-
-  /* Reduce primary selector text. */
-  .generator-type-label strong,
-  .logo-preset-copy strong {
-    font-size: 0.765rem;
-  }
-
-  /* Compact preset cards further. */
-  .logo-preset-button {
-    padding: 10px;
-  }
-
-  /* Shrink preset thumbnails further. */
-  .logo-preset-thumb {
-    width: 48px;
-    height: 48px;
-    padding: 5px;
   }
 
   /* Resize preview stage. */

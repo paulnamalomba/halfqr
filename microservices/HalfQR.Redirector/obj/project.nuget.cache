@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "x0DiM2u94Gs=",
+  "dgSpecHash": "WMBLxP0UcF0=",
   "success": true,
-  "projectFilePath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Redirector/HaveQR.Redirector.csproj",
+  "projectFilePath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Redirector/HalfQR.Redirector.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

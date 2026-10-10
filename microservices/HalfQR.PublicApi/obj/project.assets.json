@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "targets": {
     "net10.0": {
       "AWSSDK.Core/4.0.3.28": {
@@ -386,32 +386,32 @@
           }
         }
       },
-      "HaveQR.Contracts/1.0.0": {
+      "HalfQR.Contracts/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "compile": {
-          "bin/placeholder/HaveQR.Contracts.dll": {}
+          "bin/placeholder/HalfQR.Contracts.dll": {}
         },
         "runtime": {
-          "bin/placeholder/HaveQR.Contracts.dll": {}
+          "bin/placeholder/HalfQR.Contracts.dll": {}
         }
       },
-      "HaveQR.QrEngine/1.0.0": {
+      "HalfQR.QrEngine/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "AWSSDK.S3": "4.0.21",
-          "HaveQR.Contracts": "1.0.0",
+          "HalfQR.Contracts": "1.0.0",
           "Npgsql": "10.0.2",
           "QRCoder": "1.8.0",
           "SkiaSharp.NativeAssets.Linux.NoDependencies": "2.88.9",
           "Svg.Skia": "4.0.0"
         },
         "compile": {
-          "bin/placeholder/HaveQR.QrEngine.dll": {}
+          "bin/placeholder/HalfQR.QrEngine.dll": {}
         },
         "runtime": {
-          "bin/placeholder/HaveQR.QrEngine.dll": {}
+          "bin/placeholder/HalfQR.QrEngine.dll": {}
         }
       }
     }
@@ -996,21 +996,21 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "HaveQR.Contracts/1.0.0": {
+    "HalfQR.Contracts/1.0.0": {
       "type": "project",
-      "path": "../HaveQR.Contracts/HaveQR.Contracts.csproj",
-      "msbuildProject": "../HaveQR.Contracts/HaveQR.Contracts.csproj"
+      "path": "../HalfQR.Contracts/HalfQR.Contracts.csproj",
+      "msbuildProject": "../HalfQR.Contracts/HalfQR.Contracts.csproj"
     },
-    "HaveQR.QrEngine/1.0.0": {
+    "HalfQR.QrEngine/1.0.0": {
       "type": "project",
-      "path": "../HaveQR.QrEngine/HaveQR.QrEngine.csproj",
-      "msbuildProject": "../HaveQR.QrEngine/HaveQR.QrEngine.csproj"
+      "path": "../HalfQR.QrEngine/HalfQR.QrEngine.csproj",
+      "msbuildProject": "../HalfQR.QrEngine/HalfQR.QrEngine.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "HaveQR.Contracts >= 1.0.0",
-      "HaveQR.QrEngine >= 1.0.0",
+      "HalfQR.Contracts >= 1.0.0",
+      "HalfQR.QrEngine >= 1.0.0",
       "RabbitMQ.Client >= 7.2.1"
     ]
   },
@@ -1020,11 +1020,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/kabwe/Development/haveqr/microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj",
-      "projectName": "HaveQR.PublicApi",
-      "projectPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.PublicApi/HaveQR.PublicApi.csproj",
+      "projectUniqueName": "/Users/kabwe/Development/halfqr/microservices/HalfQR.PublicApi/HalfQR.PublicApi.csproj",
+      "projectName": "HalfQR.PublicApi",
+      "projectPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.PublicApi/HalfQR.PublicApi.csproj",
       "packagesPath": "/Users/kabwe/.nuget/packages/",
-      "outputPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.PublicApi/obj/",
+      "outputPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.PublicApi/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/kabwe/.nuget/NuGet/NuGet.Config"
@@ -1033,18 +1033,18 @@
         "net10.0"
       ],
       "sources": {
-        "/opt/homebrew/Cellar/dotnet/10.0.105/libexec/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "/Users/kabwe/Development/haveqr/microservices/HaveQR.Contracts/HaveQR.Contracts.csproj": {
-              "projectPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.Contracts/HaveQR.Contracts.csproj"
+            "/Users/kabwe/Development/halfqr/microservices/HalfQR.Contracts/HalfQR.Contracts.csproj": {
+              "projectPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.Contracts/HalfQR.Contracts.csproj"
             },
-            "/Users/kabwe/Development/haveqr/microservices/HaveQR.QrEngine/HaveQR.QrEngine.csproj": {
-              "projectPath": "/Users/kabwe/Development/haveqr/microservices/HaveQR.QrEngine/HaveQR.QrEngine.csproj"
+            "/Users/kabwe/Development/halfqr/microservices/HalfQR.QrEngine/HalfQR.QrEngine.csproj": {
+              "projectPath": "/Users/kabwe/Development/halfqr/microservices/HalfQR.QrEngine/HalfQR.QrEngine.csproj"
             }
           }
         }
@@ -1059,10 +1059,11 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.400"
     },
     "frameworks": {
       "net10.0": {
+        "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
           "RabbitMQ.Client": {
@@ -1089,7 +1090,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/10.0.105/libexec/sdk/10.0.105/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.400/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

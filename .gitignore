@@ -13,15 +13,14 @@ Thumbs.db
 /build/
 */node_modules/
 /node_modules/
-*/bin/
-/bin/
-*/obj/
-/obj/
+**/bin/
+**/obj/
 */.next/
 /.next/
 */target/
 /target/
-/.data/
+**/.data/
+*.tsbuildinfo
 
 # Ignoring IDE and editor files
 .vscode/
@@ -52,3 +51,6 @@ Thumbs.db
 # Important
 inspiration/
 docs-previews/
+
+# Rendered UI screenshots (regenerate locally; kept out of the remote)
+docs/renders/**/*.png

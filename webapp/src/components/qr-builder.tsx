@@ -2,38 +2,20 @@
 
 // Some imports here
 import qrcodeGenerator from "qrcode-generator";
-import AddPhotoAlternateRounded from "@mui/icons-material/AddPhotoAlternateRounded";
-import AppsRounded from "@mui/icons-material/AppsRounded";
-import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
-import CloudDownloadRounded from "@mui/icons-material/CloudDownloadRounded";
-import CropSquareRounded from "@mui/icons-material/CropSquareRounded";
-import ImageRounded from "@mui/icons-material/ImageRounded";
-import LinkRounded from "@mui/icons-material/LinkRounded";
-import PaletteRounded from "@mui/icons-material/PaletteRounded";
-import PictureAsPdfRounded from "@mui/icons-material/PictureAsPdfRounded";
-import ShareRounded from "@mui/icons-material/ShareRounded";
-import SmartDisplayRounded from "@mui/icons-material/SmartDisplayRounded";
-import TuneRounded from "@mui/icons-material/TuneRounded";
-import WhatsApp from "@mui/icons-material/WhatsApp";
 import { startTransition, useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
 // --- INFO ----
 // The reason why we are here using types instead of the clssical typescript lib/api.ts is that the api is abstracting all functionality, i.e. SSR is king
 // there are no client-side maps or complex data strcture building for example in classical e-commerce we can have catalog to cart item maps, which here are not needed
 
-// IconComponent is a helper type
-type IconComponent = typeof LinkRounded;
-
 // BuilderType is the main type for the QR builder, 
 // representing each content route type and its associated metadata
-// IconComponet is runtime injected
 type BuilderType = {
   id: BuilderTypeId;
   label: string;
   eyebrow: string;
   placeholder: string;
   summary: string;
-  Icon: IconComponent;
 };
 
 // Here we have types for the various request and response shapes for the QR rendering API,
@@ -188,7 +170,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "Website",
     placeholder: "https://computemore.com",
     summary: "Classic static destination for pages, campaigns, and one-off flows.",
-    Icon: LinkRounded,
   },
   {
     id: "app",
@@ -196,7 +177,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "Google/Apple App Store Links",
     placeholder: "https://apps.apple.com/app/id123456789",
     summary: "Deep-link into app stores, onboarding flows, or install landing pages.",
-    Icon: AppsRounded,
   },
   {
     id: "social",
@@ -204,7 +184,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "Socials Profile Link",
     placeholder: "https://www.linkedin.com/paulnamalomba",
     summary: "Route scans into a profile, link hub, or campaign social page.",
-    Icon: ShareRounded,
   },
   {
     id: "pdf",
@@ -212,7 +191,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "Link to a PDF",
     placeholder: "https://cdn.halfqr.com/brochures/launch-pack.pdf",
     summary: "Send scans into brochures, menus, decks, or printable collateral.",
-    Icon: PictureAsPdfRounded,
   },
   {
     id: "image",
@@ -220,7 +198,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "Link to an Image",
     placeholder: "https://cdn.halfqr.com/posters/flyer-front.jpg",
     summary: "Point straight into poster art, packaging, menus, or image galleries.",
-    Icon: ImageRounded,
   },
   {
     id: "video",
@@ -228,7 +205,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "Map to a Video Link",
     placeholder: "https://www.youtube.com/watch?v=<etc>",
     summary: "Launch product demos, promo clips, or embedded training content.",
-    Icon: SmartDisplayRounded,
   },
   {
     id: "whatsapp",
@@ -236,7 +212,6 @@ const builderTypes: BuilderType[] = [
     eyebrow: "WhatsApp Contact Link",
     placeholder: "https://wa.me/260977000000?text=Hello%20from%20HalfQR",
     summary: "Use a direct URL or generate a wa.me route from phone and message fields.",
-    Icon: WhatsApp,
   },
 ];
 
@@ -245,25 +220,21 @@ const designSections: Array<{
   id: DesignSectionId;
   label: string;
   description: string;
-  Icon: IconComponent;
 }> = [
   {
     id: "frame",
     label: "Frame",
     description: "Shape the finder markers and choose how the main QR body is drawn.",
-    Icon: CropSquareRounded,
   },
   {
     id: "colour",
     label: "Colour",
     description: "Tune the marker colour, background, and the optional linear gradient on the data body.",
-    Icon: PaletteRounded,
   },
   {
     id: "logo",
     label: "Logo",
     description: "Upload a centred SVG, PNG, or JPEG logo and control its size and backdrop padding.",
-    Icon: AddPhotoAlternateRounded,
   },
 ];
 
@@ -401,17 +372,16 @@ export function QrBuilder() {
   const activeDraftPreview = draftPreviewRequestKey === requestPreviewKey ? draftPreview : null;
   const currentStatus = activeLatestJob?.status ?? activeAcceptedJob?.status ?? null;
   const preferredArtifact = selectPreferredArtifact(activeLatestJob?.artifacts ?? []);
-  const previewArtifact = selectPreviewArtifact(activeLatestJob?.artifacts ?? []);
   const configuredApiTarget = formatApiTarget(publicApiBaseUrl);
   const rawLocalPreviewSvgMarkup = canAutoPreview && previewPayload
     ? buildLocalPreviewSvgMarkup(previewPayload, requestPreview, logoAsset)
     : null;
   const localPreviewSvgMarkup = activeDraftPreview ? null : rawLocalPreviewSvgMarkup;
-  const previewImageSrc = previewArtifact?.downloadUrl
+  const previewImageSrc = preferredArtifact?.downloadUrl
     ?? (activeDraftPreview ? toSvgDataUrl(activeDraftPreview.svgMarkup) : null)
     ?? (localPreviewSvgMarkup ? toSvgDataUrl(localPreviewSvgMarkup) : null);
   const previewBadge = getPreviewBadge(currentStatus, isPolling, isDraftSyncing, Boolean(activeDraftPreview), Boolean(localPreviewSvgMarkup));
-  const previewSourceLabel = getPreviewSourceLabel(Boolean(previewArtifact), Boolean(activeDraftPreview), Boolean(localPreviewSvgMarkup));
+  const previewSourceLabel = getPreviewSourceLabel(Boolean(preferredArtifact), Boolean(activeDraftPreview), Boolean(localPreviewSvgMarkup));
   const previewMessage = getPreviewMessage(
     activeAcceptedJob,
     activeLatestJob,
@@ -427,11 +397,7 @@ export function QrBuilder() {
     ? activeLatestJob.artifacts.map((artifact) => artifact.format.toUpperCase()).join(" + ")
     : `PNG ${resolvedSizePx}px · ECC ${eccLevel}`;
   const resolvedPreviewTarget = activeLatestJob?.resolvedTargetUrl ?? activeDraftPreview?.resolvedTargetUrl ?? previewPayload ?? previewTarget;
-  const previewImageAlt = previewArtifact
-    ? "Rendered QR artifact preview"
-    : activeDraftPreview
-      ? "Draft QR preview"
-      : "Local QR preview";
+  const previewImageAlt = getPreviewImageAlt(Boolean(preferredArtifact), Boolean(activeDraftPreview));
 
   useEffect(() => {
     // Quickly short-circuit if we don't have an active job with a status URL to poll, this avoids setting up the polling lifecycle when it's not needed
@@ -680,7 +646,6 @@ export function QrBuilder() {
 
           <div className="generator-type-grid">
             {builderTypes.map((builderType) => {
-              const TypeIcon = builderType.Icon;
               const isActive = builderType.id === selectedType.id;
 
               return (
@@ -695,14 +660,7 @@ export function QrBuilder() {
                     });
                   }}
                 >
-                  {/* <span className="generator-type-icon"> */}
-                    <TypeIcon fontSize="medium" />
-                  {/* </span> */}
-
-                  <span className="generator-type-label">
-                    <strong>{builderType.label}</strong>
-                    {/* <span>{builderType.eyebrow}</span> */}
-                  </span>
+                  {builderType.label}
                 </button>
               );
             })}
@@ -752,7 +710,6 @@ export function QrBuilder() {
 
           <div className="generator-design-tabs">
             {designSections.map((section) => {
-              const SectionIcon = section.Icon;
               const isActive = designSection === section.id;
 
               return (
@@ -762,8 +719,7 @@ export function QrBuilder() {
                   className={isActive ? "generator-design-tab generator-design-tab-active" : "generator-design-tab"}
                   onClick={() => setDesignSection(section.id)}
                 >
-                  <SectionIcon fontSize="small" />
-                  <span>{section.label}</span>
+                  {section.label}
                 </button>
               );
             })}
@@ -855,9 +811,6 @@ export function QrBuilder() {
               <>
                 <label className="upload-dropzone" htmlFor="halfqr-logo-upload">
                   <input id="halfqr-logo-upload" type="file" accept="image/svg+xml,image/png,image/jpeg" onChange={handleLogoChange} />
-                  <span className="upload-dropzone-icon">
-                    <AddPhotoAlternateRounded fontSize="small" />
-                  </span>
                   <strong>{logoAsset ? logoAsset.name : "Drop a logo or browse"}</strong>
                   <span>{logoAsset ? formatBytes(logoAsset.sizeBytes) : "SVG, PNG, or JPEG up to 512 KB"}</span>
                 </label>
@@ -882,10 +835,7 @@ export function QrBuilder() {
                             <img src={preset.assetPath} alt="" aria-hidden="true" />
                           </span>
 
-                          <span className="logo-preset-copy">
-                            <strong>{isLoading ? "Loading..." : preset.label}</strong>
-                            <span>{preset.eyebrow}</span>
-                          </span>
+                          <span className="logo-preset-copy">{isLoading ? "Loading..." : preset.label}</span>
                         </button>
                       );
                     })}
@@ -931,10 +881,7 @@ export function QrBuilder() {
           </div>
 
           <div className="generator-output-bar">
-            <div className="generator-output-label">
-              <TuneRounded fontSize="small" />
-              <span>Output and resilience</span>
-            </div>
+            <p className="generator-output-label">Output and resilience</p>
 
             <div className="field-grid field-grid-two">
               <label className="field">
@@ -995,13 +942,11 @@ export function QrBuilder() {
 
         <div className="generator-preview-actions">
           <button className="preview-primary-action" form={formId} type="submit" disabled={isSubmitting}>
-            <AutoAwesomeRounded fontSize="small" />
-            <span>{isSubmitting ? "Generating..." : activeAcceptedJob ? "Generate another QR code" : "Generate QR code"}</span>
+            {getSubmitLabel(isSubmitting, Boolean(activeAcceptedJob))}
           </button>
 
           <button className="preview-secondary-action" type="button" disabled={!preferredArtifact} onClick={handlePreferredDownload}>
-            <CloudDownloadRounded fontSize="small" />
-            <span>Download QR code</span>
+            Download QR code
           </button>
         </div>
 
@@ -1075,7 +1020,7 @@ function buildRenderRequest(input: {
 }): SubmitRenderJobRequest {
   return {
     contentType: toContentType(input.typeId),
-    targetUrl: input.typeId === "whatsapp" && input.targetUrl.length === 0 ? undefined : input.targetUrl || undefined,
+    targetUrl: input.targetUrl || undefined,
     payload:
       input.typeId === "whatsapp"
         ? {
@@ -1179,15 +1124,15 @@ function resolvePreviewTarget(typeId: BuilderTypeId, targetUrl: string, phone: s
 }
 
 function resolvePreviewPayload(typeId: BuilderTypeId, targetUrl: string, phone: string, message: string) {
-  if (typeId !== "whatsapp") {
-    return targetUrl.length > 0 ? normalizeAbsoluteHttpUrl(targetUrl) : null;
-  }
-
   if (targetUrl.length > 0) {
     return normalizeAbsoluteHttpUrl(targetUrl);
   }
 
-  const normalizedPhone = phone.replace(/[^\d+]/g, "");
+  if (typeId !== "whatsapp") {
+    return null;
+  }
+
+  const normalizedPhone = normalizePhoneDigits(phone);
 
   if (normalizedPhone.length === 0) {
     return null;
@@ -1227,7 +1172,7 @@ function validateRequest(input: {
   }
 
   if (input.typeId === "whatsapp") {
-    const normalizedPhone = input.phone.replace(/[^\d+]/g, "");
+    const normalizedPhone = normalizePhoneDigits(input.phone);
     return input.targetUrl.length === 0 && normalizedPhone.length === 0
       ? "Provide a WhatsApp URL or a phone number for the fallback link."
       : null;
@@ -1236,13 +1181,12 @@ function validateRequest(input: {
   return input.targetUrl.length === 0 ? "Target URL is required for this content type." : null;
 }
 
+function normalizePhoneDigits(phone: string) {
+  return phone.replace(/[^\d+]/g, "");
+}
+
 function isAbsoluteHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
+  return normalizeAbsoluteHttpUrl(value) !== null;
 }
 
 function normalizeAbsoluteHttpUrl(value: string) {
@@ -1262,8 +1206,16 @@ function selectPreferredArtifact(artifacts: RenderArtifactDescriptor[]) {
   return artifacts.find((artifact) => artifact.format.toLowerCase() === "png") ?? artifacts[0] ?? null;
 }
 
-function selectPreviewArtifact(artifacts: RenderArtifactDescriptor[]) {
-  return selectPreferredArtifact(artifacts);
+function getPreviewImageAlt(hasPreviewArtifact: boolean, hasDraftPreview: boolean) {
+  if (hasPreviewArtifact) {
+    return "Rendered QR artifact preview";
+  }
+
+  if (hasDraftPreview) {
+    return "Draft QR preview";
+  }
+
+  return "Local QR preview";
 }
 
 function getPreviewBadge(
@@ -1302,6 +1254,14 @@ function getPreviewBadge(
   }
 
   return { className: `status-chip status-chip-${status.toLowerCase()}`, label: status };
+}
+
+function getSubmitLabel(isSubmitting: boolean, hasAcceptedJob: boolean) {
+  if (isSubmitting) {
+    return "Generating...";
+  }
+
+  return hasAcceptedJob ? "Generate another QR code" : "Generate QR code";
 }
 
 function getPreviewSourceLabel(hasPreviewArtifact: boolean, hasDraftPreview: boolean, hasLocalPreview: boolean) {
@@ -1596,15 +1556,12 @@ function appendLocalPreviewShape(parts: string[], shape: FinderShape, x: number,
 }
 
 function appendLocalPreviewRect(parts: string[], x: number, y: number, width: number, height: number, fill: string, cornerRadius: number) {
-  if (cornerRadius > 0) {
-    parts.push(
-      `<rect x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(width)}" height="${formatPreviewNumber(height)}" fill="${fill}" rx="${formatPreviewNumber(cornerRadius)}" ry="${formatPreviewNumber(cornerRadius)}"/>`,
-    );
-    return;
-  }
+  const cornerAttributes = cornerRadius > 0
+    ? ` rx="${formatPreviewNumber(cornerRadius)}" ry="${formatPreviewNumber(cornerRadius)}"`
+    : "";
 
   parts.push(
-    `<rect x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(width)}" height="${formatPreviewNumber(height)}" fill="${fill}"/>`,
+    `<rect x="${formatPreviewNumber(x)}" y="${formatPreviewNumber(y)}" width="${formatPreviewNumber(width)}" height="${formatPreviewNumber(height)}" fill="${fill}"${cornerAttributes}/>`,
   );
 }
 
@@ -1699,9 +1656,13 @@ function getPreviewRoundedCornerRadius(size: number) {
 
 function isInPreviewFinderWindow(row: number, column: number, moduleCount: number) {
   const maxOrigin = moduleCount - previewQuietZoneModules - previewFinderSizeModules;
-  return (row >= previewQuietZoneModules && row < previewQuietZoneModules + previewFinderSizeModules && column >= previewQuietZoneModules && column < previewQuietZoneModules + previewFinderSizeModules)
-    || (row >= previewQuietZoneModules && row < previewQuietZoneModules + previewFinderSizeModules && column >= maxOrigin && column < maxOrigin + previewFinderSizeModules)
-    || (row >= maxOrigin && row < maxOrigin + previewFinderSizeModules && column >= previewQuietZoneModules && column < previewQuietZoneModules + previewFinderSizeModules);
+  return (isInPreviewFinderSpan(row, previewQuietZoneModules) && isInPreviewFinderSpan(column, previewQuietZoneModules))
+    || (isInPreviewFinderSpan(row, previewQuietZoneModules) && isInPreviewFinderSpan(column, maxOrigin))
+    || (isInPreviewFinderSpan(row, maxOrigin) && isInPreviewFinderSpan(column, previewQuietZoneModules));
+}
+
+function isInPreviewFinderSpan(index: number, origin: number) {
+  return index >= origin && index < origin + previewFinderSizeModules;
 }
 
 function formatPreviewNumber(value: number) {
@@ -1739,7 +1700,7 @@ async function toUploadedLogo(file: File): Promise<UploadedLogo> {
   if (isSvgFile) {
     const svg = await readFileAsText(file);
     assertValidSvgUpload(svg);
-    const previewUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    const previewUrl = toSvgDataUrl(svg);
     const aspectRatio = await readImageAspectRatio(previewUrl);
 
     return {
@@ -1892,18 +1853,9 @@ function loadImage(source: string, errorMessage = "Unable to load the uploaded i
 }
 
 function readImageAspectRatio(source: string) {
-  return new Promise<number>((resolve) => {
-    void loadImage(source)
-      .then((image) => {
-        if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-          resolve(image.naturalWidth / image.naturalHeight);
-          return;
-        }
-
-        resolve(1);
-      })
-      .catch(() => resolve(1));
-  });
+  return loadImage(source)
+    .then((image) => (image.naturalWidth > 0 && image.naturalHeight > 0 ? image.naturalWidth / image.naturalHeight : 1))
+    .catch(() => 1);
 }
 
 async function readErrorResponse(response: Response, fallbackMessage: string) {

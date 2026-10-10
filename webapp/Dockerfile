@@ -10,6 +10,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY webapp/ ./
 
+# The changelog page is generated at build time from the repository's release notes.
+COPY .commits/ /commits/
+ENV HALFQR_COMMITS_DIR=/commits
+
 ARG NEXT_PUBLIC_HALFQR_API_BASE_URL=https://api.halfqr.com
 ENV NEXT_PUBLIC_HALFQR_API_BASE_URL=$NEXT_PUBLIC_HALFQR_API_BASE_URL
 

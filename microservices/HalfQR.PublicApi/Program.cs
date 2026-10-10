@@ -2,12 +2,16 @@ using HalfQR.Contracts.Enums;
 using HalfQR.Contracts.Options;
 using HalfQR.Contracts.Requests;
 using HalfQR.Contracts.Responses;
+using HalfQR.Contracts.Security;
+using HalfQR.PublicApi.Security;
 using HalfQR.PublicApi.Services;
 using HalfQR.QrEngine.Hashing;
 using HalfQR.QrEngine.PayloadEncoding;
 using HalfQR.QrEngine.Rendering;
 using HalfQR.QrEngine.Storage;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration
@@ -32,13 +36,31 @@ builder.Services.AddCors(options =>
 	{
 		policy
 			.WithOrigins(allowedOrigins)
-			.AllowAnyHeader()
-			.AllowAnyMethod();
+			.WithHeaders("Content-Type", "Authorization", ApiCallerMiddleware.ApiKeyHeader)
+			.WithMethods("GET", "POST");
 	});
 });
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-	options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+	options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
+});
+
+// Largest legitimate body is a 512 KB raster logo as base64 (~700 KB) plus options.
+builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = 1024 * 1024);
+
+builder.Services.Configure<ApiAccessOptions>(builder.Configuration.GetSection("ApiAccess"));
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<CredentialVerifier>((services, client) =>
+{
+	client.BaseAddress = new Uri(services.GetRequiredService<IOptions<ApiAccessOptions>>().Value.IdentityBaseUrl);
+	client.Timeout = TimeSpan.FromSeconds(5);
+});
+builder.Services.AddRateLimiter(options =>
+{
+	options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+	options.AddPolicy("render", context => CreateCallerLimiter(context, static access => access.AnonymousRequestsPerMinute));
+	options.AddPolicy("draft", context => CreateCallerLimiter(context, static access => access.AnonymousDraftRequestsPerMinute));
+	options.AddPolicy("read", context => CreateCallerLimiter(context, static access => access.AnonymousRequestsPerMinute * 4));
 });
 
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMq"));
@@ -73,7 +95,21 @@ builder.Services.AddSingleton<RenderJobService>();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+	context.Response.Headers.XContentTypeOptions = "nosniff";
+	context.Response.Headers["Referrer-Policy"] = "no-referrer";
+
+	if (context.Request.IsHttps)
+	{
+		context.Response.Headers.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
+	}
+
+	await next();
+});
 app.UseCors("HalfQrWebapp");
+app.UseMiddleware<ApiCallerMiddleware>();
+app.UseRateLimiter();
 
 app.MapGet("/", () => Results.Ok(new
 {
@@ -115,10 +151,13 @@ app.MapPost("/api/v1/qr/render/draft", async (
 			["request"] = [exception.Message],
 		});
 	}
-});
+})
+	.RequireApiScope(ApiScopes.QrRender)
+	.RequireRateLimiting("draft");
 
 app.MapPost("/api/v1/qr/render", async (
 	SubmitRenderJobRequest request,
+	HttpContext httpContext,
 	RenderJobService renderJobs,
 	CancellationToken cancellationToken) =>
 {
@@ -129,32 +168,57 @@ app.MapPost("/api/v1/qr/render", async (
 		return Results.ValidationProblem(validationErrors);
 	}
 
-	var response = await renderJobs.EnqueueAsync(request, cancellationToken);
-	var statusUrl = response.StatusUrl;
-	return Results.Accepted(statusUrl, response);
-});
+	var response = await renderJobs.EnqueueAsync(request, httpContext.GetCaller().CredentialId, cancellationToken);
+	return Results.Accepted(response.StatusUrl, response);
+})
+	.RequireApiScope(ApiScopes.QrRender)
+	.RequireRateLimiting("render");
 
 app.MapGet("/api/v1/qr/jobs/{jobId:guid}", async (
 	Guid jobId,
+	HttpContext httpContext,
 	RenderJobService renderJobs,
 	CancellationToken cancellationToken) =>
 {
-	var job = await renderJobs.GetStatusAsync(jobId, cancellationToken);
+	var job = await renderJobs.GetStatusAsync(jobId, httpContext.GetCaller().CredentialId, cancellationToken);
 	return job is null
 		? Results.NotFound()
 		: Results.Ok(job);
-});
+})
+	.RequireApiScope(ApiScopes.QrRead)
+	.RequireRateLimiting("read");
 
 app.MapGet("/api/v1/qr/jobs/{jobId:guid}/artifacts/{format}", async (
 	Guid jobId,
 	string format,
+	HttpContext httpContext,
 	RenderJobService renderJobs,
 	CancellationToken cancellationToken) =>
 {
-	var artifact = await renderJobs.GetArtifactAsync(jobId, format, cancellationToken);
-	return artifact is null
-		? Results.NotFound()
-		: Results.File(artifact.Value.Content, artifact.Value.ContentType, fileDownloadName: $"halfqr-{jobId:N}.{format}");
-});
+	var artifact = await renderJobs.GetArtifactAsync(jobId, format, httpContext.GetCaller().CredentialId, cancellationToken);
+
+	if (artifact is null)
+	{
+		return Results.NotFound();
+	}
+
+	// SVG artifacts are served from the API origin, so block script execution if one is opened directly.
+	httpContext.Response.Headers.ContentSecurityPolicy = "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox";
+	return Results.File(artifact.Value.Content, artifact.Value.ContentType, fileDownloadName: $"halfqr-{jobId:N}.{format}");
+})
+	.RequireApiScope(ApiScopes.QrRead)
+	.RequireRateLimiting("read");
 
 app.Run();
+
+// Keyed callers get their plan's limit per credential; anonymous callers are limited per client address.
+static RateLimitPartition<string> CreateCallerLimiter(HttpContext context, Func<ApiAccessOptions, int> anonymousLimit)
+{
+	var access = context.RequestServices.GetRequiredService<IOptions<ApiAccessOptions>>().Value;
+	var caller = context.GetCaller();
+	var permitLimit = caller.IsAnonymous ? anonymousLimit(access) : caller.RequestsPerMinute ?? access.KeyedRequestsPerMinute;
+
+	return RateLimitPartition.GetFixedWindowLimiter(
+		$"{caller.PartitionKey}:{permitLimit}",
+		_ => new FixedWindowRateLimiterOptions { PermitLimit = permitLimit, Window = TimeSpan.FromMinutes(1) });
+}

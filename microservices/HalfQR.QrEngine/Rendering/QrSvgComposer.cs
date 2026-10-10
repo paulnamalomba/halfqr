@@ -1,16 +1,16 @@
-using System.Globalization;
 using System.Text;
 using HalfQR.Contracts.Enums;
 using HalfQR.Contracts.Models;
 using HalfQR.Contracts.Requests;
 using QRCoder;
+using static HalfQR.QrEngine.Rendering.SvgNumberFormat;
 
 namespace HalfQR.QrEngine.Rendering;
 
 internal static class QrSvgComposer
 {
-    private const int QuietZoneModules = 4;
-    private const int FinderSizeModules = 7;
+    private const int QuietZoneModules = QrFinderSvgComposer.QuietZoneModules;
+    private const int FinderSizeModules = QrFinderSvgComposer.FinderSizeModules;
     private const double DottedRadius = 0.38d;
 
     private sealed record LogoLayout(
@@ -166,21 +166,22 @@ internal static class QrSvgComposer
                 .AppendLine("\" preserveAspectRatio=\"xMidYMid meet\">");
             builder.Append(logo.Content);
             builder.AppendLine("</svg>");
-            builder.AppendLine("</g>");
-            return;
+        }
+        else
+        {
+            builder.Append("<image x=\"")
+                .Append(Format(layout.X))
+                .Append("\" y=\"")
+                .Append(Format(layout.Y))
+                .Append("\" width=\"")
+                .Append(Format(layout.Width))
+                .Append("\" height=\"")
+                .Append(Format(layout.Height))
+                .Append("\" href=\"")
+                .Append(logo.Content)
+                .AppendLine("\" preserveAspectRatio=\"xMidYMid meet\"/>");
         }
 
-        builder.Append("<image x=\"")
-            .Append(Format(layout.X))
-            .Append("\" y=\"")
-            .Append(Format(layout.Y))
-            .Append("\" width=\"")
-            .Append(Format(layout.Width))
-            .Append("\" height=\"")
-            .Append(Format(layout.Height))
-            .Append("\" href=\"")
-            .Append(logo.Content)
-            .AppendLine("\" preserveAspectRatio=\"xMidYMid meet\"/>");
         builder.AppendLine("</g>");
     }
 
@@ -192,10 +193,13 @@ internal static class QrSvgComposer
     private static bool IsInFinderWindow(int row, int column, int moduleCount)
     {
         var maxOrigin = moduleCount - QuietZoneModules - FinderSizeModules;
-        return (row >= QuietZoneModules && row < QuietZoneModules + FinderSizeModules && column >= QuietZoneModules && column < QuietZoneModules + FinderSizeModules)
-            || (row >= QuietZoneModules && row < QuietZoneModules + FinderSizeModules && column >= maxOrigin && column < maxOrigin + FinderSizeModules)
-            || (row >= maxOrigin && row < maxOrigin + FinderSizeModules && column >= QuietZoneModules && column < QuietZoneModules + FinderSizeModules);
+        return (IsInFinderSpan(row, QuietZoneModules) && IsInFinderSpan(column, QuietZoneModules))
+            || (IsInFinderSpan(row, QuietZoneModules) && IsInFinderSpan(column, maxOrigin))
+            || (IsInFinderSpan(row, maxOrigin) && IsInFinderSpan(column, QuietZoneModules));
     }
+
+    private static bool IsInFinderSpan(int index, int origin)
+        => index >= origin && index < origin + FinderSizeModules;
 
     private static (double X1, double Y1, double X2, double Y2) ResolveGradientVector(int moduleCount, int rotation)
     {
@@ -251,7 +255,4 @@ internal static class QrSvgComposer
             && moduleCenterY >= layout.BackdropY
             && moduleCenterY <= layout.BackdropY + layout.BackdropHeight;
     }
-
-    private static string Format(double value)
-        => value.ToString("0.###", CultureInfo.InvariantCulture);
 }

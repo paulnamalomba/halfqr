@@ -12,7 +12,7 @@ public sealed class FileSystemRenderJobStateStore(IOptions<RenderStorageOptions>
     public async Task SaveAsync(RenderJobState state, CancellationToken cancellationToken)
     {
         var jobDirectory = FileSystemRenderStorageLayout.EnsureJobDirectory(_rootPath, state.JobId);
-        var jobFilePath = Path.Combine(jobDirectory, "job.json");
+        var jobFilePath = Path.Combine(jobDirectory, FileSystemRenderStorageLayout.JobFileName);
         var json = JsonSerializer.Serialize(state, RenderJobStateJson.SerializerOptions);
         await File.WriteAllTextAsync(jobFilePath, json, cancellationToken);
     }

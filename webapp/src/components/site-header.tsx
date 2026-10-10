@@ -1,8 +1,7 @@
 "use client";
 
-import { CloseRoundedIcon, MenuRoundedIcon, OpenInNewRounded, QrCodeIcon, SiteTitleIcon } from "@/assets/icons";
+import { CloseRoundedIcon, MenuRoundedIcon, SiteTitleIcon } from "@/assets/icons";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -13,7 +12,11 @@ const navigationItems = [
   { href: "/why-halfqr", label: "Why HalfQR" },
   { href: "/product", label: "Product" },
   { href: "/api-documentation", label: "API docs" },
+  { href: "/changelog", label: "Changelog" },
 ];
+
+// Console routes (auth and dashboard) render their own chrome.
+const consoleRoutes = ["/sign-in", "/sign-up", "/dashboard"];
 
 // Get if current path is the active one
 function isActivePath(pathname: string, href: string) {
@@ -39,6 +42,10 @@ export function SiteHeader() {
     mediaQuery.addEventListener("change", handleViewportChange);
     return () => mediaQuery.removeEventListener("change", handleViewportChange);
   }, []);
+
+  if (consoleRoutes.some((route) => isActivePath(pathname, route))) {
+    return null;
+  }
 
   return (
     <header className="site-header-shell">
@@ -68,13 +75,16 @@ export function SiteHeader() {
             rel="noreferrer"    
           >
             <span>API status</span>
-            <OpenInNewRounded fontSize="inherit" />
           </a> */}
+
+          {/* developer console entry */}
+          <Link className="site-header-link site-header-signin" href="/sign-in">
+            Sign in
+          </Link>
 
           {/* primary call-to-action */}
           <Link className={pathname === "/" ? "site-header-cta site-header-cta-active" : "site-header-cta"} href="/">
-            <QrCodeIcon fontSize="small" />
-            <span>Generate QR</span>
+            Generate QR
           </Link>
 
           {/* mobile menu toggle */}
@@ -108,6 +118,10 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
+
+              <Link href="/sign-in" className="site-mobile-menu-link">
+                Sign in
+              </Link>
             </nav>
           ) : null}
         </div>

@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "format": "prettier --write \"{src,apps,packages,scripts,tests}/**/*.{ts,tsx,js,jsx,mjs,json,css}\"",
+    "format:check": "prettier --check \"{src,apps,packages,scripts,tests}/**/*.{ts,tsx,js,jsx,mjs,json,css}\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -22,7 +24,11 @@
     "@types/react-dom": "19.1.5",
     "lint": "^1.1.2",
     "next": "^16.2.4",
+    "prettier": "^3.9.9",
     "tailwind-merge": "^3.5.0",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true
   }
 }

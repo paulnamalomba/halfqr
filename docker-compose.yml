@@ -11,10 +11,17 @@ services:
       PORT: 3000
       HOSTNAME: 0.0.0.0
       NEXT_PUBLIC_HALFQR_API_BASE_URL: ${NEXT_PUBLIC_HALFQR_API_BASE_URL:-https://api.halfqr.com}
+      HALFQR_API_BASE_URL: http://public-api:8080
+      HALFQR_IDENTITY_BASE_URL: http://identity:8080
+      HALFQR_APP_URL: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-http://localhost:5173}
+      HALFQR_PROXY_SECRET: ${HALFQR_PROXY_SECRET:?Set HALFQR_PROXY_SECRET in .env}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
     ports:
       - "5173:3000"
     depends_on:
       public-api:
+        condition: service_started
+      identity:
         condition: service_started
     restart: unless-stopped
 
@@ -28,7 +35,7 @@ services:
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-halfqr}
-      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:?Set RABBITMQ_DEFAULT_PASS in .env}
       RenderStorage__ArtifactProvider: ${RENDER_ARTIFACT_PROVIDER:-FileSystem}
       RenderStorage__RootPath: /var/lib/halfqr/render-jobs
       R2Storage__BucketName: ${R2_BUCKET:-}
@@ -39,12 +46,65 @@ services:
       R2Storage__KeyPrefix: ${R2_KEY_PREFIX:-render-jobs}
       Cors__AllowedOrigins__0: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-https://www.halfqr.com}
       Cors__AllowedOrigins__1: ${HALFQR_WEBAPP_LOCAL_ORIGIN:-http://localhost:5173}
+      ApiAccess__RequireApiKey: ${HALFQR_REQUIRE_API_KEY:-false}
+      ApiAccess__IdentityBaseUrl: http://identity:8080
+      ApiAccess__InternalApiKey: ${HALFQR_INTERNAL_API_KEY:?Set HALFQR_INTERNAL_API_KEY in .env}
+      ApiAccess__ProxySecret: ${HALFQR_PROXY_SECRET:?Set HALFQR_PROXY_SECRET in .env}
     ports:
       - "8083:8080"
     volumes:
       - render-jobs-data:/var/lib/halfqr/render-jobs
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      identity:
+        condition: service_started
+    restart: unless-stopped
+
+  # Not published to the host: only the webapp and public-api call Identity.
+  identity:
+    build:
+      context: .
+      dockerfile: microservices/HalfQR.Identity/Dockerfile
+    container_name: halfqr-identity
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      Identity__InternalApiKey: ${HALFQR_INTERNAL_API_KEY:?Set HALFQR_INTERNAL_API_KEY in .env}
+      Identity__EnableDevSignIn: "false"
+      Identity__WebappBaseUrl: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-http://localhost:5173}
+      Identity__BillingBaseUrl: http://billing:8080
+      Identity__StoreProvider: PostgreSql
+      Identity__PostgresConnectionString: Host=postgres;Port=5432;Database=${POSTGRES_DB:-halfqr};Username=${POSTGRES_USER:-halfqr};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      GoogleOAuth__ClientId: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GoogleOAuth__ClientSecret: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      GoogleOAuth__AllowedRedirectUris__0: ${HALFQR_WEBAPP_PUBLIC_ORIGIN:-http://localhost:5173}/api/auth/google/callback
+      Resend__ApiKey: ${RESEND_API_KEY:-}
+      Resend__FromAddress: ${RESEND_FROM_ADDRESS:-HalfQR <no-reply@halfqr.com>}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      billing:
+        condition: service_started
+    restart: unless-stopped
+
+  # Only the PayChangu webhook path needs to be reachable publicly; route it through your tunnel or reverse proxy.
+  billing:
+    build:
+      context: .
+      dockerfile: microservices/HalfQR.Billing/Dockerfile
+    container_name: halfqr-billing
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      Billing__InternalApiKey: ${HALFQR_INTERNAL_API_KEY:?Set HALFQR_INTERNAL_API_KEY in .env}
+      Billing__StoreProvider: PostgreSql
+      Billing__PostgresConnectionString: Host=postgres;Port=5432;Database=${POSTGRES_DB:-halfqr};Username=${POSTGRES_USER:-halfqr};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      PayChangu__SecretKey: ${PAYCHANGU_SECRET_KEY:-}
+      PayChangu__WebhookSecret: ${PAYCHANGU_WEBHOOK_SECRET:-}
+      PayChangu__WebhookUrl: ${PAYCHANGU_WEBHOOK_URL:-}
+    ports:
+      - "127.0.0.1:8084:8080"
+    depends_on:
+      postgres:
         condition: service_healthy
     restart: unless-stopped
 
@@ -57,7 +117,7 @@ services:
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__UserName: ${RABBITMQ_DEFAULT_USER:-halfqr}
-      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS:?Set RABBITMQ_DEFAULT_PASS in .env}
       RenderStorage__ArtifactProvider: ${RENDER_ARTIFACT_PROVIDER:-FileSystem}
       RenderStorage__RootPath: /var/lib/halfqr/render-jobs
       R2Storage__BucketName: ${R2_BUCKET:-}
@@ -79,9 +139,9 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-halfqr}
       POSTGRES_USER: ${POSTGRES_USER:-halfqr}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-halfqr_dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
-      - "5436:5432"
+      - "127.0.0.1:5436:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -95,13 +155,15 @@ services:
   redis:
     image: redis:7-alpine
     container_name: halfqr-backend-redis
-    command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}"]
     ports:
-      - "6386:6379"
+      - "127.0.0.1:6386:6379"
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -113,10 +175,10 @@ services:
     container_name: halfqr-backend-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-halfqr}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-halfqr_dev_password}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?Set RABBITMQ_DEFAULT_PASS in .env}
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "127.0.0.1:5673:5672"
+      - "127.0.0.1:15673:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:

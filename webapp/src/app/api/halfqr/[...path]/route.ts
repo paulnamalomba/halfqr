@@ -4,20 +4,15 @@ const upstreamBaseUrl = (process.env.HALFQR_API_BASE_URL ?? process.env.NEXT_PUB
   .trim()
   .replace(/\/$/, "");
 
+const proxySecret = (process.env.HALFQR_PROXY_SECRET ?? "").trim();
 const proxyPrefix = "/api/halfqr";
-const hopByHopHeaders = new Set([
-  "connection",
-  "content-encoding",
-  "content-length",
-  "host",
-  "keep-alive",
-  "proxy-authenticate",
-  "proxy-authorization",
-  "te",
-  "trailer",
-  "transfer-encoding",
-  "upgrade",
-]);
+
+// Largest legitimate body is a 512 KB raster logo as base64 plus options. PublicApi enforces the same cap.
+const maxBodyBytes = 1024 * 1024;
+
+// Only these request headers reach the API. Cookies and credentials from the browser are never forwarded.
+const forwardedRequestHeaders = ["accept", "content-type"];
+const forwardedResponseHeaders = ["content-type", "content-disposition", "cache-control", "location", "retry-after", "content-security-policy"];
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -31,15 +26,37 @@ export async function POST(request: NextRequest) {
 }
 
 async function proxyRequest(request: NextRequest) {
-  const upstreamUrl = new URL(`${upstreamBaseUrl}${request.nextUrl.pathname.slice(proxyPrefix.length)}${request.nextUrl.search}`);
-  const upstreamHeaders = copyHeaders(request.headers);
-  upstreamHeaders.delete("origin");
-  upstreamHeaders.delete("referer");
+  const upstreamPath = request.nextUrl.pathname.slice(proxyPrefix.length);
 
-  const upstreamResponse = await fetch(upstreamUrl, {
+  if (!upstreamPath.startsWith("/api/v1/qr/")) {
+    return Response.json({ title: "Not found." }, { status: 404 });
+  }
+
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+
+  if (declaredLength > maxBodyBytes) {
+    return Response.json({ title: "Request body too large." }, { status: 413 });
+  }
+
+  const body = canIncludeBody(request.method) ? await request.arrayBuffer() : undefined;
+
+  if (body && body.byteLength > maxBodyBytes) {
+    return Response.json({ title: "Request body too large." }, { status: 413 });
+  }
+
+  const upstreamHeaders = pickHeaders(request.headers, forwardedRequestHeaders);
+  const browserAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+
+  // PublicApi only trusts X-Forwarded-For for rate limiting when the shared proxy secret is present.
+  if (proxySecret && browserAddress) {
+    upstreamHeaders.set("X-Forwarded-For", browserAddress);
+    upstreamHeaders.set("X-HalfQR-Proxy-Secret", proxySecret);
+  }
+
+  const upstreamResponse = await fetch(`${upstreamBaseUrl}${upstreamPath}${request.nextUrl.search}`, {
     method: request.method,
     headers: upstreamHeaders,
-    body: canIncludeBody(request.method) ? await request.arrayBuffer() : undefined,
+    body,
     cache: "no-store",
     redirect: "manual",
   });
@@ -47,7 +64,7 @@ async function proxyRequest(request: NextRequest) {
   return new Response(upstreamResponse.body, {
     status: upstreamResponse.status,
     statusText: upstreamResponse.statusText,
-    headers: copyHeaders(upstreamResponse.headers),
+    headers: pickHeaders(upstreamResponse.headers, forwardedResponseHeaders),
   });
 }
 
@@ -55,14 +72,16 @@ function canIncludeBody(method: string) {
   return method !== "GET" && method !== "HEAD";
 }
 
-function copyHeaders(source: Headers) {
+function pickHeaders(source: Headers, allowed: string[]) {
   const headers = new Headers();
 
-  source.forEach((value, key) => {
-    if (!hopByHopHeaders.has(key.toLowerCase())) {
-      headers.set(key, value);
+  for (const name of allowed) {
+    const value = source.get(name);
+
+    if (value) {
+      headers.set(name, value);
     }
-  });
+  }
 
   return headers;
 }

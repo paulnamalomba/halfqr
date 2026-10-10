@@ -2,6 +2,8 @@ namespace HalfQR.QrEngine.Storage;
 
 internal static class FileSystemRenderStorageLayout
 {
+    public const string JobFileName = "job.json";
+
     public static string EnsureJobDirectory(string rootPath, Guid jobId)
     {
         Directory.CreateDirectory(rootPath);
@@ -19,5 +21,5 @@ internal static class FileSystemRenderStorageLayout
     }
 
     public static string GetJobFilePath(string rootPath, Guid jobId)
-        => Path.Combine(rootPath, jobId.ToString("N"), "job.json");
+        => Path.Combine(rootPath, jobId.ToString("N"), JobFileName);
 }

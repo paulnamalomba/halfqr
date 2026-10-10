@@ -1,0 +1,35 @@
+{
+  "ContentType": "Link",
+  "TargetUrl": "https://example.com/test",
+  "Payload": {},
+  "Mode": "Static",
+  "ErrorCorrectionLevel": "H",
+  "Output": {
+    "Format": "png",
+    "SizePx": 1024
+  },
+  "Logo": {
+    "SourceType": "Svg",
+    "Svg": "\u003Csvg xmlns=\u0022http://www.w3.org/2000/svg\u0022 viewBox=\u00220 0 256 256\u0022 fill=\u0022none\u0022\u003E\n  \u003Cg stroke-linecap=\u0022round\u0022 stroke-linejoin=\u0022round\u0022 stroke-width=\u002222\u0022\u003E\n    \u003Cpath d=\u0022M96 160L68 188c-21 21-21 55 0 76 21 21 55 21 76 0l28-28\u0022 stroke=\u0022#111111\u0022/\u003E\n    \u003Cpath d=\u0022M160 96l28-28c21-21 21-55 0-76-21-21-55-21-76 0L84 20\u0022 stroke=\u0022#ff3b30\u0022 transform=\u0022translate(0 48)\u0022/\u003E\n    \u003Cpath d=\u0022M96 160l64-64\u0022 stroke=\u0022#111111\u0022 stroke-width=\u002218\u0022/\u003E\n  \u003C/g\u003E\n\u003C/svg\u003E",
+    "ContentBase64": null,
+    "ContentType": null,
+    "SizePercent": 12,
+    "RemoveBackground": false,
+    "BackdropPaddingPercent": 40
+  },
+  "Finder": {
+    "BorderShape": "Rounded",
+    "CenterShape": "Circle"
+  },
+  "Colors": {
+    "Dark": "#000000",
+    "Light": "#FFFFFF"
+  },
+  "Data": {
+    "Pattern": "Square",
+    "GradientMode": "Linear",
+    "GradientStart": "#000000",
+    "GradientEnd": "#1F61C0",
+    "GradientRotation": 135
+  }
+}

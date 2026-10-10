@@ -143,7 +143,10 @@ public class Worker(
             {
                 Status = QrJobStatus.Failed,
                 CompletedAt = DateTimeOffset.UtcNow,
-                FailureReason = exception.Message,
+                // Render validation errors are written for users; anything else may contain internal detail.
+                FailureReason = exception is InvalidOperationException
+                    ? exception.Message
+                    : "Rendering failed due to an internal error.",
             };
 
             await renderJobStore.SaveAsync(state, cancellationToken);

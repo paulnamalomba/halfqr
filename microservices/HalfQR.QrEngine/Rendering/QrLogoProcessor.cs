@@ -1,16 +1,21 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using System.Xml.Linq;
 using HalfQR.Contracts.Enums;
 using HalfQR.Contracts.Models;
 using SkiaSharp;
+using static HalfQR.QrEngine.Rendering.SvgNumberFormat;
 
 namespace HalfQR.QrEngine.Rendering;
 
 internal static class QrLogoProcessor
 {
     private const int MaxRasterPixels = 2_000_000;
+    private const long MaxDecodedRasterPixels = 4096L * 4096L;
+    private const int MaxSvgElements = 4_000;
+    private const int MaxSvgUseElements = 64;
 
     private static readonly HashSet<string> AllowedSvgElements = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -57,7 +62,7 @@ internal static class QrLogoProcessor
 
     private static QrPreparedLogo PrepareSvg(QrLogoOptions logoOptions)
     {
-        var document = XDocument.Parse(logoOptions.Svg!, LoadOptions.PreserveWhitespace);
+        var document = ParseSvgDocument(logoOptions.Svg!);
         var root = document.Root ?? throw new InvalidOperationException("SVG logo payload must include a root svg element.");
 
         if (!string.Equals(root.Name.LocalName, "svg", StringComparison.OrdinalIgnoreCase))
@@ -81,6 +86,7 @@ internal static class QrLogoProcessor
     private static QrPreparedLogo PrepareRaster(QrLogoOptions logoOptions)
     {
         var rawBytes = Convert.FromBase64String(logoOptions.ContentBase64!);
+        EnsureDecodableRasterSize(rawBytes);
         using var bitmap = SKBitmap.Decode(rawBytes) ?? throw new InvalidOperationException("Unable to decode the uploaded raster logo.");
 
         if (bitmap.Width <= 0 || bitmap.Height <= 0)
@@ -108,6 +114,44 @@ internal static class QrLogoProcessor
         using var encoded = image.Encode(SKEncodedImageFormat.Png, 100);
         var dataUri = $"data:image/png;base64,{Convert.ToBase64String(encoded.ToArray())}";
         return new QrPreparedLogo(logoOptions.SourceType, dataUri, workingBitmap.Width, workingBitmap.Height, "image/png", null);
+    }
+
+    // Read the header dimensions first so a small compressed file cannot force a multi-gigabyte decode.
+    private static void EnsureDecodableRasterSize(byte[] rawBytes)
+    {
+        using var stream = new MemoryStream(rawBytes, writable: false);
+        using var codec = SKCodec.Create(stream) ?? throw new InvalidOperationException("Unable to decode the uploaded raster logo.");
+
+        if (codec.Info.Width <= 0 || codec.Info.Height <= 0)
+        {
+            throw new InvalidOperationException("Uploaded raster logos must have valid dimensions.");
+        }
+
+        if ((long)codec.Info.Width * codec.Info.Height > MaxDecodedRasterPixels)
+        {
+            throw new InvalidOperationException("Uploaded raster logos must be 4096 x 4096 pixels or smaller.");
+        }
+    }
+
+    private static XDocument ParseSvgDocument(string svg)
+    {
+        var settings = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersFromEntities = 0,
+        };
+
+        try
+        {
+            using var stringReader = new StringReader(svg);
+            using var xmlReader = XmlReader.Create(stringReader, settings);
+            return XDocument.Load(xmlReader, LoadOptions.PreserveWhitespace);
+        }
+        catch (XmlException)
+        {
+            throw new InvalidOperationException("SVG logo payload must be well-formed XML without a DTD.");
+        }
     }
 
     private static (int Width, int Height) ResolveRasterDimensions(int width, int height)
@@ -145,7 +189,16 @@ internal static class QrLogoProcessor
 
     private static void ValidateSvgTree(XElement root)
     {
-        foreach (var element in root.DescendantsAndSelf())
+        var elements = root.DescendantsAndSelf().ToArray();
+
+        if (elements.Length > MaxSvgElements)
+        {
+            throw new InvalidOperationException($"Uploaded SVG logos must contain {MaxSvgElements} elements or fewer.");
+        }
+
+        ValidateUseReferences(elements);
+
+        foreach (var element in elements)
         {
             if (!AllowedSvgElements.Contains(element.Name.LocalName))
             {
@@ -181,8 +234,8 @@ internal static class QrLogoProcessor
                     }
                 }
 
-                if (string.Equals(attributeName, "style", StringComparison.OrdinalIgnoreCase)
-                    && ContainsUnsafeCssUrl(value))
+                // Presentation attributes such as fill, stroke, mask and filter accept url() too, so every value is checked.
+                if (ContainsUnsafeCssUrl(value))
                 {
                     throw new InvalidOperationException("Uploaded SVG logos cannot use external url() style references.");
                 }
@@ -191,6 +244,50 @@ internal static class QrLogoProcessor
             if (string.Equals(element.Name.LocalName, "style", StringComparison.OrdinalIgnoreCase))
             {
                 ValidateSvgStylesheet(element.Value);
+            }
+        }
+    }
+
+    // A <use> may only point at plain shapes. Blocking references to other <use> elements stops nested amplification in the rasterizer.
+    private static void ValidateUseReferences(XElement[] elements)
+    {
+        var useElements = elements
+            .Where(static element => string.Equals(element.Name.LocalName, "use", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        if (useElements.Length == 0)
+        {
+            return;
+        }
+
+        if (useElements.Length > MaxSvgUseElements)
+        {
+            throw new InvalidOperationException($"Uploaded SVG logos must contain {MaxSvgUseElements} <use> elements or fewer.");
+        }
+
+        var elementsById = new Dictionary<string, XElement>(StringComparer.Ordinal);
+
+        foreach (var element in elements)
+        {
+            if (element.Attribute("id")?.Value is { Length: > 0 } id)
+            {
+                elementsById.TryAdd(id, element);
+            }
+        }
+
+        foreach (var useElement in useElements)
+        {
+            var reference = useElement.Attributes()
+                .FirstOrDefault(static attribute => attribute.Name.LocalName == "href")?.Value;
+
+            if (reference is null || !reference.StartsWith('#') || !elementsById.TryGetValue(reference[1..], out var target))
+            {
+                continue;
+            }
+
+            if (target.DescendantsAndSelf().Any(static element => string.Equals(element.Name.LocalName, "use", StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidOperationException("Uploaded SVG logos cannot reference elements that contain other <use> elements.");
             }
         }
     }
@@ -420,12 +517,6 @@ internal static class QrLogoProcessor
         var min = Math.Min(color.Red, Math.Min(color.Green, color.Blue));
         return max - min;
     }
-
-    private static double GetLuminance(SKColor color)
-        => (0.2126d * color.Red) + (0.7152d * color.Green) + (0.0722d * color.Blue);
-
-    private static string Format(double value)
-        => value.ToString("0.###", CultureInfo.InvariantCulture);
 }
 
 internal sealed record QrPreparedLogo(

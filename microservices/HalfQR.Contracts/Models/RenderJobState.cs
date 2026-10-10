@@ -9,6 +9,9 @@ public sealed record RenderJobState
 
     public SubmitRenderJobRequest Request { get; init; } = new();
 
+    // Credential that created the job. Null for anonymous jobs. Status and artifacts are only served to the same credential.
+    public Guid? OwnerCredentialId { get; init; }
+
     public QrJobStatus Status { get; init; } = QrJobStatus.Queued;
 
     public string? EncodedPayload { get; init; }
